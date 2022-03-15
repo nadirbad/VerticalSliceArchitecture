@@ -1,7 +1,7 @@
 ﻿using VerticalSliceArchitecture.Application.Common.Exceptions;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
-using VerticalSliceArchitecture.Domain.Entities;
 using MediatR;
+using VerticalSliceArchitecture.Application.Entities;
 
 namespace VerticalSliceArchitecture.Application.TodoItems.Commands.UpdateTodoItem;
 

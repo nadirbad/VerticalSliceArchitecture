@@ -22,7 +22,7 @@ public class UnhandledExceptionBehaviour<TRequest, TResponse> : IPipelineBehavio
         {
             var requestName = typeof(TRequest).Name;
 
-            _logger.LogError(ex, "VerticalSliceArchitecture Request: Unhandled Exception for Request {Name} {@Request}", requestName, request);
+            _logger.LogError(ex, "VerticalSlice Request: Unhandled Exception for Request {Name} {@Request}", requestName, request);
 
             throw;
         }

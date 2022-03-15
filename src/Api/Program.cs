@@ -1,9 +1,7 @@
-using VerticalSliceArchitecture.Infrastructure.Identity;
-using VerticalSliceArchitecture.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
-namespace VerticalSliceArchitecture.WebUI;
+namespace Api;
 
 public class Program
 {
@@ -24,10 +22,6 @@ public class Program
                     context.Database.Migrate();
                 }
 
-                var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-                var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-
-                await ApplicationDbContextSeed.SeedDefaultUserAsync(userManager, roleManager);
                 await ApplicationDbContextSeed.SeedSampleDataAsync(context);
             }
             catch (Exception ex)

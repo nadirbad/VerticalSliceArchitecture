@@ -1,5 +1,5 @@
-﻿using VerticalSliceArchitecture.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using VerticalSliceArchitecture.Application.Entities;
 
 namespace VerticalSliceArchitecture.Application.Common.Interfaces;
 

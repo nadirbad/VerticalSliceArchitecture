@@ -1,8 +1,8 @@
-﻿using VerticalSliceArchitecture.Application.TodoLists.Queries.GetTodos;
-using VerticalSliceArchitecture.Domain.Entities;
-using VerticalSliceArchitecture.Domain.ValueObjects;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
+using VerticalSliceArchitecture.Application.Entities;
+using VerticalSliceArchitecture.Application.Features.TodoLists;
+using VerticalSliceArchitecture.Application.ValueObjects;
 
 namespace VerticalSliceArchitecture.Application.IntegrationTests.TodoLists.Queries;
 

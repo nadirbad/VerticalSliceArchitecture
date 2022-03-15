@@ -1,7 +1,7 @@
-﻿using VerticalSliceArchitecture.Domain.Exceptions;
-using VerticalSliceArchitecture.Domain.ValueObjects;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
+using VerticalSliceArchitecture.Application.Common.Exceptions;
+using VerticalSliceArchitecture.Application.ValueObjects;
 
 namespace VerticalSliceArchitecture.Domain.UnitTests.ValueObjects;
 

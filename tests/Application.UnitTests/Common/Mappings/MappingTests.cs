@@ -1,9 +1,9 @@
 ﻿using System.Runtime.Serialization;
 using AutoMapper;
 using VerticalSliceArchitecture.Application.Common.Mappings;
-using VerticalSliceArchitecture.Application.TodoLists.Queries.GetTodos;
-using VerticalSliceArchitecture.Domain.Entities;
 using NUnit.Framework;
+using VerticalSliceArchitecture.Application.Entities;
+using VerticalSliceArchitecture.Application.Features.TodoLists;
 
 namespace VerticalSliceArchitecture.Application.UnitTests.Common.Mappings;
 

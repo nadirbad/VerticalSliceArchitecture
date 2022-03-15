@@ -1,7 +1,5 @@
-﻿using VerticalSliceArchitecture.Application.Common.Interfaces;
-using VerticalSliceArchitecture.Infrastructure.Identity;
-using VerticalSliceArchitecture.Infrastructure.Persistence;
-using VerticalSliceArchitecture.WebUI;
+﻿using Api;
+using VerticalSliceArchitecture.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -11,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
 using Respawn;
+using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 namespace VerticalSliceArchitecture.Application.IntegrationTests;
 

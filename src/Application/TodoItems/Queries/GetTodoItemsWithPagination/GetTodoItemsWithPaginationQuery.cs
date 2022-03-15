@@ -25,9 +25,9 @@ public class GetTodoItemsWithPaginationQueryHandler : IRequestHandler<GetTodoIte
         _mapper = mapper;
     }
 
-    public async Task<PaginatedList<TodoItemBriefDto>> Handle(GetTodoItemsWithPaginationQuery request, CancellationToken cancellationToken)
+    public Task<PaginatedList<TodoItemBriefDto>> Handle(GetTodoItemsWithPaginationQuery request, CancellationToken cancellationToken)
     {
-        return await _context.TodoItems
+        return _context.TodoItems
             .Where(x => x.ListId == request.ListId)
             .OrderBy(x => x.Title)
             .ProjectTo<TodoItemBriefDto>(_mapper.ConfigurationProvider)

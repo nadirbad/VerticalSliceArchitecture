@@ -2,11 +2,10 @@
 using VerticalSliceArchitecture.Application.TodoItems.Commands.CreateTodoItem;
 using VerticalSliceArchitecture.Application.TodoItems.Commands.UpdateTodoItem;
 using VerticalSliceArchitecture.Application.TodoItems.Commands.UpdateTodoItemDetail;
-using VerticalSliceArchitecture.Application.TodoLists.Commands.CreateTodoList;
-using VerticalSliceArchitecture.Domain.Entities;
-using VerticalSliceArchitecture.Domain.Enums;
 using FluentAssertions;
 using NUnit.Framework;
+using VerticalSliceArchitecture.Application.Entities;
+using VerticalSliceArchitecture.Application.Features.TodoLists;
 
 namespace VerticalSliceArchitecture.Application.IntegrationTests.TodoItems.Commands;
 

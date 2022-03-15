@@ -1,5 +1,4 @@
-﻿using VerticalSliceArchitecture.Domain.Common;
-using MediatR;
+﻿using MediatR;
 
 namespace VerticalSliceArchitecture.Application.Common.Models;
 

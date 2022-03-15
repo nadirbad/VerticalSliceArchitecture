@@ -1,5 +1,5 @@
 ﻿using VerticalSliceArchitecture.Application.Common.Mappings;
-using VerticalSliceArchitecture.Domain.Entities;
+using VerticalSliceArchitecture.Application.Entities;
 
 namespace VerticalSliceArchitecture.Application.TodoItems.Queries.GetTodoItemsWithPagination;
 

@@ -1,7 +1,7 @@
 ﻿using VerticalSliceArchitecture.Application.Common.Interfaces;
-using VerticalSliceArchitecture.Domain.Entities;
-using VerticalSliceArchitecture.Domain.Events;
 using MediatR;
+using VerticalSliceArchitecture.Application.Entities;
+using VerticalSliceArchitecture.Application.Features.TodoItems;
 
 namespace VerticalSliceArchitecture.Application.TodoItems.Commands.CreateTodoItem;
 

@@ -1,9 +1,8 @@
 ﻿using VerticalSliceArchitecture.Application.Common.Exceptions;
-using VerticalSliceArchitecture.Application.TodoLists.Commands.CreateTodoList;
-using VerticalSliceArchitecture.Application.TodoLists.Commands.UpdateTodoList;
-using VerticalSliceArchitecture.Domain.Entities;
 using FluentAssertions;
 using NUnit.Framework;
+using VerticalSliceArchitecture.Application.Entities;
+using VerticalSliceArchitecture.Application.Features.TodoLists;
 
 namespace VerticalSliceArchitecture.Application.IntegrationTests.TodoLists.Commands;
 

@@ -1,6 +1,4 @@
-﻿using VerticalSliceArchitecture.Domain.Common;
-
-namespace VerticalSliceArchitecture.Application.Common.Interfaces;
+﻿namespace VerticalSliceArchitecture.Application.Common.Interfaces;
 
 public interface IDomainEventService
 {
