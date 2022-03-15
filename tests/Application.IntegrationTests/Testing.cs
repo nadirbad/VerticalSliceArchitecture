@@ -38,7 +38,7 @@ public class Testing
 
         services.AddSingleton(Mock.Of<IWebHostEnvironment>(w =>
             w.EnvironmentName == "Development" &&
-            w.ApplicationName == "VerticalSliceArchitecture.WebUI"));
+            w.ApplicationName == "VerticalSliceArchitecture.Api"));
 
         services.AddLogging();
 
