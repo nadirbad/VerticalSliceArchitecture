@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
-using VerticalSliceArchitecture.Application.Common.Security;
 
 namespace VerticalSliceArchitecture.Application.Features.TodoLists;
 
