@@ -3,8 +3,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VerticalSliceArchitecture.Application.Common;
-using VerticalSliceArchitecture.Application.Common.Interfaces;
 using VerticalSliceArchitecture.Application.Entities;
+using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 namespace VerticalSliceArchitecture.Application.Features.TodoLists;
 
@@ -24,9 +24,9 @@ public class CreateTodoListCommand : IRequest<int>
 
 public class CreateTodoListCommandValidator : AbstractValidator<CreateTodoListCommand>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly ApplicationDbContext _context;
 
-    public CreateTodoListCommandValidator(IApplicationDbContext context)
+    public CreateTodoListCommandValidator(ApplicationDbContext context)
     {
         _context = context;
 
@@ -45,9 +45,9 @@ public class CreateTodoListCommandValidator : AbstractValidator<CreateTodoListCo
 
 internal class CreateTodoListCommandHandler : IRequestHandler<CreateTodoListCommand, int>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly ApplicationDbContext _context;
 
-    public CreateTodoListCommandHandler(IApplicationDbContext context)
+    public CreateTodoListCommandHandler(ApplicationDbContext context)
     {
         _context = context;
     }

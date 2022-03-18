@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Exceptions;
-using VerticalSliceArchitecture.Application.Common.Interfaces;
 using VerticalSliceArchitecture.Application.Entities;
+using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 namespace VerticalSliceArchitecture.Application.Features.TodoLists;
 
@@ -34,9 +34,9 @@ public class UpdateTodoListCommand : IRequest
 
 public class UpdateTodoListCommandValidator : AbstractValidator<UpdateTodoListCommand>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly ApplicationDbContext _context;
 
-    public UpdateTodoListCommandValidator(IApplicationDbContext context)
+    public UpdateTodoListCommandValidator(ApplicationDbContext context)
     {
         _context = context;
 
@@ -56,9 +56,9 @@ public class UpdateTodoListCommandValidator : AbstractValidator<UpdateTodoListCo
 
 internal class UpdateTodoListCommandHandler : IRequestHandler<UpdateTodoListCommand>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly ApplicationDbContext _context;
 
-    public UpdateTodoListCommandHandler(IApplicationDbContext context)
+    public UpdateTodoListCommandHandler(ApplicationDbContext context)
     {
         _context = context;
     }

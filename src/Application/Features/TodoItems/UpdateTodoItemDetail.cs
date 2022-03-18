@@ -4,6 +4,7 @@ using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Exceptions;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
 using VerticalSliceArchitecture.Application.Entities;
+using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 namespace VerticalSliceArchitecture.Application.Features.TodoItems;
 
@@ -36,9 +37,9 @@ public class UpdateTodoItemDetailCommand : IRequest
 
 internal class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItemDetailCommand>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly ApplicationDbContext _context;
 
-    public UpdateTodoItemDetailCommandHandler(IApplicationDbContext context)
+    public UpdateTodoItemDetailCommandHandler(ApplicationDbContext context)
     {
         _context = context;
     }

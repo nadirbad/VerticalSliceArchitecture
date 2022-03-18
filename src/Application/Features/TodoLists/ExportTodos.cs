@@ -7,6 +7,7 @@ using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
 using VerticalSliceArchitecture.Application.Common.Mappings;
 using VerticalSliceArchitecture.Application.Entities;
+using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 namespace VerticalSliceArchitecture.Application.Features.TodoLists;
 
@@ -44,11 +45,11 @@ public class ExportTodosVm
 
 internal class ExportTodosQueryHandler : IRequestHandler<ExportTodosQuery, ExportTodosVm>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly ICsvFileBuilder _fileBuilder;
 
-    public ExportTodosQueryHandler(IApplicationDbContext context, IMapper mapper, ICsvFileBuilder fileBuilder)
+    public ExportTodosQueryHandler(ApplicationDbContext context, IMapper mapper, ICsvFileBuilder fileBuilder)
     {
         _context = context;
         _mapper = mapper;

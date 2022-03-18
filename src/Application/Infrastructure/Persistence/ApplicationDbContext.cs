@@ -7,7 +7,7 @@ using VerticalSliceArchitecture.Application.Entities;
 
 namespace VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
-public class ApplicationDbContext : DbContext, IApplicationDbContext
+public class ApplicationDbContext : DbContext
 {
     private readonly ICurrentUserService _currentUserService;
     private readonly IDateTime _dateTime;

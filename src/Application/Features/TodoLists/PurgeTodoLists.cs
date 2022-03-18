@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using VerticalSliceArchitecture.Application.Common.Interfaces;
+using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 namespace VerticalSliceArchitecture.Application.Features.TodoLists;
 
@@ -9,9 +9,9 @@ public class PurgeTodoLists : IRequest
 
 internal class PurgeTodoListsCommandHandler : IRequestHandler<PurgeTodoLists>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly ApplicationDbContext _context;
 
-    public PurgeTodoListsCommandHandler(IApplicationDbContext context)
+    public PurgeTodoListsCommandHandler(ApplicationDbContext context)
     {
         _context = context;
     }
