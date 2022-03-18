@@ -5,6 +5,8 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <AssemblyName>VerticalSliceArchitecture.Api</AssemblyName>
+        <RootNamespace>VerticalSliceArchitecture.Api</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,5 +18,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Application\Application.csproj" />
     </ItemGroup>
+
+    <Import Project="..\..\common.props" />
 
 </Project>

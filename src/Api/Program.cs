@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
-namespace Api;
+namespace VerticalSliceArchitecture.Api;
 
 public class Program
 {

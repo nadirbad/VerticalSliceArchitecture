@@ -3,7 +3,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using VerticalSliceArchitecture.Application;
 
-namespace Api;
+namespace VerticalSliceArchitecture.Api;
 
 public class Startup
 {
