@@ -51,7 +51,7 @@ TODO
 
 ### Database Configuration
 
-The template is configured to use an in-memory database by default. This ensures that all users will be able to run the solution without needing to set up additional infrastructure (e.g. SQL Server).
+The project is configured to use an in-memory database by default. So you can run the project without additional infrastructure (SQL Server)
 
 If you would like to use SQL Server, you will need to update **Api/appsettings.json** as follows:
 
@@ -69,11 +69,19 @@ To use `dotnet-ef` for your migrations please add the following flags to your co
 
 - `--project src/Application` (optional if in this folder)
 - `--startup-project src/Api`
-- `--output-dir Persistence/Migrations`
+- `--output-dir Infrastructure/Persistence/Migrations`
 
 For example, to add a new migration from the root folder:
 
- `dotnet ef migrations add "SampleMigration" --project src\Application --startup-project src\Api --output-dir Infrastructure\Persistence\Migrations`
+ ```shell
+dotnet ef migrations add "InitialMigration" --project src/Application --startup-project src/Api --output-dir Infrastructure/Persistence/Migrations
+```
+
+and apply migration and update the database:
+
+```shell
+dotnet ef database update --project src/Application --startup-project src/Api   
+```
 
 ## Inspired by
 
