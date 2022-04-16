@@ -3,7 +3,7 @@ using NUnit.Framework;
 using VerticalSliceArchitecture.Application.Common.Exceptions;
 using VerticalSliceArchitecture.Application.ValueObjects;
 
-namespace VerticalSliceArchitecture.Domain.UnitTests.ValueObjects;
+namespace VerticalSliceArchitecture.Application.UnitTests.ValueObjects;
 
 public class ColourTests
 {

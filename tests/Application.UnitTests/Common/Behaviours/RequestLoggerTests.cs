@@ -1,9 +1,9 @@
 ﻿using VerticalSliceArchitecture.Application.Common.Behaviours;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
-using VerticalSliceArchitecture.Application.TodoItems.Commands.CreateTodoItem;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using VerticalSliceArchitecture.Application.Features.TodoItems;
 
 namespace VerticalSliceArchitecture.Application.UnitTests.Common.Behaviours;
 
