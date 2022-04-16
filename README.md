@@ -63,6 +63,30 @@ Verify that the **DefaultConnection** connection string within **appsettings.jso
 
 When you run the application the database will be automatically created (if necessary) and the latest migrations will be applied.
 
+The solution I work with is running Azure SQL Edge in Docker as a database for local development and testing. In the following section, I'll describe the steps needed to setup SQL Edge:
+
+#### Use Azure SQL Edge
+
+Docker is a great way to play with SQL Server without the administrative overhead of managing an instance.
+
+Azure SQL Edge is a way to test and develop using SQL Server locally, and have a consistent experience between machines, whether they're PCs running Windows, Intel-based Macs, or the new Apple silicon M1 (there are no Docker images for SQL Server that support ARM64 just yet).
+
+We'll need Docker first to get started – easiest is to install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+
+With Docker up and running, next we need to pull the most recent Azure SQL Edge container image:
+
+```bash
+sudo docker pull mcr.microsoft.com/azure-sql-edge:latest
+```
+
+We can create adn start the appropriate container with the following command:
+
+```bash
+sudo docker run --cap-add SYS_PTRACE -e 'ACCEPT_EULA=1' -e 'MSSQL_SA_PASSWORD=yourStrong(!)Password' -p 1433:1433 --name azuresqledge -d mcr.microsoft.com/azure-sql-edge
+```
+
+For me this was the way to run Azure SQL Edge as flavor of SQL Server in Docker, able to develop and test locally.
+
 #### Database Migrations
 
 To use `dotnet-ef` for your migrations please add the following flags to your command (values assume you are executing from repository root)
