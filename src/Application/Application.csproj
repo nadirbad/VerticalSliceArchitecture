@@ -18,9 +18,9 @@
         <PackageReference Include="FluentValidation" Version="10.3.6" />
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="10.3.4" />
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.2" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.2" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.3" />
     </ItemGroup>
 
     <Import Project="..\..\common.props" />
