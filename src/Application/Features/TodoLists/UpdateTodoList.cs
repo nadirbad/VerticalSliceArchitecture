@@ -11,7 +11,7 @@ namespace VerticalSliceArchitecture.Application.Features.TodoLists;
 
 public class UpdateTodoListController : ApiControllerBase
 {
-    [HttpPut("{id}")]
+    [HttpPut("/api/todo-lists/{id}")]
     public async Task<ActionResult> Update(int id, UpdateTodoListCommand command)
     {
         if (id != command.Id)

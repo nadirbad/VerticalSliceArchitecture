@@ -9,7 +9,7 @@ namespace VerticalSliceArchitecture.Application.Features.TodoItems;
 
 public class CreateTodoItemController : ApiControllerBase
 {
-    [HttpPost("/todoItems")]
+    [HttpPost("/api/todo-items")]
     public async Task<ActionResult<int>> Create(CreateTodoItemCommand command)
     {
         return await Mediator.Send(command);

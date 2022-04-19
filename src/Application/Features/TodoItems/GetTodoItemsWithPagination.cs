@@ -4,7 +4,6 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using VerticalSliceArchitecture.Application.Common;
-using VerticalSliceArchitecture.Application.Common.Interfaces;
 using VerticalSliceArchitecture.Application.Common.Mappings;
 using VerticalSliceArchitecture.Application.Common.Models;
 using VerticalSliceArchitecture.Application.Entities;
@@ -14,7 +13,7 @@ namespace VerticalSliceArchitecture.Application.Features.TodoItems;
 
 public class GetTodoItemsWithPaginationController : ApiControllerBase
 {
-    [HttpGet("/todoItems")]
+    [HttpGet("/api/todo-items")]
     public Task<PaginatedList<TodoItemBriefDto>> GetTodoItemsWithPagination([FromQuery] GetTodoItemsWithPaginationQuery query)
     {
         return Mediator.Send(query);

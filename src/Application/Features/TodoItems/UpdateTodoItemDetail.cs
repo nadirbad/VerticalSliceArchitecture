@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Exceptions;
-using VerticalSliceArchitecture.Application.Common.Interfaces;
 using VerticalSliceArchitecture.Application.Entities;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
@@ -10,7 +9,7 @@ namespace VerticalSliceArchitecture.Application.Features.TodoItems;
 
 public class UpdateTodoItemDetailController : ApiControllerBase
 {
-    [HttpPut("/todoItems/[action]")]
+    [HttpPut("/api/todo-items/[action]")]
     public async Task<ActionResult> UpdateItemDetails(int id, UpdateTodoItemDetailCommand command)
     {
         if (id != command.Id)

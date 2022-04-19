@@ -10,7 +10,7 @@ namespace VerticalSliceArchitecture.Application.Features.TodoLists;
 
 public class DeleteTodoListController : ApiControllerBase
 {
-    [HttpDelete("{id}")]
+    [HttpDelete("/api/todo-lists/{id}")]
     public async Task<ActionResult> Delete(int id)
     {
         await Mediator.Send(new DeleteTodoListCommand { Id = id });

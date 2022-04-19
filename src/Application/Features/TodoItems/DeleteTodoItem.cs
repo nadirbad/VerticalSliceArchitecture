@@ -9,7 +9,7 @@ namespace VerticalSliceArchitecture.Application.Features.TodoItems;
 
 public class DeleteTodoItemController : ApiControllerBase
 {
-    [HttpDelete("/todoItems/{id}")]
+    [HttpDelete("/api/todo-items/{id}")]
     public async Task<ActionResult> Delete(int id)
     {
         await Mediator.Send(new DeleteTodoItemCommand {Id = id});

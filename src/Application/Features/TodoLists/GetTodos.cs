@@ -12,7 +12,7 @@ namespace VerticalSliceArchitecture.Application.Features.TodoLists;
 
 public class GetTodosController : ApiControllerBase
 {
-    [HttpGet]
+    [HttpGet("/api/todo-lists")]
     public async Task<ActionResult<TodosVm>> Get()
     {
         return await Mediator.Send(new GetTodosQuery());

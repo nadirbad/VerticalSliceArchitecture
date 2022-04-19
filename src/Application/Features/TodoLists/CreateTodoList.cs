@@ -10,7 +10,7 @@ namespace VerticalSliceArchitecture.Application.Features.TodoLists;
 
 public class CreateTodoListController : ApiControllerBase
 {
-    [HttpPost]
+    [HttpPost("/api/todo-lists")]
     public async Task<ActionResult<int>> Create(CreateTodoListCommand command)
     {
         return await Mediator.Send(command);

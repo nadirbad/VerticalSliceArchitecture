@@ -13,7 +13,7 @@ namespace VerticalSliceArchitecture.Application.Features.TodoLists;
 
 public class ExportTodosController : ApiControllerBase
 {
-    [HttpGet("{id}")]
+    [HttpGet("/api/todo-lists/{id}")]
     public async Task<FileResult> Get(int id)
     {
         var vm = await Mediator.Send(new ExportTodosQuery { ListId = id });
