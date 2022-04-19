@@ -1,14 +1,13 @@
-﻿using Api;
-using VerticalSliceArchitecture.Application.Common.Interfaces;
+﻿using VerticalSliceArchitecture.Application.Common.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
 using Respawn;
+using VerticalSliceArchitecture.Api;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 namespace VerticalSliceArchitecture.Application.IntegrationTests;
@@ -59,10 +58,7 @@ public class Testing
 
         _scopeFactory = services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
 
-        _checkpoint = new Checkpoint
-        {
-            TablesToIgnore = new[] { "__EFMigrationsHistory" }
-        };
+        _checkpoint = new Checkpoint {TablesToIgnore = new[] {"__EFMigrationsHistory"}};
 
         EnsureDatabase();
     }
@@ -87,46 +83,15 @@ public class Testing
 
     public static async Task<string> RunAsDefaultUserAsync()
     {
-        return await RunAsUserAsync("test@local", "Testing1234!", Array.Empty<string>());
+        return await RunAsUserAsync("test@local", "Testing1234!");
     }
 
-    public static async Task<string> RunAsAdministratorAsync()
+
+    public static async Task<string> RunAsUserAsync(string userName, string password)
     {
-        return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { "Administrator" });
-    }
+        _currentUserId = userName;
 
-    public static async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
-    {
-        using var scope = _scopeFactory.CreateScope();
-
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
-        var user = new ApplicationUser { UserName = userName, Email = userName };
-
-        var result = await userManager.CreateAsync(user, password);
-
-        if (roles.Any())
-        {
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-            foreach (var role in roles)
-            {
-                await roleManager.CreateAsync(new IdentityRole(role));
-            }
-
-            await userManager.AddToRolesAsync(user, roles);
-        }
-
-        if (result.Succeeded)
-        {
-            _currentUserId = user.Id;
-
-            return _currentUserId;
-        }
-
-        var errors = string.Join(Environment.NewLine, result.ToApplicationResult().Errors);
-
-        throw new Exception($"Unable to create {userName}.{Environment.NewLine}{errors}");
+        return _currentUserId;
     }
 
     public static async Task ResetState()

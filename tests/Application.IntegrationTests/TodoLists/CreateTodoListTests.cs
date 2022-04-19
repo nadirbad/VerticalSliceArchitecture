@@ -1,10 +1,10 @@
-﻿using VerticalSliceArchitecture.Application.Common.Exceptions;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
+using VerticalSliceArchitecture.Application.Common.Exceptions;
 using VerticalSliceArchitecture.Application.Entities;
 using VerticalSliceArchitecture.Application.Features.TodoLists;
 
-namespace VerticalSliceArchitecture.Application.IntegrationTests.TodoLists.Commands;
+namespace VerticalSliceArchitecture.Application.IntegrationTests.TodoLists;
 
 using static Testing;
 

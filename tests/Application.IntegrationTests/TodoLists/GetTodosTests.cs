@@ -4,7 +4,7 @@ using VerticalSliceArchitecture.Application.Entities;
 using VerticalSliceArchitecture.Application.Features.TodoLists;
 using VerticalSliceArchitecture.Application.ValueObjects;
 
-namespace VerticalSliceArchitecture.Application.IntegrationTests.TodoLists.Queries;
+namespace VerticalSliceArchitecture.Application.IntegrationTests.TodoLists;
 
 using static Testing;
 
