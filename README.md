@@ -18,11 +18,13 @@ This project repository is created based on [Clean Architecture solution templat
 - [Entity Framework Core 6](https://docs.microsoft.com/en-us/ef/core/)
 - [NUnit](https://nunit.org/), [FluentAssertions](https://fluentassertions.com/), [Moq](https://github.com/moq)
 
+Afterwards, the projects and architecture is refactored towards the Vertical slice architecture style.
+
 ## Purpose of this repository
 
-Most applications start simple but they tend to change and evolve over time. Because of this, I wanted to create a simpler solution template that uses CQRS, and refactor architecture towards vertical slice architecture style.
+Most applications start simple but they tend to change and evolve over time. Because of this, I wanted to create a simpler API solution template that focuses on the vertical slices architecture style.
 
-Typically if I need to change a feature in an application, I end up touching different layers of the application and navigating through piles of projects, folders and files. For example for a simple change in given feature you could be editing more than 5 files: `TodoItem`, `TodoItemsRepository`, `TodoItemsService`, `TodoItemsViewModel`, `TodoItemsController` ...
+Typically if I need to change a feature in an application, I end up touching different layers of the application and navigating through piles of projects, folders and files.
 
 Goal is to stop thinking about horizontal layers and start thinking about vertical slices and organize code by **Features**. When the code is organized by feature you get the benefits of not having to jump around projects, folders and files. Things related to given features are placed close together.
 
@@ -45,9 +47,26 @@ This projects contains contains all applications logic and shared concerns like 
 1. Install the latest [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0)
 2. Navigate to `src/Api` and run `dotnet run` to launch the back end (ASP.NET Core Web API) or via `dotnet run --project src/Api/Api.csproj`
 
-### Docker configuration
+### Build, test and publish application
 
-TODO
+CLI commands executed from the root folder.
+
+```bash
+# build
+dotnet build
+
+# run
+dotnet run --project src/Api/Api.csproj
+
+# run unit tests
+dotnet test tests/Application.UnitTests/Application.UnitTests.csproj 
+
+# run integrations tests (required database up and running)
+dotnet test tests/Application.IntegrationTests/Application.IntegrationTests.csproj 
+
+# publish
+dotnet publish src/Api/Api.csproj --configuration Release 
+```
 
 ### Database Configuration
 
@@ -79,13 +98,13 @@ With Docker up and running, next we need to pull the most recent Azure SQL Edge 
 sudo docker pull mcr.microsoft.com/azure-sql-edge:latest
 ```
 
-We can create adn start the appropriate container with the following command:
+We can create and start the appropriate container with the following command:
 
 ```bash
 sudo docker run --cap-add SYS_PTRACE -e 'ACCEPT_EULA=1' -e 'MSSQL_SA_PASSWORD=yourStrong(!)Password' -p 1433:1433 --name azuresqledge -d mcr.microsoft.com/azure-sql-edge
 ```
 
-For me this was the way to run Azure SQL Edge as flavor of SQL Server in Docker, able to develop and test locally.
+I decided to use Azure SQL Edge as flavor of SQL Server in Docker, and enable local development and testing no matter which OS you're running.
 
 #### Database Migrations
 
@@ -112,3 +131,7 @@ dotnet ef database update --project src/Application --startup-project src/Api
 - [Clean Architecture solution template by Jason Taylor](https://github.com/jasontaylordev/CleanArchitecture)
 - [Vertical slice architecture by Jimmy Bogard](https://jimmybogard.com/vertical-slice-architecture/)
 - [Organize code by Feature using Vertical Slices by Derek Comartin](https://codeopinion.com/organizing-code-by-feature-using-vertical-slices/)
+
+## License
+
+This project is licensed with the [MIT license](./LICENSE).
