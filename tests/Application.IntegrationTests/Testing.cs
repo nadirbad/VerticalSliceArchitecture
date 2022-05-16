@@ -81,17 +81,11 @@ public class Testing
         return await mediator.Send(request);
     }
 
-    public static async Task<string> RunAsDefaultUserAsync()
+    public static Task<string> RunAsDefaultUserAsync()
     {
-        return await RunAsUserAsync("test@local", "Testing1234!");
-    }
+        _currentUserId = "test@local";
 
-
-    public static async Task<string> RunAsUserAsync(string userName, string password)
-    {
-        _currentUserId = userName;
-
-        return _currentUserId;
+        return Task.FromResult<string>(_currentUserId);
     }
 
     public static async Task ResetState()
