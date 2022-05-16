@@ -7,6 +7,8 @@ Vertical Slice architecture can be a starting point and can be evolved later whe
 
 > We can start simple (Transaction Script) and simply refactor to the patterns that emerges from code smells we see in the business logic. [Vertical slice architecture by Jimmy Bogard](https://jimmybogard.com/vertical-slice-architecture/).
 
+Check out my [blog post](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/) for more details about Vertical Slice Architecture.
+
 ## Technologies and patterns
 
 This project repository is created based on [Clean Architecture solution template by Jason Taylor](https://github.com/jasontaylordev/CleanArchitecture), and it uses technology choices and application business logic from this template.
