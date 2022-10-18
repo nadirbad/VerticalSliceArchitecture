@@ -46,21 +46,25 @@ public class Startup
         }
 
         app.UseHealthChecks("/health");
-        
+
         app.UseHttpsRedirection();
-        
+
         app.UseRouting();
-        
+
         app.UseAuthorization();
-        
+
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllerRoute(
                 name: "default",
                 pattern: "{controller}/{action=Index}/{id?}");
         });
-        
+
         app.UseSwagger();
-        app.UseSwaggerUI();
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+            options.RoutePrefix = string.Empty;
+        });
     }
 }

@@ -70,6 +70,19 @@ dotnet test tests/Application.IntegrationTests/Application.IntegrationTests.cspr
 dotnet publish src/Api/Api.csproj --configuration Release 
 ```
 
+### Test solution locally
+
+To run API locally, for example to debug them, you can use the VS Code (just open and press F5) or other IDE (VisualStudio, Rider).
+By default the project uses in-memory database, but if you would like to change that check the next section about [Database Configuration](#database-configuration)
+
+To run the project from the terminal
+
+```shell
+dotnet run --project src/Api/Api.csproj
+```
+
+and you'll be good to go everything will be up and running. Go the the indicated URL [https://localhost:7098/](https://localhost:7098/) and you'll see the API Swagger UI.
+
 ### Database Configuration
 
 The project is configured to use an in-memory database by default. So you can run the project without additional infrastructure (SQL Server)
