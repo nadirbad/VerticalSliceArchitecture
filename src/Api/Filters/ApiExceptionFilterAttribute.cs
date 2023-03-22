@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+
 using VerticalSliceArchitecture.Application.Common.Exceptions;
 
 namespace Api.Filters;
@@ -48,7 +49,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     private void HandleValidationException(ExceptionContext context)
     {
         ValidationException? exception = context.Exception as ValidationException;
-        
+
         ValidationProblemDetails details = new(exception!.Errors)
         {
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1"
@@ -96,7 +97,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
             Type = "https://tools.ietf.org/html/rfc7235#section-3.1"
         };
 
-        context.Result = new ObjectResult(details) {StatusCode = StatusCodes.Status401Unauthorized};
+        context.Result = new ObjectResult(details) { StatusCode = StatusCodes.Status401Unauthorized };
 
         context.ExceptionHandled = true;
     }
@@ -110,7 +111,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3"
         };
 
-        context.Result = new ObjectResult(details) {StatusCode = StatusCodes.Status403Forbidden};
+        context.Result = new ObjectResult(details) { StatusCode = StatusCodes.Status403Forbidden };
 
         context.ExceptionHandled = true;
     }
@@ -124,7 +125,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
             Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1"
         };
 
-        context.Result = new ObjectResult(details) {StatusCode = StatusCodes.Status500InternalServerError};
+        context.Result = new ObjectResult(details) { StatusCode = StatusCodes.Status500InternalServerError };
 
         context.ExceptionHandled = true;
     }

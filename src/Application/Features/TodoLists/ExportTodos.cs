@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
 using VerticalSliceArchitecture.Application.Common.Mappings;
@@ -43,7 +46,7 @@ public class ExportTodosVm
     public byte[] Content { get; set; }
 }
 
-internal class ExportTodosQueryHandler : IRequestHandler<ExportTodosQuery, ExportTodosVm>
+internal sealed class ExportTodosQueryHandler : IRequestHandler<ExportTodosQuery, ExportTodosVm>
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;

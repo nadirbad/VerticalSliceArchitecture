@@ -22,7 +22,7 @@ public class TodoItem : AuditableEntity, IHasDomainEvent
         get => _done;
         set
         {
-            if (value == true && _done == false)
+            if (value && _done == false)
             {
                 DomainEvents.Add(new TodoItemCompletedEvent(this));
             }
@@ -33,7 +33,7 @@ public class TodoItem : AuditableEntity, IHasDomainEvent
 
     public TodoList List { get; set; } = null!;
 
-    public List<DomainEvent> DomainEvents { get; set; } = new List<DomainEvent>();
+    public List<DomainEvent> DomainEvents { get; } = new List<DomainEvent>();
 }
 
 public class TodoItemCompletedEvent : DomainEvent

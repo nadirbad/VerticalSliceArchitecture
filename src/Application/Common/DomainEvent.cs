@@ -2,7 +2,7 @@
 
 public interface IHasDomainEvent
 {
-    public List<DomainEvent> DomainEvents { get; set; }
+    public List<DomainEvent> DomainEvents { get; }
 }
 
 public abstract class DomainEvent

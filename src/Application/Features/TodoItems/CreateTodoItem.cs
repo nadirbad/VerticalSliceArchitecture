@@ -1,6 +1,9 @@
 ﻿using FluentValidation;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
+
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Entities;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
@@ -33,7 +36,7 @@ public class CreateTodoItemCommandValidator : AbstractValidator<CreateTodoItemCo
     }
 }
 
-internal class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemCommand, int>
+internal sealed class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemCommand, int>
 {
     private readonly ApplicationDbContext _context;
 

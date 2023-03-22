@@ -1,10 +1,14 @@
 ﻿using System.Reflection;
-using VerticalSliceArchitecture.Application.Common.Behaviours;
+
 using FluentValidation;
+
 using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
+using VerticalSliceArchitecture.Application.Common.Behaviours;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
 using VerticalSliceArchitecture.Application.Infrastructure.Files;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
@@ -26,7 +30,7 @@ public static class DependencyInjection
 
         return services;
     }
-    
+
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         if (configuration.GetValue<bool>("UseInMemoryDatabase"))

@@ -1,6 +1,9 @@
 ﻿using FluentValidation;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
+
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Exceptions;
 using VerticalSliceArchitecture.Application.Entities;
@@ -43,7 +46,7 @@ public class UpdateTodoItemCommandValidator : AbstractValidator<UpdateTodoItemCo
     }
 }
 
-internal class UpdateTodoItemCommandHandler : IRequestHandler<UpdateTodoItemCommand>
+internal sealed class UpdateTodoItemCommandHandler : IRequestHandler<UpdateTodoItemCommand>
 {
     private readonly ApplicationDbContext _context;
 
@@ -55,7 +58,7 @@ internal class UpdateTodoItemCommandHandler : IRequestHandler<UpdateTodoItemComm
     public async Task<Unit> Handle(UpdateTodoItemCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.TodoItems
-            .FindAsync(new object[] {request.Id}, cancellationToken);
+            .FindAsync(new object[] { request.Id }, cancellationToken);
 
         if (entity == null)
         {
