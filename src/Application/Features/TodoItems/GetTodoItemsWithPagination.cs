@@ -1,8 +1,12 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+
 using FluentValidation;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
+
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Mappings;
 using VerticalSliceArchitecture.Application.Common.Models;
@@ -42,7 +46,7 @@ public class GetTodoItemsWithPaginationQueryValidator : AbstractValidator<GetTod
     }
 }
 
-internal class GetTodoItemsWithPaginationQueryHandler : IRequestHandler<GetTodoItemsWithPaginationQuery, PaginatedList<TodoItemBriefDto>>
+internal sealed class GetTodoItemsWithPaginationQueryHandler : IRequestHandler<GetTodoItemsWithPaginationQuery, PaginatedList<TodoItemBriefDto>>
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;

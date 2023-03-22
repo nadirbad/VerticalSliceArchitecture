@@ -1,6 +1,8 @@
 ﻿using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Exceptions;
 using VerticalSliceArchitecture.Application.Entities;
@@ -24,7 +26,7 @@ public class DeleteTodoListCommand : IRequest
     public int Id { get; set; }
 }
 
-internal class DeleteTodoListCommandHandler : IRequestHandler<DeleteTodoListCommand>
+internal sealed class DeleteTodoListCommandHandler : IRequestHandler<DeleteTodoListCommand>
 {
     private readonly ApplicationDbContext _context;
 

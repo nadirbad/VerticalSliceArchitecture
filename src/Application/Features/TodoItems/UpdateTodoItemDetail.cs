@@ -1,5 +1,7 @@
 ﻿using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
+
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Exceptions;
 using VerticalSliceArchitecture.Application.Entities;
@@ -34,7 +36,7 @@ public class UpdateTodoItemDetailCommand : IRequest
     public string? Note { get; set; }
 }
 
-internal class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItemDetailCommand>
+internal sealed class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItemDetailCommand>
 {
     private readonly ApplicationDbContext _context;
 
@@ -46,7 +48,7 @@ internal class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoIt
     public async Task<Unit> Handle(UpdateTodoItemDetailCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.TodoItems
-            .FindAsync(new object[] {request.Id}, cancellationToken);
+            .FindAsync(new object[] { request.Id }, cancellationToken);
 
         if (entity == null)
         {

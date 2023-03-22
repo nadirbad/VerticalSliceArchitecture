@@ -1,13 +1,14 @@
 ﻿using System.Reflection;
-using VerticalSliceArchitecture.Application.Common.Exceptions;
+
+using MediatR;
+
 using VerticalSliceArchitecture.Application.Common.Interfaces;
 using VerticalSliceArchitecture.Application.Common.Security;
-using MediatR;
 
 namespace VerticalSliceArchitecture.Application.Common.Behaviours;
 
 public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
+    where TRequest : IRequest<TResponse>
 {
     private readonly ICurrentUserService _currentUserService;
 
@@ -17,8 +18,7 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
         _currentUserService = currentUserService;
     }
 
-    public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken,
-        RequestHandlerDelegate<TResponse> next)
+    public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var authorizeAttributes = request.GetType().GetCustomAttributes<AuthorizeAttribute>();
 

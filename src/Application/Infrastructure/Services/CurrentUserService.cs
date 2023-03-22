@@ -1,5 +1,7 @@
 using System.Security.Claims;
+
 using Microsoft.AspNetCore.Http;
+
 using VerticalSliceArchitecture.Application.Common.Interfaces;
 
 namespace VerticalSliceArchitecture.Application.Infrastructure.Services;

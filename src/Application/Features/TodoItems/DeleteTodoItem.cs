@@ -1,5 +1,7 @@
 ﻿using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
+
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Exceptions;
 using VerticalSliceArchitecture.Application.Entities;
@@ -12,7 +14,7 @@ public class DeleteTodoItemController : ApiControllerBase
     [HttpDelete("/api/todo-items/{id}")]
     public async Task<ActionResult> Delete(int id)
     {
-        await Mediator.Send(new DeleteTodoItemCommand {Id = id});
+        await Mediator.Send(new DeleteTodoItemCommand { Id = id });
 
         return NoContent();
     }
@@ -23,7 +25,7 @@ public class DeleteTodoItemCommand : IRequest
     public int Id { get; set; }
 }
 
-internal class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoItemCommand>
+internal sealed class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoItemCommand>
 {
     private readonly ApplicationDbContext _context;
 
@@ -35,7 +37,7 @@ internal class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoItemComm
     public async Task<Unit> Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.TodoItems
-            .FindAsync(new object[] {request.Id}, cancellationToken);
+            .FindAsync(new object[] { request.Id }, cancellationToken);
 
         if (entity == null)
         {

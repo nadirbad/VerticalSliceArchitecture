@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Mappings;
 using VerticalSliceArchitecture.Application.Entities;
@@ -74,7 +77,7 @@ public class TodoItemDto : IMapFrom<TodoItem>
     }
 }
 
-internal class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, TodosVm>
+internal sealed class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, TodosVm>
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
