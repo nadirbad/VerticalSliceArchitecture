@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using VerticalSliceArchitecture.Application.Entities;
 
 namespace VerticalSliceArchitecture.Application.Infrastructure.Persistence.Configurations;

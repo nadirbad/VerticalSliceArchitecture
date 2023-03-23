@@ -1,5 +1,7 @@
 ﻿using MediatR;
+
 using Microsoft.Extensions.Logging;
+
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
 using VerticalSliceArchitecture.Application.Common.Models;

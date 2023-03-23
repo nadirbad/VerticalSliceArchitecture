@@ -1,14 +1,15 @@
 ﻿using FluentAssertions;
+
 using NUnit.Framework;
+
 using VerticalSliceArchitecture.Application.Common.Exceptions;
 using VerticalSliceArchitecture.Application.Entities;
 using VerticalSliceArchitecture.Application.Features.TodoItems;
 using VerticalSliceArchitecture.Application.Features.TodoLists;
 
+using static VerticalSliceArchitecture.Application.IntegrationTests.Testing;
+
 namespace VerticalSliceArchitecture.Application.IntegrationTests.TodoItems;
-
-using static Testing;
-
 public class CreateTodoItemTests : TestBase
 {
     [Test]

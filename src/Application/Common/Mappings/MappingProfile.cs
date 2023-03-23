@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+
 using AutoMapper;
 
 namespace VerticalSliceArchitecture.Application.Common.Mappings;

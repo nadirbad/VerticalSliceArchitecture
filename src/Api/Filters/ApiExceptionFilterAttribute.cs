@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 using VerticalSliceArchitecture.Application.Common.Exceptions;
 
-namespace Api.Filters;
+namespace VerticalSliceArchitecture.Api.Filters;
 
 public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 {
