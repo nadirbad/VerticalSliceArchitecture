@@ -1,6 +1,8 @@
-﻿using VerticalSliceArchitecture.Application.Common.Interfaces;
-using MediatR.Pipeline;
+﻿using MediatR.Pipeline;
+
 using Microsoft.Extensions.Logging;
+
+using VerticalSliceArchitecture.Application.Common.Interfaces;
 
 namespace VerticalSliceArchitecture.Application.Common.Behaviours;
 
@@ -20,10 +22,7 @@ public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest> where T
         var requestName = typeof(TRequest).Name;
         var userId = _currentUserService.UserId ?? string.Empty;
 
-        return Task.Run(() =>
-        {
-            _logger.LogInformation("VerticalSlice Request: {Name} {@UserId} {@Request}",
-                requestName, userId, request);
-        }, cancellationToken);
+        return Task.Run(() => _logger.LogInformation("VerticalSlice Request: {Name} {@UserId} {@Request}",
+                requestName, userId, request), cancellationToken);
     }
 }

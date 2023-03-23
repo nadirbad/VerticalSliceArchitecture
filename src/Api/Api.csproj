@@ -7,6 +7,10 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <AssemblyName>VerticalSliceArchitecture.Api</AssemblyName>
         <RootNamespace>VerticalSliceArchitecture.Api</RootNamespace>
+
+        <AnalysisLevel>7-minimal</AnalysisLevel>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>  
     </PropertyGroup>
 
     <ItemGroup>

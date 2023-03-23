@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -22,10 +21,7 @@ namespace VerticalSliceArchitecture.Application.Infrastructure.Persistence.Migra
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TodoLists", x => x.Id);
-                });
+                constraints: table => table.PrimaryKey("PK_TodoLists", x => x.Id));
 
             migrationBuilder.CreateTable(
                 name: "TodoItems",

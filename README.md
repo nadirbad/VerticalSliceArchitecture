@@ -141,6 +141,36 @@ and apply migration and update the database:
 dotnet ef database update --project src/Application --startup-project src/Api   
 ```
 
+## Code analysis
+
+Developers should follow Microsoft's [C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions).
+
+To enforce consistent coding styles and settings in the codebase, we use an EditorConfig file (**.editorconfig**) prepopulated with the default [.NET code style, formatting, and naming conventions](https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference?view=vs-2019).
+
+**IMPORTANT NOTES:**
+
+- EditorConfig settings take precedence over global IDE text editor settings.
+- New lines of code are formatted according to the EditorConfig settings
+- The formatting of existing code is not changed unless you run one of the following commands (Visual Studio):
+  - Code Cleanup (**Ctrl+K, Ctrl+E**) which applies any white space setting, indent style, and other code style settings.
+  - Format Document (**Ctrl+K, Ctrl+D**)
+
+For [code analysis](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/overview?tabs=net-7)
+we use the built in analyzers.
+
+Both code formating and analysis can be performed from the cli by running:
+
+```shell
+dotnet format style
+dotnet format analyzers
+```
+
+or to execute both
+
+```shell
+dotnet format
+```
+
 ## Inspired by
 
 - [Clean Architecture solution template by Jason Taylor](https://github.com/jasontaylordev/CleanArchitecture)

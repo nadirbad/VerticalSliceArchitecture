@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
 using VerticalSliceArchitecture.Application.Entities;
@@ -38,10 +40,17 @@ public class ApplicationDbContext : DbContext
                     entry.Entity.CreatedBy = _currentUserService.UserId;
                     entry.Entity.Created = _dateTime.Now;
                     break;
-
                 case EntityState.Modified:
                     entry.Entity.LastModifiedBy = _currentUserService.UserId;
                     entry.Entity.LastModified = _dateTime.Now;
+                    break;
+                case EntityState.Detached:
+                    break;
+                case EntityState.Unchanged:
+                    break;
+                case EntityState.Deleted:
+                    break;
+                default:
                     break;
             }
         }

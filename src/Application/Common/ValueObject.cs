@@ -5,17 +5,19 @@ public abstract class ValueObject
 {
     protected static bool EqualOperator(ValueObject left, ValueObject right)
     {
+#pragma warning disable IDE0046 // Convert to conditional expression
         if (left is null ^ right is null)
         {
             return false;
         }
 
         return left?.Equals(right!) != false;
+#pragma warning restore IDE0046 // Convert to conditional expression
     }
 
     protected static bool NotEqualOperator(ValueObject left, ValueObject right)
     {
-        return !(EqualOperator(left, right));
+        return !EqualOperator(left, right);
     }
 
     protected abstract IEnumerable<object> GetEqualityComponents();

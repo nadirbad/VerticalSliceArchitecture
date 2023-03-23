@@ -1,5 +1,7 @@
 ﻿using MediatR;
+
 using Microsoft.Extensions.Logging;
+
 using VerticalSliceArchitecture.Application.Common.Models;
 
 namespace VerticalSliceArchitecture.Application.Features.TodoItems.EventHandlers;
