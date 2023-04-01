@@ -1,4 +1,4 @@
-# Vertical Slice Architecture
+# Vertical Slice Architecture example in .NET 7
 
 This project is an experiment trying to create a API solution template that uses Vertical Slice architecture style.
 
