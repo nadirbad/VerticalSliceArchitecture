@@ -1,0 +1,53 @@
+# The name of the workflow.
+# This is the name that's displayed for status
+# badges (commonly embedded in README.md files).
+name: build and test
+
+# Trigger this workflow on a push, or pull request to
+# the main branch, when either C# or project files changed
+on:
+  push:
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "README.md"
+
+# Create an environment variable named DOTNET_VERSION
+# and set it as "7.0.x"
+env:
+  DOTNET_VERSION: "7.0.x" # The .NET SDK version to use
+
+# Defines a single job named "build-and-test"
+jobs:
+  build-and-test:
+    # When the workflow runs, this is the name that is logged
+    # This job will run three times, once for each "os" defined
+    name: build-and-test-${{matrix.os}}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
+    # Each job run contains these five steps
+    steps:
+      # 1) Check out the source code so that the workflow can access it.
+      - uses: actions/checkout@v2
+
+      # 2) Set up the .NET CLI environment for the workflow to use.
+      #    The .NET version is specified by the environment variable.
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # 3) Restore the dependencies and tools of a project or solution.
+      - name: Install dependencies
+        run: dotnet restore
+
+      # 4) Build a project or solution and all of its dependencies.
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      # 5) Test a project or solution.
+      - name: Test
+        run: dotnet test --no-restore --verbosity normal
