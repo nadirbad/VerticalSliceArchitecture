@@ -56,7 +56,7 @@ public class ApplicationDbContext : DbContext
         }
 
         var events = ChangeTracker.Entries<IHasDomainEvent>()
-                .Select<EntityEntry<IHasDomainEvent>, List<DomainEvent>>(x => x.Entity.DomainEvents)
+                .Select(x => x.Entity.DomainEvents)
                 .SelectMany(x => x)
                 .Where(domainEvent => !domainEvent.IsPublished)
                 .ToArray();
