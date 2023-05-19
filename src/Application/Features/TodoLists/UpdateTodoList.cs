@@ -28,12 +28,7 @@ public class UpdateTodoListController : ApiControllerBase
     }
 }
 
-public class UpdateTodoListCommand : IRequest
-{
-    public int Id { get; set; }
-
-    public string? Title { get; set; }
-}
+public record UpdateTodoListCommand(int Id, string? Title) : IRequest;
 
 public class UpdateTodoListCommandValidator : AbstractValidator<UpdateTodoListCommand>
 {
@@ -66,7 +61,7 @@ internal sealed class UpdateTodoListCommandHandler : IRequestHandler<UpdateTodoL
         _context = context;
     }
 
-    public async Task<Unit> Handle(UpdateTodoListCommand request, CancellationToken cancellationToken)
+    public async Task Handle(UpdateTodoListCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.TodoLists
             .FindAsync(new object[] { request.Id }, cancellationToken)
@@ -80,7 +75,5 @@ internal sealed class UpdateTodoListCommandHandler : IRequestHandler<UpdateTodoL
         entity.Title = request.Title;
 
         await _context.SaveChangesAsync(cancellationToken);
-
-        return Unit.Value;
     }
 }

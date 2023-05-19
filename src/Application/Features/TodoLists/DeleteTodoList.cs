@@ -15,16 +15,13 @@ public class DeleteTodoListController : ApiControllerBase
     [HttpDelete("/api/todo-lists/{id}")]
     public async Task<ActionResult> Delete(int id)
     {
-        await Mediator.Send(new DeleteTodoListCommand { Id = id });
+        await Mediator.Send(new DeleteTodoListCommand(id));
 
         return NoContent();
     }
 }
 
-public class DeleteTodoListCommand : IRequest
-{
-    public int Id { get; set; }
-}
+public record DeleteTodoListCommand(int Id) : IRequest;
 
 internal sealed class DeleteTodoListCommandHandler : IRequestHandler<DeleteTodoListCommand>
 {
@@ -35,7 +32,7 @@ internal sealed class DeleteTodoListCommandHandler : IRequestHandler<DeleteTodoL
         _context = context;
     }
 
-    public async Task<Unit> Handle(DeleteTodoListCommand request, CancellationToken cancellationToken)
+    public async Task Handle(DeleteTodoListCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.TodoLists
             .Where(l => l.Id == request.Id)
@@ -49,7 +46,5 @@ internal sealed class DeleteTodoListCommandHandler : IRequestHandler<DeleteTodoL
         _context.TodoLists.Remove(entity);
 
         await _context.SaveChangesAsync(cancellationToken);
-
-        return Unit.Value;
     }
 }
