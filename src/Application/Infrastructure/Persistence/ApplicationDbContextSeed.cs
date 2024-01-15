@@ -1,5 +1,5 @@
-﻿using VerticalSliceArchitecture.Application.Entities;
-using VerticalSliceArchitecture.Application.ValueObjects;
+﻿using VerticalSliceArchitecture.Application.Domain.Todos;
+using VerticalSliceArchitecture.Application.Domain.ValueObjects;
 
 namespace VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 

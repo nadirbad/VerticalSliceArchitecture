@@ -1,7 +1,7 @@
 ﻿using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Exceptions;
 
-namespace VerticalSliceArchitecture.Application.ValueObjects;
+namespace VerticalSliceArchitecture.Application.Domain.ValueObjects;
 
 public class Colour : ValueObject
 {

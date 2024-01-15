@@ -2,7 +2,7 @@
 using AutoMapper;
 using VerticalSliceArchitecture.Application.Common.Mappings;
 using NUnit.Framework;
-using VerticalSliceArchitecture.Application.Entities;
+using VerticalSliceArchitecture.Application.Domain.Todos;
 using VerticalSliceArchitecture.Application.Features.TodoLists;
 
 namespace VerticalSliceArchitecture.Application.UnitTests.Common.Mappings;
@@ -14,7 +14,7 @@ public class MappingTests
 
     public MappingTests()
     {
-        _configuration = new MapperConfiguration(config => 
+        _configuration = new MapperConfiguration(config =>
             config.AddProfile<MappingProfile>());
 
         _mapper = _configuration.CreateMapper();

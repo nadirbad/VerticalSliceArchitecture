@@ -3,7 +3,7 @@
 using Microsoft.Extensions.Logging;
 
 using VerticalSliceArchitecture.Application.Common.Models;
-using VerticalSliceArchitecture.Application.Entities;
+using VerticalSliceArchitecture.Application.Domain.Todos;
 
 namespace VerticalSliceArchitecture.Application.Features.TodoItems.EventHandlers;
 

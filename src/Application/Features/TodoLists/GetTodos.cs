@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Mappings;
-using VerticalSliceArchitecture.Application.Entities;
+using VerticalSliceArchitecture.Application.Domain.Todos;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 namespace VerticalSliceArchitecture.Application.Features.TodoLists;

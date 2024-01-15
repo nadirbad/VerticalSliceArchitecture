@@ -8,8 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
-using VerticalSliceArchitecture.Application.Common.Mappings;
-using VerticalSliceArchitecture.Application.Entities;
+using VerticalSliceArchitecture.Application.Domain.Todos;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 namespace VerticalSliceArchitecture.Application.Features.TodoLists;
@@ -73,11 +72,4 @@ internal sealed class ExportTodosQueryHandler : IRequestHandler<ExportTodosQuery
 
         return vm;
     }
-}
-
-public class TodoItemRecord : IMapFrom<TodoItem>
-{
-    public string? Title { get; set; }
-
-    public bool Done { get; set; }
 }
