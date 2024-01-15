@@ -1,7 +1,7 @@
 ﻿using VerticalSliceArchitecture.Application.Common;
-using VerticalSliceArchitecture.Application.ValueObjects;
+using VerticalSliceArchitecture.Application.Domain.ValueObjects;
 
-namespace VerticalSliceArchitecture.Application.Entities;
+namespace VerticalSliceArchitecture.Application.Domain.Todos;
 
 public class TodoList : AuditableEntity
 {

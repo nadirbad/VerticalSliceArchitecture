@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
-using VerticalSliceArchitecture.Application.Entities;
+using VerticalSliceArchitecture.Application.Domain.Todos;
 
 namespace VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 

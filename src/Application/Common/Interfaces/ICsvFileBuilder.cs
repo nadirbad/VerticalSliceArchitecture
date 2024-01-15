@@ -1,4 +1,4 @@
-﻿using VerticalSliceArchitecture.Application.Features.TodoLists;
+﻿using VerticalSliceArchitecture.Application.Domain.Todos;
 
 namespace VerticalSliceArchitecture.Application.Common.Interfaces;
 

@@ -3,7 +3,7 @@
 using NUnit.Framework;
 
 using VerticalSliceArchitecture.Application.Common.Exceptions;
-using VerticalSliceArchitecture.Application.ValueObjects;
+using VerticalSliceArchitecture.Application.Domain.ValueObjects;
 
 namespace VerticalSliceArchitecture.Application.UnitTests.ValueObjects;
 

@@ -1,6 +1,7 @@
 ﻿using VerticalSliceArchitecture.Application.Common;
+using VerticalSliceArchitecture.Application.Common.Mappings;
 
-namespace VerticalSliceArchitecture.Application.Entities;
+namespace VerticalSliceArchitecture.Application.Domain.Todos;
 
 public class TodoItem : AuditableEntity, IHasDomainEvent
 {
@@ -52,4 +53,11 @@ public enum PriorityLevel
     Low = 1,
     Medium = 2,
     High = 3
+}
+
+public class TodoItemRecord : IMapFrom<TodoItem>
+{
+    public string? Title { get; set; }
+
+    public bool Done { get; set; }
 }

@@ -2,7 +2,7 @@
 
 using CsvHelper.Configuration;
 
-using VerticalSliceArchitecture.Application.Features.TodoLists;
+using VerticalSliceArchitecture.Application.Domain.Todos;
 
 namespace VerticalSliceArchitecture.Application.Infrastructure.Files.Maps;
 
