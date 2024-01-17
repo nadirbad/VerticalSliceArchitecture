@@ -70,12 +70,7 @@ internal sealed class UpdateTodoListCommandHandler : IRequestHandler<UpdateTodoL
     {
         var entity = await _context.TodoLists
             .FindAsync(new object[] { request.Id }, cancellationToken)
-            .ConfigureAwait(false);
-
-        if (entity == null)
-        {
-            throw new NotFoundException(nameof(TodoList), request.Id);
-        }
+            .ConfigureAwait(false) ?? throw new NotFoundException(nameof(TodoList), request.Id);
 
         entity.Title = request.Title;
 

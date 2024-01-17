@@ -39,12 +39,7 @@ internal sealed class DeleteTodoListCommandHandler : IRequestHandler<DeleteTodoL
     {
         var entity = await _context.TodoLists
             .Where(l => l.Id == request.Id)
-            .SingleOrDefaultAsync(cancellationToken);
-
-        if (entity == null)
-        {
-            throw new NotFoundException(nameof(TodoList), request.Id);
-        }
+            .SingleOrDefaultAsync(cancellationToken) ?? throw new NotFoundException(nameof(TodoList), request.Id);
 
         _context.TodoLists.Remove(entity);
 
