@@ -37,13 +37,7 @@ internal sealed class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoI
     public async Task<Unit> Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.TodoItems
-            .FindAsync(new object[] { request.Id }, cancellationToken);
-
-        if (entity == null)
-        {
-            throw new NotFoundException(nameof(TodoItem), request.Id);
-        }
-
+            .FindAsync(new object[] { request.Id }, cancellationToken) ?? throw new NotFoundException(nameof(TodoItem), request.Id);
         _context.TodoItems.Remove(entity);
 
         entity.DomainEvents.Add(new TodoItemDeletedEvent(entity));
