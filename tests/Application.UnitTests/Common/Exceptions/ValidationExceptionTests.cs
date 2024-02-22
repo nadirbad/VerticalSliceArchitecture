@@ -1,13 +1,12 @@
-﻿using VerticalSliceArchitecture.Application.Common.Exceptions;
-using FluentAssertions;
-using FluentValidation.Results;
-using NUnit.Framework;
+﻿using FluentValidation.Results;
+
+using VerticalSliceArchitecture.Application.Common.Exceptions;
 
 namespace VerticalSliceArchitecture.Application.UnitTests.Common.Exceptions;
 
 public class ValidationExceptionTests
 {
-    [Test]
+    [Fact]
     public void DefaultConstructorCreatesAnEmptyErrorDictionary()
     {
         var actual = new ValidationException().Errors;
@@ -15,12 +14,12 @@ public class ValidationExceptionTests
         actual.Keys.Should().BeEquivalentTo(Array.Empty<string>());
     }
 
-    [Test]
+    [Fact]
     public void SingleValidationFailureCreatesASingleElementErrorDictionary()
     {
         var failures = new List<ValidationFailure>
             {
-                new ValidationFailure("Age", "must be over 18"),
+                new("Age", "must be over 18"),
             };
 
         var actual = new ValidationException(failures).Errors;
@@ -29,17 +28,17 @@ public class ValidationExceptionTests
         actual["Age"].Should().BeEquivalentTo(new string[] { "must be over 18" });
     }
 
-    [Test]
+    [Fact]
     public void MulitpleValidationFailureForMultiplePropertiesCreatesAMultipleElementErrorDictionaryEachWithMultipleValues()
     {
         var failures = new List<ValidationFailure>
             {
-                new ValidationFailure("Age", "must be 18 or older"),
-                new ValidationFailure("Age", "must be 25 or younger"),
-                new ValidationFailure("Password", "must contain at least 8 characters"),
-                new ValidationFailure("Password", "must contain a digit"),
-                new ValidationFailure("Password", "must contain upper case letter"),
-                new ValidationFailure("Password", "must contain lower case letter"),
+                new("Age", "must be 18 or older"),
+                new("Age", "must be 25 or younger"),
+                new("Password", "must contain at least 8 characters"),
+                new("Password", "must contain a digit"),
+                new("Password", "must contain upper case letter"),
+                new("Password", "must contain lower case letter"),
             };
 
         var actual = new ValidationException(failures).Errors;

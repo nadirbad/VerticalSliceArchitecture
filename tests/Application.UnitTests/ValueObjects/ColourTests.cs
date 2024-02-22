@@ -1,15 +1,11 @@
-﻿using FluentAssertions;
-
-using NUnit.Framework;
-
-using VerticalSliceArchitecture.Application.Common.Exceptions;
+﻿using VerticalSliceArchitecture.Application.Common.Exceptions;
 using VerticalSliceArchitecture.Application.Domain.ValueObjects;
 
 namespace VerticalSliceArchitecture.Application.UnitTests.ValueObjects;
 
 public class ColourTests
 {
-    [Test]
+    [Fact]
     public void ShouldReturnCorrectColourCode()
     {
         var code = "#FFFFFF";
@@ -19,7 +15,7 @@ public class ColourTests
         colour.Code.Should().Be(code);
     }
 
-    [Test]
+    [Fact]
     public void ToStringReturnsCode()
     {
         var colour = Colour.White;
@@ -27,7 +23,7 @@ public class ColourTests
         colour.ToString().Should().Be(colour.Code);
     }
 
-    [Test]
+    [Fact]
     public void ShouldPerformImplicitConversionToColourCodeString()
     {
         string code = Colour.White;
@@ -35,7 +31,7 @@ public class ColourTests
         code.Should().Be("#FFFFFF");
     }
 
-    [Test]
+    [Fact]
     public void ShouldPerformExplicitConversionGivenSupportedColourCode()
     {
         var colour = (Colour)"#FFFFFF";
@@ -43,7 +39,7 @@ public class ColourTests
         colour.Should().Be(Colour.White);
     }
 
-    [Test]
+    [Fact]
     public void ShouldThrowUnsupportedColourExceptionGivenNotSupportedColourCode()
     {
         FluentActions.Invoking(() => Colour.From("##FF33CC"))
