@@ -34,7 +34,7 @@ internal sealed class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoI
         _context = context;
     }
 
-    public async Task<Unit> Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
+    public async Task Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.TodoItems
             .FindAsync(new object[] { request.Id }, cancellationToken) ?? throw new NotFoundException(nameof(TodoItem), request.Id);
@@ -43,12 +43,10 @@ internal sealed class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoI
         entity.DomainEvents.Add(new TodoItemDeletedEvent(entity));
 
         await _context.SaveChangesAsync(cancellationToken);
-
-        return Unit.Value;
     }
 }
 
-public class TodoItemDeletedEvent : DomainEvent
+internal class TodoItemDeletedEvent : DomainEvent
 {
     public TodoItemDeletedEvent(TodoItem item)
     {

@@ -24,6 +24,17 @@ public class GetTodoItemsWithPaginationController : ApiControllerBase
     }
 }
 
+public class TodoItemBriefDto : IMapFrom<TodoItem>
+{
+    public int Id { get; set; }
+
+    public int ListId { get; set; }
+
+    public string? Title { get; set; }
+
+    public bool Done { get; set; }
+}
+
 public class GetTodoItemsWithPaginationQuery : IRequest<PaginatedList<TodoItemBriefDto>>
 {
     public int ListId { get; set; }
@@ -65,15 +76,4 @@ internal sealed class GetTodoItemsWithPaginationQueryHandler : IRequestHandler<G
             .ProjectTo<TodoItemBriefDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(request.PageNumber, request.PageSize);
     }
-}
-
-public class TodoItemBriefDto : IMapFrom<TodoItem>
-{
-    public int Id { get; set; }
-
-    public int ListId { get; set; }
-
-    public string? Title { get; set; }
-
-    public bool Done { get; set; }
 }

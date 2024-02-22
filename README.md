@@ -1,4 +1,4 @@
-# Vertical Slice Architecture example in .NET 7
+# Vertical Slice Architecture example in .NET 8
 
 This project is an experiment trying to create a API solution template that uses Vertical Slice architecture style.
 
@@ -9,15 +9,19 @@ Vertical Slice architecture can be a starting point and can be evolved later whe
 
 Check out my [blog post](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/) for more details about Vertical Slice Architecture.
 
+# Give it a star ⭐
+
+Loving it? Show your support by giving this project a star!
+
 ## Technologies and patterns
 
 This project repository is created based on [Clean Architecture solution template by Jason Taylor](https://github.com/jasontaylordev/CleanArchitecture), and it uses technology choices and application business logic from this template.
 
-- [ASP.NET API with .NET 7](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-7.0)
+- [ASP.NET API with .NET 8](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-8.0)
 - CQRS with [MediatR](https://github.com/jbogard/MediatR)
 - [FluentValidation](https://fluentvalidation.net/)
 - [AutoMapper](https://automapper.org/)
-- [Entity Framework Core 7](https://docs.microsoft.com/en-us/ef/core/)
+- [Entity Framework Core 8](https://docs.microsoft.com/en-us/ef/core/)
 - [NUnit](https://nunit.org/), [FluentAssertions](https://fluentassertions.com/), [Moq](https://github.com/moq)
 
 Afterwards, the projects and architecture is refactored towards the Vertical slice architecture style.
@@ -46,7 +50,7 @@ This projects contains contains all applications logic and shared concerns like 
 
 ## Getting started
 
-1. Install the latest [.NET 7 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
+1. Install the latest [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 2. Navigate to `src/Api` and run `dotnet run` to launch the back end (ASP.NET Core Web API) or via `dotnet run --project src/Api/Api.csproj`
 
 ### Build, test and publish application
@@ -155,7 +159,7 @@ To enforce consistent coding styles and settings in the codebase, we use an Edit
   - Code Cleanup (**Ctrl+K, Ctrl+E**) which applies any white space setting, indent style, and other code style settings.
   - Format Document (**Ctrl+K, Ctrl+D**)
 
-For [code analysis](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/overview?tabs=net-7)
+For [code analysis](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/overview?tabs=net-8)
 we use the built in analyzers.
 
 Both code formating and analysis can be performed from the cli by running:

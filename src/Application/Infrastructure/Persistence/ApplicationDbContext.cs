@@ -19,7 +19,8 @@ public class ApplicationDbContext : DbContext
         DbContextOptions<ApplicationDbContext> options,
         ICurrentUserService currentUserService,
         IDomainEventService domainEventService,
-        IDateTime dateTime) : base(options)
+        IDateTime dateTime)
+        : base(options)
     {
         _currentUserService = currentUserService;
         _domainEventService = domainEventService;
@@ -30,7 +31,7 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
     {
         foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
         {

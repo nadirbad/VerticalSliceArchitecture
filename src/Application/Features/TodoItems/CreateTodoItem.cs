@@ -51,7 +51,7 @@ internal sealed class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoI
         {
             ListId = request.ListId,
             Title = request.Title,
-            Done = false
+            Done = false,
         };
 
         entity.DomainEvents.Add(new TodoItemCreatedEvent(entity));
@@ -64,7 +64,7 @@ internal sealed class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoI
     }
 }
 
-public class TodoItemCreatedEvent : DomainEvent
+internal sealed class TodoItemCreatedEvent : DomainEvent
 {
     public TodoItemCreatedEvent(TodoItem item)
     {

@@ -36,7 +36,7 @@ public class UpdateTodoItemDetailCommand : IRequest
     public string? Note { get; set; }
 }
 
-internal sealed class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItemDetailCommand>
+public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItemDetailCommand>
 {
     private readonly ApplicationDbContext _context;
 
@@ -45,7 +45,7 @@ internal sealed class UpdateTodoItemDetailCommandHandler : IRequestHandler<Updat
         _context = context;
     }
 
-    public async Task<Unit> Handle(UpdateTodoItemDetailCommand request, CancellationToken cancellationToken)
+    public async Task Handle(UpdateTodoItemDetailCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.TodoItems
             .FindAsync(new object[] { request.Id }, cancellationToken) ?? throw new NotFoundException(nameof(TodoItem), request.Id);
@@ -55,7 +55,5 @@ internal sealed class UpdateTodoItemDetailCommandHandler : IRequestHandler<Updat
         entity.Note = request.Note;
 
         await _context.SaveChangesAsync(cancellationToken);
-
-        return Unit.Value;
     }
 }

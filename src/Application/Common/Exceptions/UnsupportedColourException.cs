@@ -13,11 +13,8 @@ public class UnsupportedColourException : Exception
     {
     }
 
-    public UnsupportedColourException(string? message, Exception? innerException) : base(message, innerException)
-    {
-    }
-
-    protected UnsupportedColourException(SerializationInfo info, StreamingContext context) : base(info, context)
+    public UnsupportedColourException(string? message, Exception? innerException)
+        : base(message, innerException)
     {
     }
 }

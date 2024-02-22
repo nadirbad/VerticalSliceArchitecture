@@ -6,7 +6,7 @@ using VerticalSliceArchitecture.Application.Common.Models;
 
 namespace VerticalSliceArchitecture.Application.Features.TodoItems.EventHandlers;
 
-public class TodoItemCreatedEventHandler : INotificationHandler<DomainEventNotification<TodoItemCreatedEvent>>
+internal sealed class TodoItemCreatedEventHandler : INotificationHandler<DomainEventNotification<TodoItemCreatedEvent>>
 {
     private readonly ILogger<TodoItemCreatedEventHandler> _logger;
 

@@ -14,10 +14,10 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         // Register known exception types and handlers.
         _exceptionHandlers = new Dictionary<Type, Action<ExceptionContext>>
         {
-            {typeof(ValidationException), HandleValidationException},
-            {typeof(NotFoundException), HandleNotFoundException},
-            {typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException},
-            {typeof(ForbiddenAccessException), HandleForbiddenAccessException}
+            { typeof(ValidationException), HandleValidationException },
+            { typeof(NotFoundException), HandleNotFoundException },
+            { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
+            { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
         };
     }
 
@@ -52,7 +52,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 
         ValidationProblemDetails details = new(exception!.Errors)
         {
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1"
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
         };
 
         context.Result = new BadRequestObjectResult(details);
@@ -64,7 +64,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     {
         ValidationProblemDetails details = new(context.ModelState)
         {
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1"
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
         };
 
         context.Result = new BadRequestObjectResult(details);
@@ -80,7 +80,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         {
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.4",
             Title = "The specified resource was not found.",
-            Detail = exception!.Message
+            Detail = exception!.Message,
         };
 
         context.Result = new NotFoundObjectResult(details);
@@ -94,7 +94,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         {
             Status = StatusCodes.Status401Unauthorized,
             Title = "Unauthorized",
-            Type = "https://tools.ietf.org/html/rfc7235#section-3.1"
+            Type = "https://tools.ietf.org/html/rfc7235#section-3.1",
         };
 
         context.Result = new ObjectResult(details) { StatusCode = StatusCodes.Status401Unauthorized };
@@ -108,7 +108,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         {
             Status = StatusCodes.Status403Forbidden,
             Title = "Forbidden",
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3"
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3",
         };
 
         context.Result = new ObjectResult(details) { StatusCode = StatusCodes.Status403Forbidden };
@@ -122,7 +122,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         {
             Status = StatusCodes.Status500InternalServerError,
             Title = "An error occurred while processing your request.",
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1"
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
         };
 
         context.Result = new ObjectResult(details) { StatusCode = StatusCodes.Status500InternalServerError };

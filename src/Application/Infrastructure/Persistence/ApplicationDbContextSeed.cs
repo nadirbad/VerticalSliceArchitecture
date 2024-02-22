@@ -23,8 +23,8 @@ public static class ApplicationDbContextSeed
                         new TodoItem { Title = "Pasta" },
                         new TodoItem { Title = "Tissues" },
                         new TodoItem { Title = "Tuna" },
-                        new TodoItem { Title = "Water" }
-                    }
+                        new TodoItem { Title = "Water" },
+                    },
             });
 
             await context.SaveChangesAsync();
