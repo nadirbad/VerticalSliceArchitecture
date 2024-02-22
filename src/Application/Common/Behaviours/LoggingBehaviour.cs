@@ -6,7 +6,8 @@ using VerticalSliceArchitecture.Application.Common.Interfaces;
 
 namespace VerticalSliceArchitecture.Application.Common.Behaviours;
 
-public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest> where TRequest : notnull
+public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest>
+    where TRequest : notnull
 {
     private readonly ILogger _logger;
     private readonly ICurrentUserService _currentUserService;
@@ -22,7 +23,12 @@ public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest> where T
         var requestName = typeof(TRequest).Name;
         var userId = _currentUserService.UserId ?? string.Empty;
 
-        return Task.Run(() => _logger.LogInformation("VerticalSlice Request: {Name} {@UserId} {@Request}",
-                requestName, userId, request), cancellationToken);
+        return Task.Run(
+            () => _logger.LogInformation(
+            "VerticalSlice Request: {Name} {@UserId} {@Request}",
+            requestName,
+            userId,
+            request),
+            cancellationToken);
     }
 }

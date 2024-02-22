@@ -101,7 +101,7 @@ internal sealed class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, Todo
                 .AsNoTracking()
                 .ProjectTo<TodoListDto>(_mapper.ConfigurationProvider)
                 .OrderBy(t => t.Title)
-                .ToListAsync(cancellationToken)
+                .ToListAsync(cancellationToken),
         };
     }
 }

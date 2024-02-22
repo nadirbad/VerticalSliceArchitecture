@@ -8,7 +8,8 @@ using VerticalSliceArchitecture.Application.Common.Interfaces;
 
 namespace VerticalSliceArchitecture.Application.Common.Behaviours;
 
-public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    where TRequest : IRequest<TResponse>
 {
     private readonly Stopwatch _timer;
     private readonly ILogger<TRequest> _logger;
@@ -39,8 +40,12 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
             var requestName = typeof(TRequest).Name;
             var userId = _currentUserService.UserId ?? string.Empty;
 
-            _logger.LogWarning("VerticalSlice Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@Request}",
-                requestName, elapsedMilliseconds, userId, request);
+            _logger.LogWarning(
+                "VerticalSlice Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@Request}",
+                requestName,
+                elapsedMilliseconds,
+                userId,
+                request);
         }
 
         return response;

@@ -26,7 +26,6 @@ public class MappingProfile : Profile
                 ?? type.GetInterface("IMapFrom`1")!.GetMethod("Mapping");
 
             methodInfo?.Invoke(instance, new object[] { this });
-
         }
     }
 }

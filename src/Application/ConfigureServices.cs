@@ -1,8 +1,4 @@
-﻿using System.Reflection;
-
-using FluentValidation;
-
-using MediatR;
+﻿using FluentValidation;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,13 +16,18 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddAutoMapper(Assembly.GetExecutingAssembly());
-        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        services.AddMediatR(Assembly.GetExecutingAssembly());
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehaviour<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
+        services.AddAutoMapper(typeof(DependencyInjection).Assembly);
+        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+
+        services.AddMediatR(options =>
+        {
+            options.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+
+            options.AddOpenBehavior(typeof(AuthorizationBehaviour<,>));
+            options.AddOpenBehavior(typeof(ValidationBehaviour<,>));
+            options.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
+            options.AddOpenBehavior(typeof(UnhandledExceptionBehaviour<,>));
+        });
 
         return services;
     }
