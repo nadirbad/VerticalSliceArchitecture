@@ -4,7 +4,7 @@ using CsvHelper.Configuration;
 
 using VerticalSliceArchitecture.Application.Domain.Todos;
 
-namespace VerticalSliceArchitecture.Application.Infrastructure.Files.Maps;
+namespace VerticalSliceArchitecture.Application.Infrastructure.Files;
 
 public class TodoItemRecordMap : ClassMap<TodoItemRecord>
 {

@@ -14,25 +14,17 @@ public class DeleteTodoItemController : ApiControllerBase
     [HttpDelete("/api/todo-items/{id}")]
     public async Task<ActionResult> Delete(int id)
     {
-        await Mediator.Send(new DeleteTodoItemCommand { Id = id });
+        await Mediator.Send(new DeleteTodoItemCommand(id));
 
         return NoContent();
     }
 }
 
-public class DeleteTodoItemCommand : IRequest
-{
-    public int Id { get; set; }
-}
+public record DeleteTodoItemCommand(int Id) : IRequest;
 
-internal sealed class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoItemCommand>
+internal sealed class DeleteTodoItemCommandHandler(ApplicationDbContext context) : IRequestHandler<DeleteTodoItemCommand>
 {
-    private readonly ApplicationDbContext _context;
-
-    public DeleteTodoItemCommandHandler(ApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly ApplicationDbContext _context = context;
 
     public async Task Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
     {
@@ -44,14 +36,4 @@ internal sealed class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoI
 
         await _context.SaveChangesAsync(cancellationToken);
     }
-}
-
-internal class TodoItemDeletedEvent : DomainEvent
-{
-    public TodoItemDeletedEvent(TodoItem item)
-    {
-        Item = item;
-    }
-
-    public TodoItem Item { get; }
 }

@@ -7,14 +7,9 @@ using VerticalSliceArchitecture.Application.Domain.Todos;
 
 namespace VerticalSliceArchitecture.Application.Features.TodoItems.EventHandlers;
 
-public class TodoItemCompletedEventHandler : INotificationHandler<DomainEventNotification<TodoItemCompletedEvent>>
+internal sealed class TodoItemCompletedEventHandler(ILogger<TodoItemCompletedEventHandler> logger) : INotificationHandler<DomainEventNotification<TodoItemCompletedEvent>>
 {
-    private readonly ILogger<TodoItemCompletedEventHandler> _logger;
-
-    public TodoItemCompletedEventHandler(ILogger<TodoItemCompletedEventHandler> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<TodoItemCompletedEventHandler> _logger = logger;
 
     public Task Handle(DomainEventNotification<TodoItemCompletedEvent> notification, CancellationToken cancellationToken)
     {

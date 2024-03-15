@@ -27,16 +27,9 @@ public class TodoItemsController : ApiControllerBase
     }
 }
 
-public class UpdateTodoItemCommand : IRequest
-{
-    public int Id { get; set; }
+public record UpdateTodoItemCommand(int Id, string? Title, bool Done) : IRequest;
 
-    public string? Title { get; set; }
-
-    public bool Done { get; set; }
-}
-
-public class UpdateTodoItemCommandValidator : AbstractValidator<UpdateTodoItemCommand>
+internal sealed class UpdateTodoItemCommandValidator : AbstractValidator<UpdateTodoItemCommand>
 {
     public UpdateTodoItemCommandValidator()
     {
@@ -46,22 +39,17 @@ public class UpdateTodoItemCommandValidator : AbstractValidator<UpdateTodoItemCo
     }
 }
 
-internal sealed class UpdateTodoItemCommandHandler : IRequestHandler<UpdateTodoItemCommand>
+internal sealed class UpdateTodoItemCommandHandler(ApplicationDbContext context) : IRequestHandler<UpdateTodoItemCommand>
 {
-    private readonly ApplicationDbContext _context;
-
-    public UpdateTodoItemCommandHandler(ApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly ApplicationDbContext _context = context;
 
     public async Task Handle(UpdateTodoItemCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.TodoItems
+        var todoItem = await _context.TodoItems
             .FindAsync(new object[] { request.Id }, cancellationToken) ?? throw new NotFoundException(nameof(TodoItem), request.Id);
 
-        entity.Title = request.Title;
-        entity.Done = request.Done;
+        todoItem.Title = request.Title;
+        todoItem.Done = request.Done;
 
         await _context.SaveChangesAsync(cancellationToken);
     }

@@ -26,7 +26,7 @@ public class RequestLoggerTests
 
         var requestLogger = new LoggingBehaviour<CreateTodoItemCommand>(_logger.Object, _currentUserService.Object);
 
-        await requestLogger.Process(new CreateTodoItemCommand { ListId = 1, Title = "title" }, CancellationToken.None);
+        await requestLogger.Process(new CreateTodoItemCommand(1, "title"), CancellationToken.None);
     }
 
     [Fact]
@@ -34,6 +34,6 @@ public class RequestLoggerTests
     {
         var requestLogger = new LoggingBehaviour<CreateTodoItemCommand>(_logger.Object, _currentUserService.Object);
 
-        await requestLogger.Process(new CreateTodoItemCommand { ListId = 1, Title = "title" }, CancellationToken.None);
+        await requestLogger.Process(new CreateTodoItemCommand(1, "title"), CancellationToken.None);
     }
 }

@@ -1,7 +1,4 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-
-using FluentValidation;
+﻿using FluentValidation;
 
 using MediatR;
 
@@ -18,31 +15,17 @@ namespace VerticalSliceArchitecture.Application.Features.TodoItems;
 public class GetTodoItemsWithPaginationController : ApiControllerBase
 {
     [HttpGet("/api/todo-items")]
-    public Task<PaginatedList<TodoItemBriefDto>> GetTodoItemsWithPagination([FromQuery] GetTodoItemsWithPaginationQuery query)
+    public Task<PaginatedList<TodoItemBriefResponse>> GetTodoItemsWithPagination([FromQuery] GetTodoItemsWithPaginationQuery query)
     {
         return Mediator.Send(query);
     }
 }
 
-public class TodoItemBriefDto : IMapFrom<TodoItem>
-{
-    public int Id { get; set; }
+public record TodoItemBriefResponse(int Id, int ListId, string? Title, bool Done);
 
-    public int ListId { get; set; }
+public record GetTodoItemsWithPaginationQuery(int ListId, int PageNumber = 1, int PageSize = 10) : IRequest<PaginatedList<TodoItemBriefResponse>>;
 
-    public string? Title { get; set; }
-
-    public bool Done { get; set; }
-}
-
-public class GetTodoItemsWithPaginationQuery : IRequest<PaginatedList<TodoItemBriefDto>>
-{
-    public int ListId { get; set; }
-    public int PageNumber { get; set; } = 1;
-    public int PageSize { get; set; } = 10;
-}
-
-public class GetTodoItemsWithPaginationQueryValidator : AbstractValidator<GetTodoItemsWithPaginationQuery>
+internal sealed class GetTodoItemsWithPaginationQueryValidator : AbstractValidator<GetTodoItemsWithPaginationQuery>
 {
     public GetTodoItemsWithPaginationQueryValidator()
     {
@@ -57,23 +40,19 @@ public class GetTodoItemsWithPaginationQueryValidator : AbstractValidator<GetTod
     }
 }
 
-internal sealed class GetTodoItemsWithPaginationQueryHandler : IRequestHandler<GetTodoItemsWithPaginationQuery, PaginatedList<TodoItemBriefDto>>
+internal sealed class GetTodoItemsWithPaginationQueryHandler(ApplicationDbContext context) : IRequestHandler<GetTodoItemsWithPaginationQuery, PaginatedList<TodoItemBriefResponse>>
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly ApplicationDbContext _context = context;
 
-    public GetTodoItemsWithPaginationQueryHandler(ApplicationDbContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
-
-    public Task<PaginatedList<TodoItemBriefDto>> Handle(GetTodoItemsWithPaginationQuery request, CancellationToken cancellationToken)
+    public Task<PaginatedList<TodoItemBriefResponse>> Handle(GetTodoItemsWithPaginationQuery request, CancellationToken cancellationToken)
     {
         return _context.TodoItems
-            .Where(x => x.ListId == request.ListId)
-            .OrderBy(x => x.Title)
-            .ProjectTo<TodoItemBriefDto>(_mapper.ConfigurationProvider)
+            .Where(item => item.ListId == request.ListId)
+            .OrderBy(item => item.Title)
+            .Select(item => ToDto(item))
             .PaginatedListAsync(request.PageNumber, request.PageSize);
     }
+
+    private static TodoItemBriefResponse ToDto(TodoItem todoItem) =>
+        new(todoItem.Id, todoItem.ListId, todoItem.Title, todoItem.Done);
 }

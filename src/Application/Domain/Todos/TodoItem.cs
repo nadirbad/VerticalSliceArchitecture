@@ -37,16 +37,6 @@ public class TodoItem : AuditableEntity, IHasDomainEvent
     public List<DomainEvent> DomainEvents { get; } = new List<DomainEvent>();
 }
 
-public class TodoItemCompletedEvent : DomainEvent
-{
-    public TodoItemCompletedEvent(TodoItem item)
-    {
-        Item = item;
-    }
-
-    public TodoItem Item { get; }
-}
-
 public enum PriorityLevel
 {
     None = 0,
@@ -55,9 +45,4 @@ public enum PriorityLevel
     High = 3,
 }
 
-public class TodoItemRecord : IMapFrom<TodoItem>
-{
-    public string? Title { get; set; }
-
-    public bool Done { get; set; }
-}
+public record TodoItemRecord(string? Title, bool Done);

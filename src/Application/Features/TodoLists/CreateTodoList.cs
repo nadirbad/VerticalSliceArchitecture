@@ -20,12 +20,9 @@ public class CreateTodoListController : ApiControllerBase
     }
 }
 
-public class CreateTodoListCommand : IRequest<int>
-{
-    public string? Title { get; set; }
-}
+public record CreateTodoListCommand(string? Title) : IRequest<int>;
 
-public class CreateTodoListCommandValidator : AbstractValidator<CreateTodoListCommand>
+internal sealed class CreateTodoListCommandValidator : AbstractValidator<CreateTodoListCommand>
 {
     private readonly ApplicationDbContext _context;
 
@@ -46,23 +43,18 @@ public class CreateTodoListCommandValidator : AbstractValidator<CreateTodoListCo
     }
 }
 
-internal sealed class CreateTodoListCommandHandler : IRequestHandler<CreateTodoListCommand, int>
+internal sealed class CreateTodoListCommandHandler(ApplicationDbContext context) : IRequestHandler<CreateTodoListCommand, int>
 {
-    private readonly ApplicationDbContext _context;
-
-    public CreateTodoListCommandHandler(ApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly ApplicationDbContext _context = context;
 
     public async Task<int> Handle(CreateTodoListCommand request, CancellationToken cancellationToken)
     {
-        var entity = new TodoList { Title = request.Title };
+        var todoList = new TodoList { Title = request.Title };
 
-        _context.TodoLists.Add(entity);
+        _context.TodoLists.Add(todoList);
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return entity.Id;
+        return todoList.Id;
     }
 }
