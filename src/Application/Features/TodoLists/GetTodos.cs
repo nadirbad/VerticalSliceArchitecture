@@ -1,13 +1,9 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-
-using MediatR;
+﻿using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 using VerticalSliceArchitecture.Application.Common;
-using VerticalSliceArchitecture.Application.Common.Mappings;
 using VerticalSliceArchitecture.Application.Domain.Todos;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
@@ -22,9 +18,7 @@ public class GetTodosController : ApiControllerBase
     }
 }
 
-public class GetTodosQuery : IRequest<TodosVm>
-{
-}
+public record GetTodosQuery : IRequest<TodosVm>;
 
 public class TodosVm
 {
@@ -33,60 +27,21 @@ public class TodosVm
     public IList<TodoListDto> Lists { get; set; } = new List<TodoListDto>();
 }
 
-public class PriorityLevelDto
-{
-    public int Value { get; set; }
+public record PriorityLevelDto(int Value, string? Name);
 
-    public string? Name { get; set; }
-}
-
-public class TodoListDto : IMapFrom<TodoList>
+public record TodoListDto(int Id, string? Title, string? Colour, IList<TodoItemDto> Items)
 {
     public TodoListDto()
+        : this(default, null, null, new List<TodoItemDto>())
     {
-        Items = new List<TodoItemDto>();
-    }
-
-    public int Id { get; set; }
-
-    public string? Title { get; set; }
-
-    public string? Colour { get; set; }
-
-    public IList<TodoItemDto> Items { get; set; }
-}
-
-public class TodoItemDto : IMapFrom<TodoItem>
-{
-    public int Id { get; set; }
-
-    public int ListId { get; set; }
-
-    public string? Title { get; set; }
-
-    public bool Done { get; set; }
-
-    public int Priority { get; set; }
-
-    public string? Note { get; set; }
-
-    public void Mapping(Profile profile)
-    {
-        profile.CreateMap<TodoItem, TodoItemDto>()
-            .ForMember(d => d.Priority, opt => opt.MapFrom(s => (int)s.Priority));
     }
 }
 
-internal sealed class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, TodosVm>
-{
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+public record TodoItemDto(int Id, int ListId, string? Title, bool Done, int Priority, string? Note);
 
-    public GetTodosQueryHandler(ApplicationDbContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
+internal sealed class GetTodosQueryHandler(ApplicationDbContext context) : IRequestHandler<GetTodosQuery, TodosVm>
+{
+    private readonly ApplicationDbContext _context = context;
 
     public async Task<TodosVm> Handle(GetTodosQuery request, CancellationToken cancellationToken)
     {
@@ -94,14 +49,36 @@ internal sealed class GetTodosQueryHandler : IRequestHandler<GetTodosQuery, Todo
         {
             PriorityLevels = Enum.GetValues(typeof(PriorityLevel))
                 .Cast<PriorityLevel>()
-                .Select(p => new PriorityLevelDto { Value = (int)p, Name = p.ToString() })
+                .Select(p => new PriorityLevelDto((int)p, p.ToString()))
                 .ToList(),
 
             Lists = await _context.TodoLists
                 .AsNoTracking()
-                .ProjectTo<TodoListDto>(_mapper.ConfigurationProvider)
                 .OrderBy(t => t.Title)
+                .Select(todoListItem => ToDto(todoListItem))
                 .ToListAsync(cancellationToken),
         };
+    }
+
+    private static TodoItemDto ToDto(TodoItem todoItem)
+    {
+        var todoItemDto = new TodoItemDto(todoItem.Id, todoItem.ListId, todoItem.Title, todoItem.Done, (int)todoItem.Priority, todoItem.Note);
+
+        return todoItemDto;
+    }
+
+    private static TodoListDto ToDto(TodoList todoList)
+    {
+        var todoListDto = new TodoListDto
+        {
+            Id = todoList.Id,
+            Title = todoList.Title,
+            Colour = todoList.Colour,
+            Items = todoList.Items
+                .Select(item => ToDto(item))
+                .ToList(),
+        };
+
+        return todoListDto;
     }
 }

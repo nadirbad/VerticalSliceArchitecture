@@ -25,34 +25,20 @@ public class UpdateTodoItemDetailController : ApiControllerBase
     }
 }
 
-public class UpdateTodoItemDetailCommand : IRequest
+public record UpdateTodoItemDetailCommand(int Id, int ListId, PriorityLevel Priority, string? Note) : IRequest;
+
+internal sealed class UpdateTodoItemDetailCommandHandler(ApplicationDbContext context) : IRequestHandler<UpdateTodoItemDetailCommand>
 {
-    public int Id { get; set; }
-
-    public int ListId { get; set; }
-
-    public PriorityLevel Priority { get; set; }
-
-    public string? Note { get; set; }
-}
-
-public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItemDetailCommand>
-{
-    private readonly ApplicationDbContext _context;
-
-    public UpdateTodoItemDetailCommandHandler(ApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly ApplicationDbContext _context = context;
 
     public async Task Handle(UpdateTodoItemDetailCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.TodoItems
+        var todoItem = await _context.TodoItems
             .FindAsync(new object[] { request.Id }, cancellationToken) ?? throw new NotFoundException(nameof(TodoItem), request.Id);
 
-        entity.ListId = request.ListId;
-        entity.Priority = request.Priority;
-        entity.Note = request.Note;
+        todoItem.ListId = request.ListId;
+        todoItem.Priority = request.Priority;
+        todoItem.Note = request.Note;
 
         await _context.SaveChangesAsync(cancellationToken);
     }

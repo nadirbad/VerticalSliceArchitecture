@@ -19,14 +19,9 @@ public class CreateTodoItemController : ApiControllerBase
     }
 }
 
-public class CreateTodoItemCommand : IRequest<int>
-{
-    public int ListId { get; set; }
+public record CreateTodoItemCommand(int ListId, string? Title) : IRequest<int>;
 
-    public string? Title { get; set; }
-}
-
-public class CreateTodoItemCommandValidator : AbstractValidator<CreateTodoItemCommand>
+internal sealed class CreateTodoItemCommandValidator : AbstractValidator<CreateTodoItemCommand>
 {
     public CreateTodoItemCommandValidator()
     {
@@ -36,14 +31,9 @@ public class CreateTodoItemCommandValidator : AbstractValidator<CreateTodoItemCo
     }
 }
 
-internal sealed class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemCommand, int>
+internal sealed class CreateTodoItemCommandHandler(ApplicationDbContext context) : IRequestHandler<CreateTodoItemCommand, int>
 {
-    private readonly ApplicationDbContext _context;
-
-    public CreateTodoItemCommandHandler(ApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly ApplicationDbContext _context = context;
 
     public async Task<int> Handle(CreateTodoItemCommand request, CancellationToken cancellationToken)
     {
@@ -62,14 +52,4 @@ internal sealed class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoI
 
         return entity.Id;
     }
-}
-
-internal sealed class TodoItemCreatedEvent : DomainEvent
-{
-    public TodoItemCreatedEvent(TodoItem item)
-    {
-        Item = item;
-    }
-
-    public TodoItem Item { get; }
 }

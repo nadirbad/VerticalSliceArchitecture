@@ -20,9 +20,8 @@ This project repository is created based on [Clean Architecture solution templat
 - [ASP.NET API with .NET 8](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-8.0)
 - CQRS with [MediatR](https://github.com/jbogard/MediatR)
 - [FluentValidation](https://fluentvalidation.net/)
-- [AutoMapper](https://automapper.org/)
 - [Entity Framework Core 8](https://docs.microsoft.com/en-us/ef/core/)
-- [NUnit](https://nunit.org/), [FluentAssertions](https://fluentassertions.com/), [Moq](https://github.com/moq)
+- [xUnit](https://xunit.net/), [FluentAssertions](https://fluentassertions.com/), [Moq](https://github.com/moq)
 
 Afterwards, the projects and architecture is refactored towards the Vertical slice architecture style.
 
