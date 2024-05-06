@@ -10,6 +10,7 @@
         <AnalysisLevel>8-minimal</AnalysisLevel>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
     <!-- Workaround for https://github.com/dotnet/roslyn/issues/41640 -->
