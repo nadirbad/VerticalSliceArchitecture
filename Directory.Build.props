@@ -6,8 +6,10 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <AssemblyName>VerticalSliceArchitecture.$(MSBuildProjectName)</AssemblyName>
         <RootNamespace>$(AssemblyName)</RootNamespace>
+    </PropertyGroup>
 
-        <AnalysisLevel>8-minimal</AnalysisLevel>
+    <PropertyGroup Label="Analyzer settings">
+        <AnalysisLevel>8-latest</AnalysisLevel>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
