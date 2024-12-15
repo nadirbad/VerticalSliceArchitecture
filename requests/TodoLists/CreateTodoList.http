@@ -1,0 +1,9 @@
+@host = https://localhost:7098
+
+### Create Todo List item
+POST {{host}}/api/todo-lists
+Content-Type: application/json
+
+{
+  "title": "List 2"
+}

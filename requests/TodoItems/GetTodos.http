@@ -1,0 +1,9 @@
+@host = https://localhost:7098
+@listId = 1
+
+### Get Todo items with default pagination
+GET {{host}}/api/todo-items?ListId={{listId}}
+Content-Type: application/json
+
+### Get Todo items with pagination, pageSize = 1, pageNumber = 2
+GET {{host}}/api/todo-items?ListId={{listId}}&pageSize=1&pageNumber=2

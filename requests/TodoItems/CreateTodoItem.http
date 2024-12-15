@@ -1,0 +1,38 @@
+@host = https://localhost:7098
+@listId = 1
+
+### Create Todo Item 1
+POST {{host}}/api/todo-items
+Content-Type: application/json
+
+{
+  "listId": {{listId}},
+  "title": "Todo Item 1"
+}
+
+### Create Todo Item 2
+POST {{host}}/api/todo-items
+Content-Type: application/json
+
+{
+  "listId": {{listId}},
+  "title": "Todo Item 2"
+}
+
+### Create Todo Item 3
+POST {{host}}/api/todo-items
+Content-Type: application/json
+
+{
+  "listId": {{listId}},
+  "title": "Todo Item 3"
+}
+
+### Create Todo item with empty title. Check for 400 Bad Request
+POST {{host}}/api/todo-items
+Content-Type: application/json
+
+{
+  "listId": {{listId}},
+  "title": ""
+}

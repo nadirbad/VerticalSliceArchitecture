@@ -1,0 +1,22 @@
+@host = https://localhost:7098
+@itemId = 1
+
+### Update Todo itemId = 1 with title = "Updated Todo Item 1" and done = true
+PUT {{host}}/api/todo-items/{{itemId}}
+Content-Type: application/json
+
+{
+    "id": {{itemId}},
+    "title": "Updated Todo Item 1",
+    "done": true
+}
+
+### Update Todo itemId = 1 with wrong itemId. Check for 400 Bad Request
+PUT {{host}}/api/todo-items/0
+Content-Type: application/json
+
+{
+    "id": {{itemId}},
+    "title": "Updated Todo Item 1",
+    "done": true
+}
