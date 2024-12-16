@@ -1,0 +1,14 @@
+@host = https://localhost:7098
+@itemId = 4
+@listId = 1
+
+### Update Todo itemId = 1 with PriorityLevel = 1 and Note = "Updated Todo Item 1"
+PUT {{host}}/api/todo-items/UpdateItemDetails?id={{itemId}}
+Content-Type: application/json
+
+{
+    "id": {{itemId}},
+    "listId": {{listId}},
+    "priorityLevel": 1,
+    "note": "Updated Todo Item 1"
+}

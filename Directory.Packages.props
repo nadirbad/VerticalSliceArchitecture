@@ -13,7 +13,7 @@
         <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.1" />
         <!-- Open source packages -->
         <PackageVersion Include="CsvHelper" Version="15.0.10" />
-        <PackageVersion Include="ErrorOr" Version="1.6.0" />
+        <PackageVersion Include="ErrorOr" Version="1.10.0" />
         <PackageVersion Include="FluentValidation" Version="11.9.0" />
         <PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.0" />
         <PackageVersion Include="MediatR" Version="12.2.0" />

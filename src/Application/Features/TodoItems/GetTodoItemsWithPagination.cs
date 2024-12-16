@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using ErrorOr;
+
+using FluentValidation;
 
 using MediatR;
 
@@ -15,15 +17,19 @@ namespace VerticalSliceArchitecture.Application.Features.TodoItems;
 public class GetTodoItemsWithPaginationController : ApiControllerBase
 {
     [HttpGet("/api/todo-items")]
-    public Task<PaginatedList<TodoItemBriefResponse>> GetTodoItemsWithPagination([FromQuery] GetTodoItemsWithPaginationQuery query)
+    public async Task<IActionResult> GetTodoItemsWithPagination([FromQuery] GetTodoItemsWithPaginationQuery query)
     {
-        return Mediator.Send(query);
+        var result = await Mediator.Send(query);
+
+        return result.Match(
+            Ok,
+            Problem);
     }
 }
 
 public record TodoItemBriefResponse(int Id, int ListId, string? Title, bool Done);
 
-public record GetTodoItemsWithPaginationQuery(int ListId, int PageNumber = 1, int PageSize = 10) : IRequest<PaginatedList<TodoItemBriefResponse>>;
+public record GetTodoItemsWithPaginationQuery(int ListId, int PageNumber = 1, int PageSize = 10) : IRequest<ErrorOr<PaginatedList<TodoItemBriefResponse>>>;
 
 internal sealed class GetTodoItemsWithPaginationQueryValidator : AbstractValidator<GetTodoItemsWithPaginationQuery>
 {
@@ -40,17 +46,19 @@ internal sealed class GetTodoItemsWithPaginationQueryValidator : AbstractValidat
     }
 }
 
-internal sealed class GetTodoItemsWithPaginationQueryHandler(ApplicationDbContext context) : IRequestHandler<GetTodoItemsWithPaginationQuery, PaginatedList<TodoItemBriefResponse>>
+internal sealed class GetTodoItemsWithPaginationQueryHandler(ApplicationDbContext context) : IRequestHandler<GetTodoItemsWithPaginationQuery, ErrorOr<PaginatedList<TodoItemBriefResponse>>>
 {
     private readonly ApplicationDbContext _context = context;
 
-    public Task<PaginatedList<TodoItemBriefResponse>> Handle(GetTodoItemsWithPaginationQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<PaginatedList<TodoItemBriefResponse>>> Handle(GetTodoItemsWithPaginationQuery request, CancellationToken cancellationToken)
     {
-        return _context.TodoItems
+        var paginatedList = await _context.TodoItems
             .Where(item => item.ListId == request.ListId)
             .OrderBy(item => item.Title)
             .Select(item => ToDto(item))
             .PaginatedListAsync(request.PageNumber, request.PageSize);
+
+        return paginatedList;
     }
 
     private static TodoItemBriefResponse ToDto(TodoItem todoItem) =>

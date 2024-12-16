@@ -1,9 +1,10 @@
-﻿using MediatR;
+﻿using ErrorOr;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
 
 using VerticalSliceArchitecture.Application.Common;
-using VerticalSliceArchitecture.Application.Common.Exceptions;
 using VerticalSliceArchitecture.Application.Domain.Todos;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
@@ -12,28 +13,38 @@ namespace VerticalSliceArchitecture.Application.Features.TodoItems;
 public class DeleteTodoItemController : ApiControllerBase
 {
     [HttpDelete("/api/todo-items/{id}")]
-    public async Task<ActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        await Mediator.Send(new DeleteTodoItemCommand(id));
+        var result = await Mediator.Send(new DeleteTodoItemCommand(id));
 
-        return NoContent();
+        return result.Match(
+            _ => NoContent(),
+            Problem);
     }
 }
 
-public record DeleteTodoItemCommand(int Id) : IRequest;
+public record DeleteTodoItemCommand(int Id) : IRequest<ErrorOr<Success>>;
 
-internal sealed class DeleteTodoItemCommandHandler(ApplicationDbContext context) : IRequestHandler<DeleteTodoItemCommand>
+internal sealed class DeleteTodoItemCommandHandler(ApplicationDbContext context) : IRequestHandler<DeleteTodoItemCommand, ErrorOr<Success>>
 {
     private readonly ApplicationDbContext _context = context;
 
-    public async Task Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<Success>> Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _context.TodoItems
-            .FindAsync(new object[] { request.Id }, cancellationToken) ?? throw new NotFoundException(nameof(TodoItem), request.Id);
-        _context.TodoItems.Remove(entity);
+        var todoItem = await _context.TodoItems
+            .FindAsync([request.Id], cancellationToken);
 
-        entity.DomainEvents.Add(new TodoItemDeletedEvent(entity));
+        if (todoItem is null)
+        {
+            return Error.NotFound(description: "Todo item not found.");
+        }
+
+        _context.TodoItems.Remove(todoItem);
+
+        todoItem.DomainEvents.Add(new TodoItemDeletedEvent(todoItem));
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        return Result.Success;
     }
 }

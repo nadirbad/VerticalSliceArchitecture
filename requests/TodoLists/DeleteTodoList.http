@@ -1,0 +1,9 @@
+@host = https://localhost:7098
+
+
+### Delete Todo itemId = 10 with wrong itemId. Check for 404 Not Found
+DELETE {{host}}/api/todo-lists/10
+
+
+### Delete Todo itemId = 1, should return 204 No Content
+DELETE {{host}}/api/todo-lists/1

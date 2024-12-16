@@ -1,12 +1,13 @@
-﻿using FluentValidation;
+﻿using ErrorOr;
+
+using FluentValidation;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using VerticalSliceArchitecture.Application.Common;
-using VerticalSliceArchitecture.Application.Common.Exceptions;
-using VerticalSliceArchitecture.Application.Domain.Todos;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 namespace VerticalSliceArchitecture.Application.Features.TodoItems;
@@ -14,20 +15,24 @@ namespace VerticalSliceArchitecture.Application.Features.TodoItems;
 public class TodoItemsController : ApiControllerBase
 {
     [HttpPut("/api/todo-items/{id}")]
-    public async Task<ActionResult> Update(int id, UpdateTodoItemCommand command)
+    public async Task<IActionResult> Update(int id, UpdateTodoItemCommand command)
     {
         if (id != command.Id)
         {
-            return BadRequest();
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                detail: "Not matching ids");
         }
 
-        await Mediator.Send(command);
+        var result = await Mediator.Send(command);
 
-        return NoContent();
+        return result.Match(
+            _ => NoContent(),
+            Problem);
     }
 }
 
-public record UpdateTodoItemCommand(int Id, string? Title, bool Done) : IRequest;
+public record UpdateTodoItemCommand(int Id, string? Title, bool Done) : IRequest<ErrorOr<Success>>;
 
 internal sealed class UpdateTodoItemCommandValidator : AbstractValidator<UpdateTodoItemCommand>
 {
@@ -39,18 +44,25 @@ internal sealed class UpdateTodoItemCommandValidator : AbstractValidator<UpdateT
     }
 }
 
-internal sealed class UpdateTodoItemCommandHandler(ApplicationDbContext context) : IRequestHandler<UpdateTodoItemCommand>
+internal sealed class UpdateTodoItemCommandHandler(ApplicationDbContext context) : IRequestHandler<UpdateTodoItemCommand, ErrorOr<Success>>
 {
     private readonly ApplicationDbContext _context = context;
 
-    public async Task Handle(UpdateTodoItemCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<Success>> Handle(UpdateTodoItemCommand request, CancellationToken cancellationToken)
     {
         var todoItem = await _context.TodoItems
-            .FindAsync(new object[] { request.Id }, cancellationToken) ?? throw new NotFoundException(nameof(TodoItem), request.Id);
+            .FindAsync([request.Id], cancellationToken);
+
+        if (todoItem is null)
+        {
+            return Error.NotFound(description: "Todo item not found.");
+        }
 
         todoItem.Title = request.Title;
         todoItem.Done = request.Done;
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        return Result.Success;
     }
 }

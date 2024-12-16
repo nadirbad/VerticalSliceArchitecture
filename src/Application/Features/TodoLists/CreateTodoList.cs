@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using ErrorOr;
+
+using FluentValidation;
 
 using MediatR;
 
@@ -14,13 +16,17 @@ namespace VerticalSliceArchitecture.Application.Features.TodoLists;
 public class CreateTodoListController : ApiControllerBase
 {
     [HttpPost("/api/todo-lists")]
-    public async Task<ActionResult<int>> Create(CreateTodoListCommand command)
+    public async Task<IActionResult> Create(CreateTodoListCommand command)
     {
-        return await Mediator.Send(command);
+        var result = await Mediator.Send(command);
+
+        return result.Match(
+            id => Ok(id),
+            Problem);
     }
 }
 
-public record CreateTodoListCommand(string? Title) : IRequest<int>;
+public record CreateTodoListCommand(string? Title) : IRequest<ErrorOr<int>>;
 
 internal sealed class CreateTodoListCommandValidator : AbstractValidator<CreateTodoListCommand>
 {
@@ -43,11 +49,11 @@ internal sealed class CreateTodoListCommandValidator : AbstractValidator<CreateT
     }
 }
 
-internal sealed class CreateTodoListCommandHandler(ApplicationDbContext context) : IRequestHandler<CreateTodoListCommand, int>
+internal sealed class CreateTodoListCommandHandler(ApplicationDbContext context) : IRequestHandler<CreateTodoListCommand, ErrorOr<int>>
 {
     private readonly ApplicationDbContext _context = context;
 
-    public async Task<int> Handle(CreateTodoListCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<int>> Handle(CreateTodoListCommand request, CancellationToken cancellationToken)
     {
         var todoList = new TodoList { Title = request.Title };
 
