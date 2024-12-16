@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using ErrorOr;
+
+using FluentValidation;
 
 using MediatR;
 
@@ -13,13 +15,17 @@ namespace VerticalSliceArchitecture.Application.Features.TodoItems;
 public class CreateTodoItemController : ApiControllerBase
 {
     [HttpPost("/api/todo-items")]
-    public async Task<ActionResult<int>> Create(CreateTodoItemCommand command)
+    public async Task<IActionResult> Create(CreateTodoItemCommand command)
     {
-        return await Mediator.Send(command);
+        var result = await Mediator.Send(command);
+
+        return result.Match(
+            id => Ok(id),
+            Problem);
     }
 }
 
-public record CreateTodoItemCommand(int ListId, string? Title) : IRequest<int>;
+public record CreateTodoItemCommand(int ListId, string? Title) : IRequest<ErrorOr<int>>;
 
 internal sealed class CreateTodoItemCommandValidator : AbstractValidator<CreateTodoItemCommand>
 {
@@ -31,11 +37,11 @@ internal sealed class CreateTodoItemCommandValidator : AbstractValidator<CreateT
     }
 }
 
-internal sealed class CreateTodoItemCommandHandler(ApplicationDbContext context) : IRequestHandler<CreateTodoItemCommand, int>
+internal sealed class CreateTodoItemCommandHandler(ApplicationDbContext context) : IRequestHandler<CreateTodoItemCommand, ErrorOr<int>>
 {
     private readonly ApplicationDbContext _context = context;
 
-    public async Task<int> Handle(CreateTodoItemCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<int>> Handle(CreateTodoItemCommand request, CancellationToken cancellationToken)
     {
         var entity = new TodoItem
         {

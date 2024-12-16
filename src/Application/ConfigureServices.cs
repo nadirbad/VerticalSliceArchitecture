@@ -16,17 +16,16 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
-
         services.AddMediatR(options =>
         {
             options.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
 
             options.AddOpenBehavior(typeof(AuthorizationBehaviour<,>));
-            options.AddOpenBehavior(typeof(ValidationBehaviour<,>));
             options.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
-            options.AddOpenBehavior(typeof(UnhandledExceptionBehaviour<,>));
+            options.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
+
+        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, includeInternalTypes: true);
 
         return services;
     }
