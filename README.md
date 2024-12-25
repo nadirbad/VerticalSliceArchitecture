@@ -1,13 +1,13 @@
 # Vertical Slice Architecture example in .NET 8
 
+Check out my [blog post](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/) for more details about Vertical Slice Architecture.
+
 This project is an experiment trying to create a API solution template that uses Vertical Slice architecture style.
 
 The Vertical Slice architecture style is about organizing code by features and vertical slices instead of organizing by technical concerns. It's about an idea of grouping code according to the business functionality and putting all the relevant code close together.
 Vertical Slice architecture can be a starting point and can be evolved later when an application become more sophisticated:
 
 > We can start simple (Transaction Script) and simply refactor to the patterns that emerges from code smells we see in the business logic. [Vertical slice architecture by Jimmy Bogard](https://jimmybogard.com/vertical-slice-architecture/).
-
-Check out my [blog post](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/) for more details about Vertical Slice Architecture.
 
 # Give it a star ⭐
 
