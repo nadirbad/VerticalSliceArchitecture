@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using ErrorOr;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,24 +15,26 @@ namespace VerticalSliceArchitecture.Application.Features.TodoLists;
 public class ExportTodosController : ApiControllerBase
 {
     [HttpGet("/api/todo-lists/{id}")]
-    public async Task<FileResult> Get(int id)
+    public async Task<IActionResult> Get(int id)
     {
-        var vm = await Mediator.Send(new ExportTodosQuery(id));
+        var result = await Mediator.Send(new ExportTodosQuery(id));
 
-        return File(vm.Content, vm.ContentType, vm.FileName);
+        return result.Match(
+            vm => File(vm.Content, vm.ContentType, vm.FileName),
+            Problem);
     }
 }
 
-public record ExportTodosQuery(int ListId) : IRequest<ExportTodosVm>;
+public record ExportTodosQuery(int ListId) : IRequest<ErrorOr<ExportTodosVm>>;
 
 public record ExportTodosVm(string FileName, string ContentType, byte[] Content);
 
-internal sealed class ExportTodosQueryHandler(ApplicationDbContext context, ICsvFileBuilder fileBuilder) : IRequestHandler<ExportTodosQuery, ExportTodosVm>
+internal sealed class ExportTodosQueryHandler(ApplicationDbContext context, ICsvFileBuilder fileBuilder) : IRequestHandler<ExportTodosQuery, ErrorOr<ExportTodosVm>>
 {
     private readonly ApplicationDbContext _context = context;
     private readonly ICsvFileBuilder _fileBuilder = fileBuilder;
 
-    public async Task<ExportTodosVm> Handle(ExportTodosQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<ExportTodosVm>> Handle(ExportTodosQuery request, CancellationToken cancellationToken)
     {
         var records = await _context.TodoItems
                 .Where(t => t.ListId == request.ListId)

@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using ErrorOr;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,19 +14,23 @@ namespace VerticalSliceArchitecture.Application.Features.TodoLists;
 public class GetTodosController : ApiControllerBase
 {
     [HttpGet("/api/todo-lists")]
-    public async Task<ActionResult<TodosVm>> Get()
+    public async Task<IActionResult> Get()
     {
-        return await Mediator.Send(new GetTodosQuery());
+        var result = await Mediator.Send(new GetTodosQuery());
+
+        return result.Match(
+            Ok,
+            Problem);
     }
 }
 
-public record GetTodosQuery : IRequest<TodosVm>;
+public record GetTodosQuery : IRequest<ErrorOr<TodosVm>>;
 
 public class TodosVm
 {
-    public IList<PriorityLevelDto> PriorityLevels { get; set; } = new List<PriorityLevelDto>();
+    public IList<PriorityLevelDto> PriorityLevels { get; set; } = [];
 
-    public IList<TodoListDto> Lists { get; set; } = new List<TodoListDto>();
+    public IList<TodoListDto> Lists { get; set; } = [];
 }
 
 public record PriorityLevelDto(int Value, string? Name);
@@ -32,18 +38,18 @@ public record PriorityLevelDto(int Value, string? Name);
 public record TodoListDto(int Id, string? Title, string? Colour, IList<TodoItemDto> Items)
 {
     public TodoListDto()
-        : this(default, null, null, new List<TodoItemDto>())
+        : this(default, null, null, [])
     {
     }
 }
 
 public record TodoItemDto(int Id, int ListId, string? Title, bool Done, int Priority, string? Note);
 
-internal sealed class GetTodosQueryHandler(ApplicationDbContext context) : IRequestHandler<GetTodosQuery, TodosVm>
+internal sealed class GetTodosQueryHandler(ApplicationDbContext context) : IRequestHandler<GetTodosQuery, ErrorOr<TodosVm>>
 {
     private readonly ApplicationDbContext _context = context;
 
-    public async Task<TodosVm> Handle(GetTodosQuery request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<TodosVm>> Handle(GetTodosQuery request, CancellationToken cancellationToken)
     {
         return new TodosVm
         {

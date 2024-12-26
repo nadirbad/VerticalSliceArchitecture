@@ -1,13 +1,14 @@
-﻿using FluentValidation;
+﻿using ErrorOr;
+
+using FluentValidation;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 using VerticalSliceArchitecture.Application.Common;
-using VerticalSliceArchitecture.Application.Common.Exceptions;
-using VerticalSliceArchitecture.Application.Domain.Todos;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 namespace VerticalSliceArchitecture.Application.Features.TodoLists;
@@ -15,20 +16,24 @@ namespace VerticalSliceArchitecture.Application.Features.TodoLists;
 public class UpdateTodoListController : ApiControllerBase
 {
     [HttpPut("/api/todo-lists/{id}")]
-    public async Task<ActionResult> Update(int id, UpdateTodoListCommand command)
+    public async Task<IActionResult> Update(int id, UpdateTodoListCommand command)
     {
         if (id != command.Id)
         {
-            return BadRequest();
+            return Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                detail: "Not matching ids");
         }
 
-        await Mediator.Send(command);
+        var result = await Mediator.Send(command);
 
-        return NoContent();
+        return result.Match(
+            _ => NoContent(),
+            Problem);
     }
 }
 
-public class UpdateTodoListCommand : IRequest
+public class UpdateTodoListCommand : IRequest<ErrorOr<Success>>
 {
     public int Id { get; set; }
 
@@ -57,7 +62,7 @@ public class UpdateTodoListCommandValidator : AbstractValidator<UpdateTodoListCo
     }
 }
 
-internal sealed class UpdateTodoListCommandHandler : IRequestHandler<UpdateTodoListCommand>
+internal sealed class UpdateTodoListCommandHandler : IRequestHandler<UpdateTodoListCommand, ErrorOr<Success>>
 {
     private readonly ApplicationDbContext _context;
 
@@ -66,14 +71,20 @@ internal sealed class UpdateTodoListCommandHandler : IRequestHandler<UpdateTodoL
         _context = context;
     }
 
-    public async Task Handle(UpdateTodoListCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<Success>> Handle(UpdateTodoListCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.TodoLists
-            .FindAsync(new object[] { request.Id }, cancellationToken)
-            .ConfigureAwait(false) ?? throw new NotFoundException(nameof(TodoList), request.Id);
+            .FindAsync([request.Id], cancellationToken);
+
+        if (entity is null)
+        {
+            return Error.NotFound(description: "TodoList not found.");
+        }
 
         entity.Title = request.Title;
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        return Result.Success;
     }
 }
