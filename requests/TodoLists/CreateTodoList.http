@@ -21,5 +21,5 @@ POST {{host}}/api/todo-lists
 Content-Type: application/json
 
 {
-  "title": "List 1"
+  "title": "List 2"
 }

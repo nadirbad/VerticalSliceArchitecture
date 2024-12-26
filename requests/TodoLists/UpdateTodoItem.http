@@ -1,0 +1,40 @@
+@host = https://localhost:7098
+@todoListId = 1
+
+### Update TodoListId = 1 with title = "Updated TodoList 1"
+PUT {{host}}/api/todo-lists/{{todoListId}}
+Content-Type: application/json
+
+{
+    "id": {{todoListId}},
+    "title": "Updated Todo Item 1"
+}
+
+### Update TodoListId = 1 with wrong Id
+PUT {{host}}/api/todo-items/0
+Content-Type: application/json
+
+{
+    "id": {{todoListId}},
+    "title": "Updated Todo Item 1"
+}
+
+### Update TodoListId = 1 with empty title
+PUT {{host}}/api/todo-lists/{{todoListId}}
+Content-Type: application/json
+
+{
+    "id": {{todoListId}},
+    "title": ""
+}
+
+### Update TodoListId = 1 with title more than 200 characters
+PUT {{host}}/api/todo-lists/{{todoListId}}
+Content-Type: application/json
+
+{
+    "id": {{todoListId}},
+    "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+}
+
+

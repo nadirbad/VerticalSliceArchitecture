@@ -1,0 +1,5 @@
+@host = https://localhost:7098
+@todoListId = 2
+
+### Export Todo lists
+GET {{host}}/api/todo-lists/{{todoListId}}
