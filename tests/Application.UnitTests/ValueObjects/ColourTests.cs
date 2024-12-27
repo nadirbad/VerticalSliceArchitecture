@@ -1,5 +1,4 @@
-﻿using VerticalSliceArchitecture.Application.Common.Exceptions;
-using VerticalSliceArchitecture.Application.Domain.ValueObjects;
+﻿using VerticalSliceArchitecture.Application.Domain.ValueObjects;
 
 namespace VerticalSliceArchitecture.Application.UnitTests.ValueObjects;
 
@@ -12,7 +11,8 @@ public class ColourTests
 
         var colour = Colour.From(code);
 
-        colour.Code.Should().Be(code);
+        colour.IsError.Should().BeFalse();
+        colour.Value.Code.Should().Be(code);
     }
 
     [Fact]
@@ -32,17 +32,13 @@ public class ColourTests
     }
 
     [Fact]
-    public void ShouldPerformExplicitConversionGivenSupportedColourCode()
+    public void ShouldReturnErrorGivenNotSupportedColourCode()
     {
-        var colour = (Colour)"#FFFFFF";
+        // Arrange/Act
+        var colour = Colour.From("##FF33CC");
 
-        colour.Should().Be(Colour.White);
-    }
-
-    [Fact]
-    public void ShouldThrowUnsupportedColourExceptionGivenNotSupportedColourCode()
-    {
-        FluentActions.Invoking(() => Colour.From("##FF33CC"))
-            .Should().Throw<UnsupportedColourException>();
+        // Assert
+        colour.IsError.Should().BeTrue();
+        colour.FirstError.Code.Should().Be("ColourErrors.UnsupportedColour");
     }
 }

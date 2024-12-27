@@ -1,5 +1,8 @@
-﻿using VerticalSliceArchitecture.Application.Common;
-using VerticalSliceArchitecture.Application.Common.Exceptions;
+﻿using System.Reflection.Metadata.Ecma335;
+
+using ErrorOr;
+
+using VerticalSliceArchitecture.Application.Common;
 
 namespace VerticalSliceArchitecture.Application.Domain.ValueObjects;
 
@@ -18,11 +21,11 @@ public class Colour : ValueObject
         Code = code;
     }
 
-    public static Colour From(string code)
+    public static ErrorOr<Colour> From(string code)
     {
         var colour = new Colour { Code = code };
 
-        return !SupportedColours.Contains(colour) ? throw new UnsupportedColourException(code) : colour;
+        return !SupportedColours.Contains(colour) ? ColourErrors.UnsupportedColour(code) : colour;
     }
 
     public static Colour White => new("#FFFFFF");
@@ -46,11 +49,6 @@ public class Colour : ValueObject
     public static implicit operator string(Colour colour)
     {
         return colour.ToString();
-    }
-
-    public static explicit operator Colour(string code)
-    {
-        return From(code);
     }
 
     public override string ToString()
