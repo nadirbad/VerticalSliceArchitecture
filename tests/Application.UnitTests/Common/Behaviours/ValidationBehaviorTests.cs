@@ -11,7 +11,7 @@ namespace VerticalSliceArchitecture.Application.UnitTests.Common.Behaviours;
 
 public class ValidationBehaviorTests
 {
-    private readonly ValidationBehavior<CreateTodoListCommand, ErrorOr<int>> _validationBehavior;
+    private readonly ValidationBehaviour<CreateTodoListCommand, ErrorOr<int>> _validationBehavior;
     private readonly IValidator<CreateTodoListCommand> _mockValidator;
     private readonly RequestHandlerDelegate<ErrorOr<int>> _mockNextBehavior;
 
@@ -69,7 +69,7 @@ public class ValidationBehaviorTests
     {
         // Arrange
         var createTodoListCommand = new CreateTodoListCommand("Title");
-        var validationBehavior = new ValidationBehavior<CreateTodoListCommand, ErrorOr<int>>();
+        var validationBehavior = new ValidationBehaviour<CreateTodoListCommand, ErrorOr<int>>();
 
         var todoList = new TodoList { Title = createTodoListCommand.Title };
         _mockNextBehavior.Invoke().Returns(todoList.Id);
