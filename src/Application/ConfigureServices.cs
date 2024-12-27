@@ -22,7 +22,7 @@ public static class DependencyInjection
 
             options.AddOpenBehavior(typeof(AuthorizationBehaviour<,>));
             options.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
-            options.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            options.AddOpenBehavior(typeof(ValidationBehaviour<,>));
         });
 
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, includeInternalTypes: true);

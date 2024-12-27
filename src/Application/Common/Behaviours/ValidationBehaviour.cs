@@ -6,7 +6,7 @@ using MediatR;
 
 namespace VerticalSliceArchitecture.Application.Common.Behaviours;
 
-public class ValidationBehavior<TRequest, TResponse>(IValidator<TRequest>? validator = null)
+public class ValidationBehaviour<TRequest, TResponse>(IValidator<TRequest>? validator = null)
     : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
         where TResponse : IErrorOr
