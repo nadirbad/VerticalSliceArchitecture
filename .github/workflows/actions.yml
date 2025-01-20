@@ -7,15 +7,16 @@ name: build and test
 # the main branch, when either C# or project files changed
 on:
   push:
+    branches: [main]
   pull_request:
     branches: [main]
     paths-ignore:
       - "README.md"
 
 # Create an environment variable named DOTNET_VERSION
-# and set it as "7.0.x"
+# and set it as "9.0.x"
 env:
-  DOTNET_VERSION: "8.0.x" # The .NET SDK version to use
+  DOTNET_VERSION: "9.0.x" # The .NET SDK version to use
 
 # Defines a single job named "build-and-test"
 jobs:
@@ -31,23 +32,27 @@ jobs:
     # Each job run contains these five steps
     steps:
       # 1) Check out the source code so that the workflow can access it.
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # 2) Set up the .NET CLI environment for the workflow to use.
       #    The .NET version is specified by the environment variable.
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       # 3) Restore the dependencies and tools of a project or solution.
-      - name: Install dependencies
+      - name: Restore dependencies
         run: dotnet restore
 
-      # 4) Build a project or solution and all of its dependencies.
+      # 4) Check code style and analysis
+      - name: Format
+        run: dotnet format --verify-no-changes --verbosity diagnostic
+
+      # 5) Build a project or solution and all of its dependencies.
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      # 5) Test a project or solution.
+      # 6) Test a project or solution.
       - name: Test
         run: dotnet test --no-restore --verbosity normal
