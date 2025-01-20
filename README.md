@@ -1,4 +1,4 @@
-# Vertical Slice Architecture example in .NET 8
+# Vertical Slice Architecture example in .NET 9
 
 Check out my [blog post](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/) for more details about Vertical Slice Architecture.
 
@@ -17,11 +17,12 @@ Loving it? Show your support by giving this project a star!
 
 This project repository is created based on [Clean Architecture solution template by Jason Taylor](https://github.com/jasontaylordev/CleanArchitecture), and it uses technology choices and application business logic from this template.
 
-- [ASP.NET API with .NET 8](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-8.0)
+- [ASP.NET API with .NET 9](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-9.0)
 - CQRS with [MediatR](https://github.com/jbogard/MediatR)
 - [FluentValidation](https://fluentvalidation.net/)
-- [Entity Framework Core 8](https://docs.microsoft.com/en-us/ef/core/)
+- [Entity Framework Core 9](https://docs.microsoft.com/en-us/ef/core/)
 - [xUnit](https://xunit.net/), [FluentAssertions](https://fluentassertions.com/), [Moq](https://github.com/moq)
+- Result pattern for handling exceptions and errors using [ErrorOr package](https://github.com/amantinband/error-or)
 
 Afterwards, the projects and architecture is refactored towards the Vertical slice architecture style.
 
@@ -49,7 +50,7 @@ This projects contains contains all applications logic and shared concerns like 
 
 ## Getting started
 
-1. Install the latest [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+1. Install the latest [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
 2. Navigate to `src/Api` and run `dotnet run` to launch the back end (ASP.NET Core Web API) or via `dotnet run --project src/Api/Api.csproj`
 
 ### Build, test and publish application
