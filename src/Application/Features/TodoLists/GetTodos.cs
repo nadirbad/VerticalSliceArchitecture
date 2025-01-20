@@ -53,10 +53,7 @@ internal sealed class GetTodosQueryHandler(ApplicationDbContext context) : IRequ
     {
         return new TodosVm
         {
-            PriorityLevels = Enum.GetValues(typeof(PriorityLevel))
-                .Cast<PriorityLevel>()
-                .Select(p => new PriorityLevelDto((int)p, p.ToString()))
-                .ToList(),
+            PriorityLevels = [.. Enum.GetValues<PriorityLevel>().Select(p => new PriorityLevelDto((int)p, p.ToString()))],
 
             Lists = await _context.TodoLists
                 .AsNoTracking()

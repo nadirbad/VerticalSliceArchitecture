@@ -1,13 +1,13 @@
 <Project>
    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <AssemblyName>VerticalSliceArchitecture.$(MSBuildProjectName)</AssemblyName>
         <RootNamespace>$(AssemblyName)</RootNamespace>
 
-        <AnalysisLevel>8-minimum</AnalysisLevel>
+        <AnalysisLevel>latest-minimum</AnalysisLevel>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>

@@ -144,6 +144,12 @@ and apply migration and update the database:
 dotnet ef database update --project src/Application --startup-project src/Api   
 ```
 
+### Testing API endpoints
+
+You can test the endpoints using tools like [Postman](https://www.postman.com/) or simply from VS Code using the [REST Client extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client).
+
+Find the example requests in the `requests` folder in the root of the project.
+
 ## Code analysis
 
 Developers should follow Microsoft's [C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions).
