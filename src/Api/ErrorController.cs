@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
+namespace VerticalSliceArchitecture.Api;
+
 public class ErrorController : ControllerBase
 {
     [Route("/error-development")]
