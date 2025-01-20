@@ -148,18 +148,23 @@ dotnet ef database update --project src/Application --startup-project src/Api
 
 Developers should follow Microsoft's [C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions).
 
-To enforce consistent coding styles and settings in the codebase, we use an EditorConfig file (**.editorconfig**) prepopulated with the default [.NET code style, formatting, and naming conventions](https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference?view=vs-2019).
+To enforce consistent coding styles and settings in the codebase, we use an EditorConfig file (**.editorconfig**) prepopulated with the default [.NET code style, formatting, and naming conventions](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/code-style-rule-options).
+
+For [code analysis](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/overview?tabs=net-9)
+we use the built in analyzers.
 
 **IMPORTANT NOTES:**
 
 - EditorConfig settings take precedence over global IDE text editor settings.
 - New lines of code are formatted according to the EditorConfig settings
-- The formatting of existing code is not changed unless you run one of the following commands (Visual Studio):
-  - Code Cleanup (**Ctrl+K, Ctrl+E**) which applies any white space setting, indent style, and other code style settings.
-  - Format Document (**Ctrl+K, Ctrl+D**)
+- **The formatting of existing code is not changed unless you run**:
+  - `dotnet format` from the command line
 
-For [code analysis](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/overview?tabs=net-8)
-we use the built in analyzers.
+There are a few arguments we can supply to the dotnet format command to control its usage. A useful one is the `--verify-no-changes argument`. This argument is useful when we want to understand when code breaks standards, but not automatically clean it up.
+
+```shell
+dotnet format --verify-no-changes
+```
 
 Both code formating and analysis can be performed from the cli by running:
 
