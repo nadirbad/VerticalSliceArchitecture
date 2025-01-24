@@ -1,11 +1,11 @@
 # Vertical Slice Architecture example in .NET 9
 
-Check out my [blog post](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/) for more details about Vertical Slice Architecture.
+Check out my blog post [A Guide to Vertical Slice Architecture in C# .NET](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/) for more details about Vertical Slice Architecture.
 
-This project is an experiment trying to create a API solution template that uses Vertical Slice architecture style.
+This project is an experiment trying to create an API solution template that uses a Vertical Slice architecture style.
 
 The Vertical Slice architecture style is about organizing code by features and vertical slices instead of organizing by technical concerns. It's about an idea of grouping code according to the business functionality and putting all the relevant code close together.
-Vertical Slice architecture can be a starting point and can be evolved later when an application become more sophisticated:
+Vertical Slice architecture can be a starting point and can be evolved later when an application becomes more sophisticated:
 
 > We can start simple (Transaction Script) and simply refactor to the patterns that emerges from code smells we see in the business logic. [Vertical slice architecture by Jimmy Bogard](https://jimmybogard.com/vertical-slice-architecture/).
 
@@ -30,11 +30,11 @@ Afterwards, the projects and architecture is refactored towards the Vertical sli
 
 Most applications start simple but they tend to change and evolve over time. Because of this, I wanted to create a simpler API solution template that focuses on the vertical slices architecture style.
 
-Typically if I need to change a feature in an application, I end up touching different layers of the application and navigating through piles of projects, folders and files.
+Typically if I need to change a feature in an application, I end up touching different layers of the application and navigating through piles of projects, folders, and files.
 
-Goal is to stop thinking about horizontal layers and start thinking about vertical slices and organize code by **Features**. When the code is organized by feature you get the benefits of not having to jump around projects, folders and files. Things related to given features are placed close together.
+The goal is to stop thinking about horizontal layers and start thinking about vertical slices and organize code by **Features**. When the code is organized by feature you get the benefits of not having to jump around projects, folders, and files. Things related to given features are placed close together.
 
-When moving towards the vertical slices we stop thinking about layers and abstractions. The reason is the vertical slice doesn't necessarily need shared layer abstractions like repositories, services, controllers. We are more focused on concrete behavior implementation and what is the best solution to implements.
+When moving towards the vertical slices we stop thinking about layers and abstractions. The reason is the vertical slice doesn't necessarily need shared layer abstractions like repositories, services, controllers. We are more focused on concrete behavior implementation and what is the best solution to implement.
 
 ## Projects breakdown
 
@@ -46,14 +46,14 @@ ASP.NET Web API project is an entry point to the application, but it doesn't hav
 
 ### Application
 
-This projects contains contains all applications logic and shared concerns like Domain Entities, Infrastructure and other common concerns. All the business logic is placed in a `Feature` folders. Instead of having a file for basically controller, command/query, validator, handlers, models, I placed everything usually in one file and have all the relevant things close together.
+This project contains all application logic and shared concerns like Domain Entities, Infrastructure, and other common concerns. All the business logic is placed in a `Feature` folder. Instead of having a file for basically controller, command/query, validator, handlers, and models, I placed everything usually in one file, and have all the relevant things close together.
 
 ## Getting started
 
 1. Install the latest [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
 2. Navigate to `src/Api` and run `dotnet run` to launch the back end (ASP.NET Core Web API) or via `dotnet run --project src/Api/Api.csproj`
 
-### Build, test and publish application
+### Build, test, and publish the application
 
 CLI commands executed from the root folder.
 
@@ -76,8 +76,8 @@ dotnet publish src/Api/Api.csproj --configuration Release
 
 ### Test solution locally
 
-To run API locally, for example to debug them, you can use the VS Code (just open and press F5) or other IDE (VisualStudio, Rider).
-By default the project uses in-memory database, but if you would like to change that check the next section about [Database Configuration](#database-configuration)
+To run API locally, for example, to debug them, you can use the VS Code (just open and press F5) or other IDE (VisualStudio, Rider).
+By default, the project uses in-memory database, but if you would like to change that check the next section about [Database Configuration](#database-configuration)
 
 To run the project from the terminal
 
@@ -158,7 +158,7 @@ Developers should follow Microsoft's [C# Coding Conventions](https://docs.micros
 To enforce consistent coding styles and settings in the codebase, we use an EditorConfig file (**.editorconfig**) prepopulated with the default [.NET code style, formatting, and naming conventions](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/code-style-rule-options).
 
 For [code analysis](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/overview?tabs=net-9)
-we use the built in analyzers.
+we use the built-in analyzers.
 
 **IMPORTANT NOTES:**
 
