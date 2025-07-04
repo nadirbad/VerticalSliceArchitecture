@@ -10,7 +10,7 @@
       "request": "launch",
       "preLaunchTask": "build",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/src/Api/bin/Debug/net8.0/VerticalSliceArchitecture.Api.dll",
+      "program": "${workspaceFolder}/src/Api/bin/Debug/net9.0/VerticalSliceArchitecture.Api.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/Api",
       "stopAtEntry": false,
