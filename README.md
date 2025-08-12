@@ -1,5 +1,7 @@
 # Vertical Slice Architecture example in .NET 9
 
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/nadirbad/VerticalSliceArchitecture?utm_source=oss&utm_medium=github&utm_campaign=nadirbad%2FVerticalSliceArchitecture&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+
 Check out my blog post [A Guide to Vertical Slice Architecture in C# .NET](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/) for more details about Vertical Slice Architecture.
 
 This project is an experiment trying to create an API solution template that uses a Vertical Slice architecture style.
@@ -9,7 +11,7 @@ Vertical Slice architecture can be a starting point and can be evolved later whe
 
 > We can start simple (Transaction Script) and simply refactor to the patterns that emerges from code smells we see in the business logic. [Vertical slice architecture by Jimmy Bogard](https://jimmybogard.com/vertical-slice-architecture/).
 
-# Give it a star ⭐
+## Give it a star ⭐
 
 Loving it? Show your support by giving this project a star!
 
