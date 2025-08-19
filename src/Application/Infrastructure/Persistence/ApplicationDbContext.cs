@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
+using VerticalSliceArchitecture.Application.Domain.Healthcare;
 using VerticalSliceArchitecture.Application.Domain.Todos;
 
 namespace VerticalSliceArchitecture.Application.Infrastructure.Persistence;
@@ -30,6 +31,12 @@ public class ApplicationDbContext : DbContext
     public DbSet<TodoList> TodoLists => Set<TodoList>();
 
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
+
+    public DbSet<Patient> Patients => Set<Patient>();
+
+    public DbSet<Doctor> Doctors => Set<Doctor>();
+
+    public DbSet<Appointment> Appointments => Set<Appointment>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
     {

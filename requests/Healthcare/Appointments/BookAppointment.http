@@ -1,0 +1,22 @@
+### Book Appointment (happy path)
+POST https://localhost:7098/api/healthcare/appointments
+Content-Type: application/json
+
+{
+  "patientId": 1,
+  "doctorId": 2,
+  "start": "2025-08-20T10:00:00Z",
+  "end": "2025-08-20T10:30:00Z",
+  "notes": "Initial consultation"
+}
+
+### Book Appointment (overlap expected 409)
+POST https://localhost:7098/api/healthcare/appointments
+Content-Type: application/json
+
+{
+  "patientId": 3,
+  "doctorId": 2,
+  "start": "2025-08-20T10:15:00Z",
+  "end": "2025-08-20T10:45:00Z"
+}
