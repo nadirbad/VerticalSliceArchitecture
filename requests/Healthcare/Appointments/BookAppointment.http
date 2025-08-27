@@ -3,8 +3,8 @@ POST https://localhost:7098/api/healthcare/appointments
 Content-Type: application/json
 
 {
-  "patientId": 1,
-  "doctorId": 2,
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
   "start": "2025-08-20T10:00:00Z",
   "end": "2025-08-20T10:30:00Z",
   "notes": "Initial consultation"
@@ -15,8 +15,8 @@ POST https://localhost:7098/api/healthcare/appointments
 Content-Type: application/json
 
 {
-  "patientId": 3,
-  "doctorId": 2,
+  "patientId": "33333333-3333-3333-3333-333333333333",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
   "start": "2025-08-20T10:15:00Z",
   "end": "2025-08-20T10:45:00Z"
 }

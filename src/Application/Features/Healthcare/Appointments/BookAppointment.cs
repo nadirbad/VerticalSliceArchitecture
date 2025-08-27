@@ -26,28 +26,28 @@ public class BookAppointmentController : ApiControllerBase
     }
 }
 
-public record BookAppointmentCommand(int PatientId, int DoctorId, DateTimeOffset Start, DateTimeOffset End, string? Notes) : IRequest<ErrorOr<BookAppointmentResult>>;
+public record BookAppointmentCommand(Guid PatientId, Guid DoctorId, DateTimeOffset Start, DateTimeOffset End, string? Notes) : IRequest<ErrorOr<BookAppointmentResult>>;
 
-public record BookAppointmentResult(int Id, DateTime StartUtc, DateTime EndUtc);
+public record BookAppointmentResult(Guid Id, DateTime StartUtc, DateTime EndUtc);
 
 internal sealed class BookAppointmentCommandValidator : AbstractValidator<BookAppointmentCommand>
 {
     public BookAppointmentCommandValidator()
     {
         RuleFor(v => v.PatientId)
-            .GreaterThan(0)
-            .WithMessage("PatientId must be greater than 0");
+            .NotEmpty()
+            .WithMessage("PatientId is required");
 
         RuleFor(v => v.DoctorId)
-            .GreaterThan(0)
-            .WithMessage("DoctorId must be greater than 0");
+            .NotEmpty()
+            .WithMessage("DoctorId is required");
 
         RuleFor(v => v.Start)
             .LessThan(v => v.End)
             .WithMessage("Start time must be before end time");
 
         RuleFor(v => v.End)
-            .GreaterThan(v => v.Start.AddMinutes(10))
+            .GreaterThanOrEqualTo(v => v.Start.AddMinutes(10))
             .WithMessage("Appointment must be at least 10 minutes long");
 
         RuleFor(v => v.End)
@@ -109,16 +109,13 @@ internal sealed class BookAppointmentCommandHandler(ApplicationDbContext context
             return Error.Conflict("Appointment.Conflict", $"Doctor has a conflicting appointment during the requested time");
         }
 
-        // Create the appointment
-        var appointment = new Appointment
-        {
-            PatientId = request.PatientId,
-            DoctorId = request.DoctorId,
-            StartUtc = startUtc,
-            EndUtc = endUtc,
-            Status = AppointmentStatus.Scheduled,
-            Notes = request.Notes,
-        };
+        // Create the appointment using factory method
+        var appointment = Appointment.Schedule(
+            request.PatientId,
+            request.DoctorId,
+            startUtc,
+            endUtc,
+            request.Notes);
 
         // Add domain event
         appointment.DomainEvents.Add(

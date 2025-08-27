@@ -15,8 +15,7 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
             .HasMaxLength(1024);
 
         builder.Property(a => a.RowVersion)
-            .IsRowVersion()
-            .IsRequired(false);
+            .IsRowVersion();
 
         builder.HasOne(a => a.Patient)
             .WithMany()

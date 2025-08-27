@@ -35,14 +35,14 @@ public static class ApplicationDbContextSeed
         if (!context.Patients.Any())
         {
             context.Patients.AddRange(
-                new Patient { FullName = "John Smith", Email = "john.smith@example.com", Phone = "+1-555-0101" },
-                new Patient { FullName = "Jane Doe", Email = "jane.doe@example.com", Phone = "+1-555-0102" },
-                new Patient { FullName = "Bob Johnson", Email = "bob.johnson@example.com", Phone = "+1-555-0103" });
+                new Patient("John Smith", "john.smith@example.com", "+1-555-0101") { Id = new Guid("11111111-1111-1111-1111-111111111111") },
+                new Patient("Jane Doe", "jane.doe@example.com", "+1-555-0102") { Id = new Guid("22222222-2222-2222-2222-222222222222") },
+                new Patient("Bob Johnson", "bob.johnson@example.com", "+1-555-0103") { Id = new Guid("33333333-3333-3333-3333-333333333333") });
 
             context.Doctors.AddRange(
-                new Doctor { FullName = "Dr. Sarah Wilson", Specialty = "Family Medicine" },
-                new Doctor { FullName = "Dr. Michael Chen", Specialty = "Cardiology" },
-                new Doctor { FullName = "Dr. Emily Rodriguez", Specialty = "Pediatrics" });
+                new Doctor("Dr. Sarah Wilson", "Family Medicine") { Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa") },
+                new Doctor("Dr. Michael Chen", "Cardiology") { Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb") },
+                new Doctor("Dr. Emily Rodriguez", "Pediatrics") { Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc") });
 
             await context.SaveChangesAsync();
         }

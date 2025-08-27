@@ -13,15 +13,15 @@ Endpoint
 
 Request
 
-- patientId: int (required)
-- doctorId: int (required)
+- patientId: guid (required)
+- doctorId: guid (required)
 - start: string (ISO-8601, required) — client local or UTC; server normalizes to UTC
 - end: string (ISO-8601, required) — must be > start
 - notes: string (optional, 0..1024)
 
 Response
 
-- 201 Created, body: { id: int, startUtc: string, endUtc: string }
+- 201 Created, body: { id: guid, startUtc: string, endUtc: string }
 - 409 Conflict: overlapping appointment for doctor
 - 400 Validation: invalid time window, missing fields
 - 404 NotFound: patient or doctor not found
@@ -33,7 +33,7 @@ src/Application/Features/Healthcare/Appointments/BookAppointment.cs
 
 - Controller: BookAppointmentController : ApiControllerBase
   - [HttpPost("/api/healthcare/appointments")] public Task<IActionResult> Book([FromBody] Command request)
-- Command: record Command(int PatientId, int DoctorId, DateTimeOffset Start, DateTimeOffset End, string? Notes) : IRequest<ErrorOr<int>>
+- Command: record Command(Guid PatientId, Guid DoctorId, DateTimeOffset Start, DateTimeOffset End, string? Notes) : IRequest<ErrorOr<Guid>>
 - Validator: AbstractValidator<Command>
   - PatientId, DoctorId > 0
   - Start < End

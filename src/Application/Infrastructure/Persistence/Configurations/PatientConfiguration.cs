@@ -15,7 +15,10 @@ public class PatientConfiguration : IEntityTypeConfiguration<Patient>
 
         builder.Property(p => p.Email)
             .HasMaxLength(320)
-            .IsRequired();
+            .IsRequired()
+            .HasConversion(
+                e => e == null ? null : e.Trim().ToLowerInvariant(),
+                e => e ?? string.Empty);
 
         builder.Property(p => p.Phone)
             .HasMaxLength(20)

@@ -54,9 +54,10 @@ else
 app.UseAuthorization();
 app.MapControllers();
 
-// Seed the database
-using (var scope = app.Services.CreateScope())
+// Seed the database in development only
+if (app.Environment.IsDevelopment())
 {
+    using var scope = app.Services.CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await ApplicationDbContextSeed.SeedSampleDataAsync(context);
 }
