@@ -213,33 +213,41 @@ public class AppointmentTests
     }
 
     [Fact]
-    public void Reschedule_WhenCancelled_ShouldThrowInvalidOperationException()
+    public void Reschedule_WhenCancelled_ShouldStillAllowMutation()
     {
         // Arrange
+        // Note: Status validation moved to Handler - domain only mutates state
         var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
         appointment.Cancel();
         var newStartUtc = DateTime.UtcNow.AddDays(2);
         var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
 
-        // Act & Assert
-        var act = () => appointment.Reschedule(newStartUtc, newEndUtc);
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("Cannot reschedule a cancelled appointment");
+        // Act
+        appointment.Reschedule(newStartUtc, newEndUtc);
+
+        // Assert
+        appointment.StartUtc.Should().Be(newStartUtc);
+        appointment.EndUtc.Should().Be(newEndUtc);
+        appointment.Status.Should().Be(AppointmentStatus.Rescheduled);
     }
 
     [Fact]
-    public void Reschedule_WhenCompleted_ShouldThrowInvalidOperationException()
+    public void Reschedule_WhenCompleted_ShouldStillAllowMutation()
     {
         // Arrange
+        // Note: Status validation moved to Handler - domain only mutates state
         var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
         appointment.Complete();
         var newStartUtc = DateTime.UtcNow.AddDays(2);
         var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
 
-        // Act & Assert
-        var act = () => appointment.Reschedule(newStartUtc, newEndUtc);
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("Cannot reschedule a completed appointment");
+        // Act
+        appointment.Reschedule(newStartUtc, newEndUtc);
+
+        // Assert
+        appointment.StartUtc.Should().Be(newStartUtc);
+        appointment.EndUtc.Should().Be(newEndUtc);
+        appointment.Status.Should().Be(AppointmentStatus.Rescheduled);
     }
 
     [Fact]
@@ -273,32 +281,36 @@ public class AppointmentTests
     }
 
     [Fact]
-    public void Reschedule_WithStartTimeAfterEndTime_ShouldThrowArgumentException()
+    public void Reschedule_WithStartTimeAfterEndTime_ShouldAllowMutation()
     {
         // Arrange
+        // Note: Time ordering validation moved to FluentValidation - domain only mutates state
         var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
         var newStartUtc = DateTime.UtcNow.AddDays(2);
-        var newEndUtc = DateTime.UtcNow.AddDays(1); // Before start
+        var newEndUtc = DateTime.UtcNow.AddDays(1); // Before start (invalid, but domain doesn't check)
 
-        // Act & Assert
-        var act = () => appointment.Reschedule(newStartUtc, newEndUtc);
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("Start time must be before end time*")
-            .And.ParamName.Should().Be("newStartUtc");
+        // Act
+        appointment.Reschedule(newStartUtc, newEndUtc);
+
+        // Assert - domain accepts whatever it's given
+        appointment.StartUtc.Should().Be(newStartUtc);
+        appointment.EndUtc.Should().Be(newEndUtc);
     }
 
     [Fact]
-    public void Reschedule_WithStartTimeEqualToEndTime_ShouldThrowArgumentException()
+    public void Reschedule_WithStartTimeEqualToEndTime_ShouldAllowMutation()
     {
         // Arrange
+        // Note: Time ordering validation moved to FluentValidation - domain only mutates state
         var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
         var newStartUtc = DateTime.UtcNow.AddDays(2);
 
-        // Act & Assert
-        var act = () => appointment.Reschedule(newStartUtc, newStartUtc);
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("Start time must be before end time*")
-            .And.ParamName.Should().Be("newStartUtc");
+        // Act
+        appointment.Reschedule(newStartUtc, newStartUtc);
+
+        // Assert - domain accepts whatever it's given
+        appointment.StartUtc.Should().Be(newStartUtc);
+        appointment.EndUtc.Should().Be(newStartUtc);
     }
 
     [Fact]

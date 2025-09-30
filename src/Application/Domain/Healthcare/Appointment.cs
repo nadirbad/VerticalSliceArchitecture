@@ -49,26 +49,20 @@ public class Appointment : AuditableEntity, IHasDomainEvent
     [NotMapped]
     public List<DomainEvent> DomainEvents { get; } = new List<DomainEvent>();
 
+    /// <summary>
+    /// Reschedules the appointment to new times. Assumes caller has validated business rules
+    /// (status checks, time windows, conflicts). This method only mutates state.
+    /// </summary>
+    /// <param name="newStartUtc">The new start time in UTC.</param>
+    /// <param name="newEndUtc">The new end time in UTC.</param>
+    /// <param name="reason">Optional reason for rescheduling, appended to notes.</param>
     public void Reschedule(DateTime newStartUtc, DateTime newEndUtc, string? reason = null)
     {
+        // Technical invariants only - business rules validated by caller
         ValidateDateTime(newStartUtc, nameof(newStartUtc));
         ValidateDateTime(newEndUtc, nameof(newEndUtc));
 
-        if (newStartUtc >= newEndUtc)
-        {
-            throw new ArgumentException("Start time must be before end time", nameof(newStartUtc));
-        }
-
-        if (Status == AppointmentStatus.Cancelled)
-        {
-            throw new InvalidOperationException("Cannot reschedule a cancelled appointment");
-        }
-
-        if (Status == AppointmentStatus.Completed)
-        {
-            throw new InvalidOperationException("Cannot reschedule a completed appointment");
-        }
-
+        // Mutate state
         StartUtc = newStartUtc;
         EndUtc = newEndUtc;
         Status = AppointmentStatus.Rescheduled;
