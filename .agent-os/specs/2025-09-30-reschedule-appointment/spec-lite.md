@@ -1,0 +1,3 @@
+# Spec Summary (Lite)
+
+Implement appointment rescheduling functionality that allows patients, doctors, and administrators to modify existing appointment times while maintaining data integrity through conflict detection and business rule enforcement. The feature enforces a 24-hour advance notice requirement, prevents doctor schedule conflicts, validates time windows, and maintains an audit trail through domain events and notes, completing the core appointment management capabilities for the healthcare VSA template.
