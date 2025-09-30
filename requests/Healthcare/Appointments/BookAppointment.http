@@ -1,22 +1,109 @@
-### Book Appointment (happy path)
+### 1. Book Appointment (happy path - expect 201)
 POST https://localhost:7098/api/healthcare/appointments
 Content-Type: application/json
 
 {
   "patientId": "11111111-1111-1111-1111-111111111111",
   "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-  "start": "2025-08-20T10:00:00Z",
-  "end": "2025-08-20T10:30:00Z",
+  "start": "2025-10-20T10:00:00Z",
+  "end": "2025-10-20T10:30:00Z",
   "notes": "Initial consultation"
 }
 
-### Book Appointment (overlap expected 409)
+### 2. Book Appointment - Overlapping time (expect 409)
+# Run scenario 1 first, then this will conflict
 POST https://localhost:7098/api/healthcare/appointments
 Content-Type: application/json
 
 {
   "patientId": "33333333-3333-3333-3333-333333333333",
   "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-  "start": "2025-08-20T10:15:00Z",
-  "end": "2025-08-20T10:45:00Z"
+  "start": "2025-10-20T10:15:00Z",
+  "end": "2025-10-20T10:45:00Z"
+}
+
+### 3. Book Appointment - Invalid time window: Start >= End (expect 400)
+POST https://localhost:7098/api/healthcare/appointments
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "start": "2025-10-20T10:00:00Z",
+  "end": "2025-10-20T09:00:00Z",
+  "notes": "End time is before start time"
+}
+
+### 4. Book Appointment - Duration too short: < 10 minutes (expect 400)
+POST https://localhost:7098/api/healthcare/appointments
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  "start": "2025-10-20T14:00:00Z",
+  "end": "2025-10-20T14:05:00Z",
+  "notes": "Only 5 minutes - too short"
+}
+
+### 5. Book Appointment - Duration too long: > 8 hours (expect 400)
+POST https://localhost:7098/api/healthcare/appointments
+Content-Type: application/json
+
+{
+  "patientId": "22222222-2222-2222-2222-222222222222",
+  "doctorId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  "start": "2025-10-20T08:00:00Z",
+  "end": "2025-10-20T17:00:00Z",
+  "notes": "9 hours - too long"
+}
+
+### 6. Book Appointment - Not enough advance time: < 15 minutes (expect 400)
+# NOTE: This will likely fail validation due to time constraint
+# Adjust start/end to be ~10 minutes from now for testing
+POST https://localhost:7098/api/healthcare/appointments
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+  "start": "2025-09-30T10:05:00Z",
+  "end": "2025-09-30T10:35:00Z",
+  "notes": "Scheduled less than 15 minutes in advance"
+}
+
+### 7. Book Appointment - Notes too long: > 1024 characters (expect 400)
+POST https://localhost:7098/api/healthcare/appointments
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  "start": "2025-10-20T15:00:00Z",
+  "end": "2025-10-20T15:30:00Z",
+  "notes": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Extra text to exceed 1024 character limit."
+}
+
+### 8. Book Appointment - Invalid patient ID (expect 404)
+POST https://localhost:7098/api/healthcare/appointments
+Content-Type: application/json
+
+{
+  "patientId": "99999999-9999-9999-9999-999999999999",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "start": "2025-10-20T11:00:00Z",
+  "end": "2025-10-20T11:30:00Z",
+  "notes": "Patient does not exist"
+}
+
+### 9. Book Appointment - Invalid doctor ID (expect 404)
+POST https://localhost:7098/api/healthcare/appointments
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "99999999-9999-9999-9999-999999999999",
+  "start": "2025-10-20T12:00:00Z",
+  "end": "2025-10-20T12:30:00Z",
+  "notes": "Doctor does not exist"
 }
