@@ -2,12 +2,12 @@
 
 ## Tasks
 
-- [ ] 1. Implement Domain Event for Appointment Rescheduling
-  - [ ] 1.1 Write tests for AppointmentRescheduledEvent structure
-  - [ ] 1.2 Create AppointmentRescheduledEvent class in Domain/Healthcare/Events
-  - [ ] 1.3 Create placeholder event handler (AppointmentRescheduledEventHandler)
-  - [ ] 1.4 Verify event is properly structured with all required properties
-  - [ ] 1.5 Verify all tests pass
+- [x] 1. Implement Domain Event for Appointment Rescheduling
+  - [x] 1.1 Write tests for AppointmentRescheduledEvent structure
+  - [x] 1.2 Create AppointmentRescheduledEvent class in Domain/Healthcare/Events
+  - [x] 1.3 Create placeholder event handler (AppointmentRescheduledEventHandler)
+  - [x] 1.4 Verify event is properly structured with all required properties
+  - [x] 1.5 Verify all tests pass
 
 - [ ] 2. Implement Reschedule Appointment Feature Slice
   - [ ] 2.1 Write unit tests for RescheduleAppointmentCommandValidator (all validation rules)
