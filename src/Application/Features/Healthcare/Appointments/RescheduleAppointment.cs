@@ -4,6 +4,7 @@ using FluentValidation;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,7 @@ using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 namespace VerticalSliceArchitecture.Application.Features.Healthcare.Appointments;
 
+[Obsolete("This controller has been replaced by Minimal API endpoints. Use AppointmentEndpoints.MapAppointmentEndpoints() instead.")]
 public class RescheduleAppointmentController : ApiControllerBase
 {
     [HttpPost("/api/healthcare/appointments/{appointmentId}/reschedule")]
@@ -28,6 +30,28 @@ public class RescheduleAppointmentController : ApiControllerBase
         return result.Match(
             success => Ok(success),
             Problem);
+    }
+}
+
+// Minimal API Endpoint Handler
+public static class RescheduleAppointmentEndpoint
+{
+    public static async Task<IResult> Handle(
+        Guid appointmentId,
+        RescheduleAppointmentCommand command,
+        ISender mediator)
+    {
+        // Validate that the route parameter matches the command
+        if (appointmentId != command.AppointmentId)
+        {
+            return Results.BadRequest(new { error = "Route appointmentId does not match command AppointmentId" });
+        }
+
+        var result = await mediator.Send(command);
+
+        return result.Match(
+            success => Results.Ok(success),
+            errors => MinimalApiProblemHelper.Problem(errors));
     }
 }
 
