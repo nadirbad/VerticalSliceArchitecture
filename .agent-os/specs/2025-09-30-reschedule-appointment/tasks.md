@@ -21,8 +21,8 @@
   - [x] 2.9 **REFACTORED**: Removed duplicate validation from domain model (see notes below)
 
 - [ ] 3. Create HTTP Request File for Manual Testing
-  - [ ] 3.1 Create requests/Healthcare/Appointments/RescheduleAppointment.http file
-  - [ ] 3.2 Add test scenarios: happy path, 24h violation, conflict, not found, cancelled, completed, invalid duration
+  - [x] 3.1 Create requests/Healthcare/Appointments/RescheduleAppointment.http file
+  - [x] 3.2 Add test scenarios: happy path, 24h violation, conflict, not found, cancelled, completed, invalid duration
   - [ ] 3.3 Manually test each scenario to verify expected responses
   - [ ] 3.4 Verify all tests pass
 
