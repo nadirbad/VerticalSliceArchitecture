@@ -188,6 +188,19 @@ or to execute both
 dotnet format
 ```
 
+## User Identification & Authentication
+
+This architecture includes infrastructure for user identification and authorization, but does not include a complete authentication system out of the box. For detailed information about how user identification works and how to add authentication features:
+
+- **[User Identification Architecture](docs/UserIdentificationArchitecture.md)** - Comprehensive guide to the current user identification infrastructure
+- **[Adding Authentication Example](docs/AddingAuthenticationExample.md)** - Step-by-step example of implementing JWT authentication following the vertical slice pattern
+
+The architecture provides:
+- `ICurrentUserService` for accessing the current user throughout the application
+- Authorization pipeline behavior for protecting endpoints with `[Authorize]` attributes
+- Automatic audit trail (CreatedBy/ModifiedBy) for all database entities
+- Testing infrastructure for simulating authenticated users
+
 ## Inspired by
 
 - [Clean Architecture solution template by Jason Taylor](https://github.com/jasontaylordev/CleanArchitecture)
