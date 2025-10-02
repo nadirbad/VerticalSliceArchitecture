@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+
 using VerticalSliceArchitecture.Application.Domain.Todos;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
+
 using Xunit;
 
 namespace VerticalSliceArchitecture.Application.UnitTests.Infrastructure;
