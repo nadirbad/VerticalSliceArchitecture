@@ -3,16 +3,17 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using VerticalSliceArchitecture.Application.Domain.Todos;
 
-namespace VerticalSliceArchitecture.Application.Infrastructure.Persistence.Configurations;
+namespace VerticalSliceArchitecture.Application.Features.TodoLists;
 
-public class TodoItemConfiguration : IEntityTypeConfiguration<TodoItem>
+public class TodoListConfiguration : IEntityTypeConfiguration<TodoList>
 {
-    public void Configure(EntityTypeBuilder<TodoItem> builder)
+    public void Configure(EntityTypeBuilder<TodoList> builder)
     {
-        builder.Ignore(e => e.DomainEvents);
-
         builder.Property(t => t.Title)
             .HasMaxLength(200)
             .IsRequired();
+
+        builder
+            .OwnsOne(b => b.Colour);
     }
 }
