@@ -18,16 +18,16 @@
   - [x] 2.6 Document findings in sub-specs/research-findings.md with code examples
   - [x] 2.7 Identify recommended patterns to use in this project
 
-- [ ] 3. Create New Integration Test Project Infrastructure
-  - [ ] 3.1 Create new tests/Application.IntegrationTests project with .NET 9 target
-  - [ ] 3.2 Add required NuGet packages (xUnit, WebApplicationFactory, FluentAssertions, InMemory DB)
-  - [ ] 3.3 Add project references to src/Api and src/Application
-  - [ ] 3.4 Implement CustomWebApplicationFactory<Program> with in-memory database configuration
-  - [ ] 3.5 Create IntegrationTestBase abstract class with HttpClient setup and IAsyncLifetime
-  - [ ] 3.6 Implement database reset logic for test isolation
-  - [ ] 3.7 Create helper utilities (ResponseHelper, HttpClientExtensions)
-  - [ ] 3.8 Verify basic infrastructure with a simple smoke test
-  - [ ] 3.9 Verify all tests pass
+- [x] 3. Create New Integration Test Project Infrastructure
+  - [x] 3.1 Create new tests/Application.IntegrationTests project with .NET 9 target
+  - [x] 3.2 Add required NuGet packages (xUnit, WebApplicationFactory, FluentAssertions, InMemory DB)
+  - [x] 3.3 Add project references to src/Api and src/Application
+  - [x] 3.4 Implement CustomWebApplicationFactory<Program> with in-memory database configuration
+  - [x] 3.5 Create IntegrationTestBase abstract class with HttpClient setup and IAsyncLifetime
+  - [x] 3.6 Implement database reset logic for test isolation
+  - [x] 3.7 Create helper utilities (ResponseHelper, HttpClientExtensions)
+  - [x] 3.8 Verify basic infrastructure with a simple smoke test
+  - [x] 3.9 Verify all tests pass (132 total: 129 unit + 3 integration)
 
 - [ ] 4. Implement Test Data Builders and Helpers
   - [ ] 4.1 Create BookAppointmentTestDataBuilder with fluent API and sensible defaults

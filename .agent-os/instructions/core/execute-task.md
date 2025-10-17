@@ -12,6 +12,23 @@ encoding: UTF-8
 
 Execute a specific task along with its sub-tasks systematically following a TDD development workflow.
 
+## Git Operations Policy
+
+**IMPORTANT:** During task execution, DO NOT use git commands for committing changes. The user reviews all changes manually and handles git operations themselves.
+
+<git_restrictions>
+  FORBIDDEN:
+    - git add
+    - git commit
+    - git push
+    - Any git command that modifies repository state
+
+  ALLOWED (if needed for context):
+    - git status (read-only)
+    - git log (read-only)
+    - git diff (read-only)
+</git_restrictions>
+
 <pre_flight_check>
   EXECUTE: @.agent-os/instructions/meta/pre-flight.md
 </pre_flight_check>
