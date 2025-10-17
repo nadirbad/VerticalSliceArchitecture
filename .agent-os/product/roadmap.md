@@ -1,5 +1,36 @@
 # Product Roadmap
 
+## Recent Updates
+
+**Last Updated:** 2025-10-17
+
+### Phase 1 Progress (October 2025)
+
+Recent implementations have significantly advanced the Healthcare domain:
+
+1. **Reschedule Appointment Feature** ✅ (Completed 2025-09-30)
+   - Full vertical slice implementation with Minimal APIs
+   - 24-hour advance notice business rule
+   - Doctor availability conflict detection
+   - 57 unit tests passing
+   - Spec: [.agent-os/specs/2025-09-30-reschedule-appointment/](../.agent-os/specs/2025-09-30-reschedule-appointment/)
+
+2. **Issue Prescription Feature** ✅ (Completed 2025-10-01)
+   - Rich domain model with factory method
+   - Medication tracking with expiration and refills
+   - 129 comprehensive unit tests passing
+   - Spec: [.agent-os/specs/2025-10-01-prescription-issuance/](../.agent-os/specs/2025-10-01-prescription-issuance/)
+
+3. **Minimal API Refactoring** ✅ (Completed 2025-10-01)
+   - Migrated all Healthcare endpoints to .NET 9 Minimal APIs
+   - Reusable error handling and validation infrastructure
+   - Maintained backward compatibility and behavior
+   - Spec: [.agent-os/specs/2025-10-01-minimal-api-refactor/](../.agent-os/specs/2025-10-01-minimal-api-refactor/)
+
+**Impact:** Healthcare domain now demonstrates modern .NET 9 patterns with comprehensive appointment management and prescription issuance capabilities.
+
+---
+
 ## Phase 0: Already Completed ✓
 
 The following features have been implemented and demonstrate the Vertical Slice Architecture approach:
@@ -28,14 +59,40 @@ The following features have been implemented and demonstrate the Vertical Slice 
   - AppointmentBooked domain event with handler
   - Proper UTC datetime handling
   - Concurrency control with RowVersion
+  - Migrated to .NET 9 Minimal API
+
+- [x] **Reschedule Appointment** - Allow rescheduling existing appointments with conflict detection `M`
+  - Check appointment status (cannot reschedule cancelled/completed)
+  - Verify new time slot doesn't conflict with doctor's schedule
+  - Update appointment with rescheduling reason
+  - Maintain audit trail via notes field
+  - Raise AppointmentRescheduled domain event
+  - 24-hour advance notice requirement enforced
+  - Migrated to .NET 9 Minimal API
+  - Comprehensive unit tests (57 tests passing)
+  - HTTP request scenarios for manual testing
+
+### Healthcare Domain - Prescriptions
+
+- [x] **Issue Prescription** - Doctors issue prescriptions for patients `M`
+  - Patient and doctor existence validation
+  - Medication, dosage, and directions capture
+  - Expiration date calculation (IssuedUtc + daysValid)
+  - Maximum refills configuration (0-12)
+  - PrescriptionIssued domain event
+  - Rich domain model with factory method
+  - Migrated to .NET 9 Minimal API
+  - Comprehensive unit tests (129 tests passing)
+  - HTTP request scenarios for manual testing
 
 ### Core Infrastructure
 
 - [x] **Domain Entity Base Classes** - AuditableEntity, IHasDomainEvent interfaces `S`
-- [x] **Rich Domain Models** - Patient, Doctor, Appointment with private setters and business methods `M`
+- [x] **Rich Domain Models** - Patient, Doctor, Appointment, Prescription with private setters and business methods `M`
 - [x] **Entity Framework Configuration** - DbContext, entity configurations, migrations `M`
 - [x] **Pipeline Behaviors** - Validation, Logging, Performance Monitoring, Authorization behaviors `M`
-- [x] **Error Handling** - ErrorOr pattern integration with ApiControllerBase `S`
+- [x] **Error Handling** - ErrorOr pattern integration with ApiControllerBase and Minimal APIs `S`
+- [x] **Minimal API Infrastructure** - Reusable error handling, validation filters, and MediatR integration for .NET 9 Minimal APIs `M`
 - [x] **In-Memory Database** - Toggle between in-memory and SQL Server via configuration `S`
 
 ### Testing & Quality
@@ -60,15 +117,36 @@ The following features have been implemented and demonstrate the Vertical Slice 
 - Realistic business rules enforced in domain models
 - Full test coverage for healthcare features
 
-### Features
+**Status:** ✅ **Partially Complete** - Core appointment scheduling and prescription issuance implemented; remaining CRUD operations in progress
 
-- [ ] **Reschedule Appointment** - Allow rescheduling existing appointments with conflict detection `M`
+### Completed Features
+
+- [x] **Reschedule Appointment** - Allow rescheduling existing appointments with conflict detection `M` ✅
   - Check appointment status (cannot reschedule cancelled/completed)
   - Verify new time slot doesn't conflict with doctor's schedule
   - Update appointment with rescheduling reason
   - Maintain audit trail via notes field
   - Raise AppointmentRescheduled domain event
-  - Spec: `.github/specs/Healthcare/Appointments/RescheduleAppointment.md`
+  - 24-hour advance notice requirement
+  - Spec: `.agent-os/specs/2025-09-30-reschedule-appointment/spec.md`
+
+- [x] **Issue Prescription** - Doctors issue prescriptions for patients `M` ✅
+  - Patient and doctor existence validation
+  - Medication, dosage, and directions capture
+  - Expiration date calculation (IssuedUtc + daysValid)
+  - Maximum refills configuration (0-12)
+  - PrescriptionIssued domain event
+  - Audit log entry
+  - Spec: `.agent-os/specs/2025-10-01-prescription-issuance/spec.md`
+
+- [x] **Minimal API Migration** - Refactor Healthcare endpoints to .NET 9 Minimal APIs `M` ✅
+  - Migrated BookAppointment endpoint
+  - Migrated RescheduleAppointment endpoint
+  - Migrated IssuePrescription endpoint
+  - Reusable error handling and validation infrastructure
+  - Spec: `.agent-os/specs/2025-10-01-minimal-api-refactor/spec.md`
+
+### Remaining Features
 
 - [ ] **Complete Appointment** - Mark appointments as completed with completion notes `S`
   - Status validation (cannot complete cancelled appointments)
@@ -88,22 +166,12 @@ The following features have been implemented and demonstrate the Vertical Slice 
   - Pagination support
   - Sort by appointment time
 
-- [ ] **Issue Prescription** - Doctors issue prescriptions for patients `M`
-  - Patient and doctor existence validation
-  - Medication, dosage, and directions capture
-  - Expiration date calculation (IssuedUtc + daysValid)
-  - Maximum refills configuration (0-12)
-  - PrescriptionIssued domain event
-  - Audit log entry
-  - Spec: `.github/specs/Healthcare/Prescriptions/IssuePrescription.md`
-
 - [ ] **Request Medication Refill** - Patients request prescription refills `L`
   - Prescription existence and expiration validation
   - Check refills remaining (RefillsUsed < MaxRefills)
   - Create RefillRequest with pending status
   - MedicationRefillRequested domain event
   - Link to prescription and patient
-  - Spec: `.github/specs/Healthcare/Prescriptions/RequestRefill.md`
 
 - [ ] **Approve/Deny Refill Request** - Doctors review and process refill requests `M`
   - Verify request is in pending status (prevent double-processing)
@@ -112,12 +180,29 @@ The following features have been implemented and demonstrate the Vertical Slice 
   - MedicationRefillApproved or MedicationRefillDenied events
   - Status validation and audit trail
 
-### Dependencies
+### Notes on Completed Work
 
-- Entity Framework migrations for Prescription and RefillRequest entities
-- Domain entity implementations for Prescription and RefillRequest
-- Event handlers for prescription-related events
+**Test Coverage:**
+
+- ✅ Comprehensive unit tests for all completed features (129 tests passing as of 2025-10-01)
+- ✅ Domain model tests for Appointment and Prescription entities
+- ✅ Validator tests with boundary conditions
+- ⚠️ Integration tests framework exists but incomplete for Healthcare endpoints
+
+**Technical Improvements:**
+
+- ✅ Migrated to .NET 9 Minimal APIs for cleaner endpoint definitions
+- ✅ Validation refactored to eliminate duplication between layers
+- ✅ Consistent ErrorOr pattern across all Healthcare features
+- ✅ HTTP request files for manual testing of all scenarios
+
+### Dependencies for Remaining Features
+
+- Entity Framework migrations for RefillRequest entity
+- Domain entity implementation for RefillRequest
+- Event handlers for refill-related events
 - HTTP request files for manual testing
+- Integration test coverage expansion
 
 ---
 
