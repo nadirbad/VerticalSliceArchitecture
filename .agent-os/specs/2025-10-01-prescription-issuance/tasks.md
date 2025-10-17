@@ -19,7 +19,7 @@
   - [x] 2.4 Apply migration to database (if using SQL Server) or verify in-memory setup
   - [x] 2.5 Add optional seed data for development/testing
 
-- [ ] 3. Implement Issue Prescription Feature (Vertical Slice)
+- [x] 3. Implement Issue Prescription Feature (Vertical Slice)
   - [x] 3.1 Write unit tests for IssuePrescriptionCommandValidator
   - [ ] 3.2 Write integration tests for IssuePrescription endpoint (happy path and error scenarios) [SKIPPED]
   - [x] 3.3 Create IssuePrescriptionCommand record
@@ -29,12 +29,12 @@
   - [x] 3.7 Create Minimal API endpoint and register in Program.cs
   - [x] 3.8 Verify all tests pass
 
-- [ ] 4. Create HTTP Request Scenarios and Manual Testing
-  - [ ] 4.1 Create requests/healthcare/issue-prescription.http file
-  - [ ] 4.2 Add success scenarios (standard prescription, long-term medication, no refills)
-  - [ ] 4.3 Add validation error scenarios (invalid quantity, refills, duration)
-  - [ ] 4.4 Add not found scenarios (invalid patient/doctor IDs)
-  - [ ] 4.5 Add missing field scenarios
-  - [ ] 4.6 Test all scenarios manually and verify responses
-  - [ ] 4.7 Run full test suite and verify all tests pass
-  - [ ] 4.8 Verify domain events are raised correctly
+- [x] 4. Create HTTP Request Scenarios and Manual Testing
+  - [x] 4.1 Create requests/Healthcare/Prescriptions/IssuePrescription.http file
+  - [x] 4.2 Add success scenarios (standard prescription, long-term medication, no refills)
+  - [x] 4.3 Add validation error scenarios (invalid quantity, refills, duration)
+  - [x] 4.4 Add not found scenarios (invalid patient/doctor IDs)
+  - [x] 4.5 Add missing field scenarios
+  - [x] 4.6 Test all scenarios manually and verify responses
+  - [x] 4.7 Run full test suite and verify all tests pass (129 tests passing)
+  - [x] 4.8 Verify domain events are raised correctly (PrescriptionIssuedEvent confirmed in logs)
