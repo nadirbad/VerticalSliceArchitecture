@@ -9,14 +9,14 @@
   - [x] 1.4 Verify solution builds successfully after removal
   - [x] 1.5 Commit removal with clear commit message
 
-- [ ] 2. Research .NET 9 Integration Testing Best Practices
-  - [ ] 2.1 Research WebApplicationFactory patterns for .NET 9 and Minimal APIs
-  - [ ] 2.2 Research test isolation strategies (database reset, transactions, parallel execution)
-  - [ ] 2.3 Research vertical slice architecture integration testing approaches
-  - [ ] 2.4 Research test data management patterns (builders, fixtures, seed data)
-  - [ ] 2.5 Research FluentAssertions best practices for HTTP response validation
-  - [ ] 2.6 Document findings in sub-specs/research-findings.md with code examples
-  - [ ] 2.7 Identify recommended patterns to use in this project
+- [x] 2. Research .NET 9 Integration Testing Best Practices
+  - [x] 2.1 Research WebApplicationFactory patterns for .NET 9 and Minimal APIs
+  - [x] 2.2 Research test isolation strategies (database reset, transactions, parallel execution)
+  - [x] 2.3 Research vertical slice architecture integration testing approaches
+  - [x] 2.4 Research test data management patterns (builders, fixtures, seed data)
+  - [x] 2.5 Research FluentAssertions best practices for HTTP response validation
+  - [x] 2.6 Document findings in sub-specs/research-findings.md with code examples
+  - [x] 2.7 Identify recommended patterns to use in this project
 
 - [ ] 3. Create New Integration Test Project Infrastructure
   - [ ] 3.1 Create new tests/Application.IntegrationTests project with .NET 9 target
