@@ -46,5 +46,78 @@ public static class ApplicationDbContextSeed
 
             await context.SaveChangesAsync();
         }
+
+        // Seed Prescription data
+        if (!context.Prescriptions.Any())
+        {
+            var patientId1 = new Guid("11111111-1111-1111-1111-111111111111");
+            var patientId2 = new Guid("22222222-2222-2222-2222-222222222222");
+            var patientId3 = new Guid("33333333-3333-3333-3333-333333333333");
+
+            var doctorId1 = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+            var doctorId2 = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+            var doctorId3 = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+            // Create prescriptions using the Issue factory method
+            var prescription1 = Prescription.Issue(
+                patientId1,
+                doctorId1,
+                "Amoxicillin",
+                "500mg",
+                "Take one capsule three times daily with food",
+                30,
+                2,
+                90);
+            prescription1.Id = new Guid("11111111-2222-3333-4444-555555555555");
+
+            var prescription2 = Prescription.Issue(
+                patientId2,
+                doctorId2,
+                "Lisinopril",
+                "10mg",
+                "Take one tablet daily in the morning",
+                90,
+                3,
+                365);
+            prescription2.Id = new Guid("22222222-3333-4444-5555-666666666666");
+
+            var prescription3 = Prescription.Issue(
+                patientId3,
+                doctorId3,
+                "Albuterol Inhaler",
+                "90mcg/actuation",
+                "Inhale 2 puffs every 4-6 hours as needed for breathing",
+                1,
+                5,
+                180);
+            prescription3.Id = new Guid("33333333-4444-5555-6666-777777777777");
+
+            var prescription4 = Prescription.Issue(
+                patientId1,
+                doctorId2,
+                "Metformin",
+                "1000mg",
+                "Take one tablet twice daily with meals",
+                60,
+                6,
+                180);
+            prescription4.Id = new Guid("44444444-5555-6666-7777-888888888888");
+
+            // Add a prescription with no refills
+            var prescription5 = Prescription.Issue(
+                patientId2,
+                doctorId1,
+                "Prednisone",
+                "20mg",
+                "Take 2 tablets daily for 5 days, then 1 tablet daily for 5 days",
+                15,
+                0,
+                10);
+            prescription5.Id = new Guid("55555555-6666-7777-8888-999999999999");
+
+            context.Prescriptions.AddRange(prescription1, prescription2, prescription3, prescription4, prescription5);
+
+            await context.SaveChangesAsync();
+        }
     }
 }

@@ -24,10 +24,10 @@ public static class HealthcareEndpoints
         healthcareGroup.MapGroup("/appointments")
             .MapAppointmentEndpoints();
 
-        // Future: Add prescription endpoints here
-        // healthcareGroup.MapGroup("/prescriptions")
-        //     .WithTags("Prescriptions")
-        //     .MapPrescriptionEndpoints();
+        // Map prescription endpoints directly under /api (not under healthcare)
+        // This is done separately since prescriptions use /api/prescriptions route
+        app.MapIssuePrescription();
+
         return app;
     }
 }

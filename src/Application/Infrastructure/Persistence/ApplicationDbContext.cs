@@ -38,6 +38,8 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<Appointment> Appointments => Set<Appointment>();
 
+    public DbSet<Prescription> Prescriptions => Set<Prescription>();
+
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
     {
         foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
