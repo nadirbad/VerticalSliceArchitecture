@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+
 using VerticalSliceArchitecture.Application.Domain.Healthcare;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 

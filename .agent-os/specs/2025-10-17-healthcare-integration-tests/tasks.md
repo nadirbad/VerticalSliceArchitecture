@@ -29,14 +29,14 @@
   - [x] 3.8 Verify basic infrastructure with a simple smoke test
   - [x] 3.9 Verify all tests pass (132 total: 129 unit + 3 integration)
 
-- [ ] 4. Implement Test Data Builders and Helpers
-  - [ ] 4.1 Create BookAppointmentTestDataBuilder with fluent API and sensible defaults
-  - [ ] 4.2 Create RescheduleAppointmentTestDataBuilder with fluent API
-  - [ ] 4.3 Create IssuePrescriptionTestDataBuilder with fluent API
-  - [ ] 4.4 Create test seed data helper for patients and doctors with deterministic GUIDs
-  - [ ] 4.5 Create ProblemDetails parsing utilities for error response validation
-  - [ ] 4.6 Test data builders with sample usage to verify API
-  - [ ] 4.7 Verify all tests pass
+- [x] 4. Implement Test Data Builders and Helpers
+  - [x] 4.1 Create BookAppointmentTestDataBuilder with fluent API and sensible defaults
+  - [x] 4.2 Create RescheduleAppointmentTestDataBuilder with fluent API
+  - [x] 4.3 Create IssuePrescriptionTestDataBuilder with fluent API
+  - [x] 4.4 Create test seed data helper for patients and doctors with deterministic GUIDs
+  - [x] 4.5 Create ProblemDetails parsing utilities for error response validation
+  - [x] 4.6 Test data builders with sample usage to verify API
+  - [x] 4.7 Verify all tests pass
 
 - [ ] 5. Implement BookAppointment Integration Tests
   - [ ] 5.1 Create Healthcare/Appointments/BookAppointmentTests.cs test class
