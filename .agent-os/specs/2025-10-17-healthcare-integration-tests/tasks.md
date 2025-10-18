@@ -48,25 +48,25 @@
   - [x] 5.7 Add additional edge case tests (boundary conditions, null handling)
   - [x] 5.8 Verify all BookAppointment tests pass
 
-- [ ] 6. Implement RescheduleAppointment Integration Tests
-  - [ ] 6.1 Create Healthcare/Appointments/RescheduleAppointmentTests.cs test class
-  - [ ] 6.2 Implement happy path test: valid reschedule returns 200 OK
-  - [ ] 6.3 Implement validation test: reschedule within 24 hours returns 422
-  - [ ] 6.4 Implement validation test: invalid new times return 400
-  - [ ] 6.5 Implement not found test: invalid appointment ID returns 404
-  - [ ] 6.6 Implement conflict test: new time overlaps doctor schedule returns 409
-  - [ ] 6.7 Implement status check tests: cannot reschedule cancelled/completed appointments
-  - [ ] 6.8 Verify all RescheduleAppointment tests pass
+- [x] 6. Implement RescheduleAppointment Integration Tests
+  - [x] 6.1 Create Healthcare/Appointments/RescheduleAppointmentTests.cs test class
+  - [x] 6.2 Implement happy path test: valid reschedule returns 200 OK
+  - [x] 6.3 Implement validation test: reschedule within 24 hours returns 422
+  - [x] 6.4 Implement validation test: invalid new times return 400
+  - [x] 6.5 Implement not found test: invalid appointment ID returns 404
+  - [x] 6.6 Implement conflict test: new time overlaps doctor schedule returns 409
+  - [x] 6.7 Implement status check tests: cannot reschedule cancelled/completed appointments
+  - [x] 6.8 Verify all RescheduleAppointment tests pass
 
-- [ ] 7. Implement IssuePrescription Integration Tests
-  - [ ] 7.1 Create Healthcare/Prescriptions/IssuePrescriptionTests.cs test class
-  - [ ] 7.2 Implement happy path test: valid prescription returns 201 Created
-  - [ ] 7.3 Implement validation test: quantity out of range returns 400
-  - [ ] 7.4 Implement validation test: refills > 12 returns 400
-  - [ ] 7.5 Implement validation test: invalid duration returns 400
-  - [ ] 7.6 Implement not found test: invalid patient ID returns 404
-  - [ ] 7.7 Implement not found test: invalid doctor ID returns 404
-  - [ ] 7.8 Verify all IssuePrescription tests pass
+- [x] 7. Implement IssuePrescription Integration Tests
+  - [x] 7.1 Create Healthcare/Prescriptions/IssuePrescriptionTests.cs test class
+  - [x] 7.2 Implement happy path test: valid prescription returns 201 Created
+  - [x] 7.3 Implement validation test: quantity out of range returns 400
+  - [x] 7.4 Implement validation test: refills > 12 returns 400
+  - [x] 7.5 Implement validation test: invalid duration returns 400
+  - [x] 7.6 Implement not found test: invalid patient ID returns 404
+  - [x] 7.7 Implement not found test: invalid doctor ID returns 404
+  - [x] 7.8 Verify all IssuePrescription tests pass
 
 - [ ] 8. Documentation and Finalization
   - [ ] 8.1 Update CLAUDE.md with integration testing section and patterns
