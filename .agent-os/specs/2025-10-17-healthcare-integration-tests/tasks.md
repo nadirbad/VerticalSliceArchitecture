@@ -38,15 +38,15 @@
   - [x] 4.6 Test data builders with sample usage to verify API
   - [x] 4.7 Verify all tests pass
 
-- [ ] 5. Implement BookAppointment Integration Tests
-  - [ ] 5.1 Create Healthcare/Appointments/BookAppointmentTests.cs test class
-  - [ ] 5.2 Implement happy path test: valid appointment returns 201 Created
-  - [ ] 5.3 Implement validation test: start >= end returns 400 with validation errors
-  - [ ] 5.4 Implement validation test: duration < 10 minutes returns 400
-  - [ ] 5.5 Implement not found test: invalid patient ID returns 404
-  - [ ] 5.6 Implement conflict test: overlapping doctor appointment returns 409
-  - [ ] 5.7 Add additional edge case tests (boundary conditions, null handling)
-  - [ ] 5.8 Verify all BookAppointment tests pass
+- [x] 5. Implement BookAppointment Integration Tests
+  - [x] 5.1 Create Healthcare/Appointments/BookAppointmentTests.cs test class
+  - [x] 5.2 Implement happy path test: valid appointment returns 201 Created
+  - [x] 5.3 Implement validation test: start >= end returns 400 with validation errors
+  - [x] 5.4 Implement validation test: duration < 10 minutes returns 400
+  - [x] 5.5 Implement not found test: invalid patient ID returns 404
+  - [x] 5.6 Implement conflict test: overlapping doctor appointment returns 409
+  - [x] 5.7 Add additional edge case tests (boundary conditions, null handling)
+  - [x] 5.8 Verify all BookAppointment tests pass
 
 - [ ] 6. Implement RescheduleAppointment Integration Tests
   - [ ] 6.1 Create Healthcare/Appointments/RescheduleAppointmentTests.cs test class
