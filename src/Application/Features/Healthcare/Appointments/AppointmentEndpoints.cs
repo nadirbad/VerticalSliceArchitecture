@@ -33,6 +33,20 @@ public static class AppointmentEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict)
             .AddEndpointFilter<ValidationFilter<RescheduleAppointmentCommand>>();
 
+        group.MapPost("/{appointmentId}/complete", CompleteAppointmentEndpoint.Handle)
+            .WithName("CompleteAppointment")
+            .Produces<CompleteAppointmentResult>(StatusCodes.Status200OK)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .AddEndpointFilter<ValidationFilter<CompleteAppointmentCommand>>();
+
+        group.MapPost("/{appointmentId}/cancel", CancelAppointmentEndpoint.Handle)
+            .WithName("CancelAppointment")
+            .Produces<CancelAppointmentResult>(StatusCodes.Status200OK)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .AddEndpointFilter<ValidationFilter<CancelAppointmentCommand>>();
+
         return group;
     }
 }

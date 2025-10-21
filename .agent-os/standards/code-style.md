@@ -13,22 +13,36 @@ ELSE:
 
 ## General Formatting
 
+> **⚠️ IMPORTANT**: Language-specific style guides (e.g., dotnet-style.md, javascript-style.md) **OVERRIDE** these general rules. Always follow the language-specific guide for your current task. The rules below apply only when no language-specific guide exists.
+
 ### Indentation
-- Use 2 spaces for indentation (never tabs)
+
+- Use language-idiomatic indentation (2 spaces for JS/TS, 4 spaces for C#, etc.)
+- See language-specific guides for exact standards
 - Maintain consistent indentation throughout files
 - Align nested structures for readability
 
 ### Naming Conventions
-- **Methods and Variables**: Use snake_case (e.g., `user_profile`, `calculate_total`)
-- **Classes and Modules**: Use PascalCase (e.g., `UserProfile`, `PaymentProcessor`)
-- **Constants**: Use UPPER_SNAKE_CASE (e.g., `MAX_RETRY_COUNT`)
+
+- **Follow language-specific conventions** (see language guides below)
+- General fallback when no specific guide exists:
+  - **Methods and Variables**: Use snake_case (e.g., `user_profile`, `calculate_total`)
+  - **Classes and Modules**: Use PascalCase (e.g., `UserProfile`, `PaymentProcessor`)
+  - **Constants**: Use UPPER_SNAKE_CASE (e.g., `MAX_RETRY_COUNT`)
+- **.NET/C# projects**: Use PascalCase for methods/properties, camelCase for private fields (see dotnet-style.md)
+- **JavaScript/TypeScript projects**: Use camelCase for methods/variables (see javascript-style.md)
 
 ### String Formatting
-- Use single quotes for strings: `'Hello World'`
-- Use double quotes only when interpolation is needed
-- Use template literals for multi-line strings or complex interpolation
+
+- **Follow language-specific conventions** (see language guides below)
+- General fallback:
+  - Use single quotes for strings: `'Hello World'`
+  - Use double quotes only when interpolation is needed
+  - Use template literals for multi-line strings or complex interpolation
+- **.NET/C# projects**: Use double quotes for all strings (see dotnet-style.md)
 
 ### Code Comments
+
 - Add brief comments above non-obvious business logic
 - Document complex algorithms or calculations
 - Explain the "why" behind implementation choices

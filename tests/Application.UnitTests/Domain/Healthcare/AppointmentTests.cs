@@ -99,29 +99,228 @@ public class AppointmentTests
     }
 
     [Fact]
-    public void Complete_ShouldChangeStatusToCompleted()
+    public void Complete_ScheduledAppointment_SetsStatusAndTimestamp()
     {
         // Arrange
         var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+        var beforeComplete = DateTime.UtcNow;
 
         // Act
         appointment.Complete("Patient checked in and seen");
 
         // Assert
         appointment.Status.Should().Be(AppointmentStatus.Completed);
+        appointment.CompletedUtc.Should().NotBeNull();
+        appointment.CompletedUtc.Should().BeCloseTo(beforeComplete, TimeSpan.FromSeconds(1));
+        appointment.Notes.Should().Be("Patient checked in and seen");
     }
 
     [Fact]
-    public void Cancel_ShouldChangeStatusToCancelled()
+    public void Complete_RescheduledAppointment_WorksCorrectly()
     {
         // Arrange
         var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+        var newStartUtc = DateTime.UtcNow.AddDays(2);
+        var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
+        appointment.Reschedule(newStartUtc, newEndUtc);
+
+        // Act
+        appointment.Complete("Completed after reschedule");
+
+        // Assert
+        appointment.Status.Should().Be(AppointmentStatus.Completed);
+        appointment.CompletedUtc.Should().NotBeNull();
+        appointment.Notes.Should().Be("Completed after reschedule");
+    }
+
+    [Fact]
+    public void Complete_WithNotes_StoresNotes()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+
+        // Act
+        appointment.Complete("Patient arrived on time. Routine checkup completed.");
+
+        // Assert
+        appointment.Notes.Should().Be("Patient arrived on time. Routine checkup completed.");
+    }
+
+    [Fact]
+    public void Complete_WithNullNotes_AllowsNull()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+
+        // Act
+        appointment.Complete(null);
+
+        // Assert
+        appointment.Status.Should().Be(AppointmentStatus.Completed);
+        appointment.Notes.Should().BeNull();
+    }
+
+    [Fact]
+    public void Complete_AlreadyCompleted_IsIdempotent()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+        appointment.Complete("First completion");
+        var firstCompletedUtc = appointment.CompletedUtc;
+
+        // Act - complete again
+        appointment.Complete("Second completion");
+
+        // Assert - status remains completed, timestamp unchanged
+        appointment.Status.Should().Be(AppointmentStatus.Completed);
+        appointment.CompletedUtc.Should().Be(firstCompletedUtc);
+        appointment.Notes.Should().Be("First completion"); // Notes not updated
+    }
+
+    [Fact]
+    public void Complete_CancelledAppointment_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+        appointment.Cancel("Patient cancelled");
+
+        // Act & Assert
+        var act = () => appointment.Complete("Trying to complete cancelled");
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("Cannot complete a cancelled appointment");
+    }
+
+    [Fact]
+    public void Complete_NotesExceed1024Characters_ThrowsArgumentException()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+        var longNotes = new string('x', 1025);
+
+        // Act & Assert
+        var act = () => appointment.Complete(longNotes);
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("Notes cannot exceed 1024 characters*")
+            .And.ParamName.Should().Be("notes");
+    }
+
+    [Fact]
+    public void Cancel_ScheduledAppointment_SetsStatusTimestampAndReason()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+        var beforeCancel = DateTime.UtcNow;
 
         // Act
         appointment.Cancel("Patient requested cancellation");
 
         // Assert
         appointment.Status.Should().Be(AppointmentStatus.Cancelled);
+        appointment.CancelledUtc.Should().NotBeNull();
+        appointment.CancelledUtc.Should().BeCloseTo(beforeCancel, TimeSpan.FromSeconds(1));
+        appointment.CancellationReason.Should().Be("Patient requested cancellation");
+    }
+
+    [Fact]
+    public void Cancel_WithReason_StoresReason()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+
+        // Act
+        appointment.Cancel("Doctor unavailable");
+
+        // Assert
+        appointment.CancellationReason.Should().Be("Doctor unavailable");
+    }
+
+    [Fact]
+    public void Cancel_AlreadyCancelled_IsIdempotent()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+        appointment.Cancel("First cancellation");
+        var firstCancelledUtc = appointment.CancelledUtc;
+        var firstReason = appointment.CancellationReason;
+
+        // Act - cancel again
+        appointment.Cancel("Second cancellation");
+
+        // Assert - status remains cancelled, timestamp and reason unchanged
+        appointment.Status.Should().Be(AppointmentStatus.Cancelled);
+        appointment.CancelledUtc.Should().Be(firstCancelledUtc);
+        appointment.CancellationReason.Should().Be(firstReason);
+    }
+
+    [Fact]
+    public void Cancel_CompletedAppointment_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+        appointment.Complete("Completed");
+
+        // Act & Assert
+        var act = () => appointment.Cancel("Trying to cancel completed");
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("Cannot cancel a completed appointment");
+    }
+
+    [Fact]
+    public void Cancel_EmptyReason_ThrowsArgumentException()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+
+        // Act & Assert
+        var act = () => appointment.Cancel(string.Empty);
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("Cancellation reason is required*")
+            .And.ParamName.Should().Be("reason");
+    }
+
+    [Fact]
+    public void Cancel_WhitespaceReason_ThrowsArgumentException()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+
+        // Act & Assert
+        var act = () => appointment.Cancel("   ");
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("Cancellation reason is required*")
+            .And.ParamName.Should().Be("reason");
+    }
+
+    [Fact]
+    public void Cancel_ReasonExceed512Characters_ThrowsArgumentException()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+        var longReason = new string('x', 513);
+
+        // Act & Assert
+        var act = () => appointment.Cancel(longReason);
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("Cancellation reason cannot exceed 512 characters*")
+            .And.ParamName.Should().Be("reason");
+    }
+
+    [Fact]
+    public void Cancel_RescheduledAppointment_WorksCorrectly()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+        var newStartUtc = DateTime.UtcNow.AddDays(2);
+        var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
+        appointment.Reschedule(newStartUtc, newEndUtc);
+
+        // Act
+        appointment.Cancel("Cancelled after reschedule");
+
+        // Assert
+        appointment.Status.Should().Be(AppointmentStatus.Cancelled);
+        appointment.CancelledUtc.Should().NotBeNull();
+        appointment.CancellationReason.Should().Be("Cancelled after reschedule");
     }
 
     [Fact]
@@ -218,7 +417,7 @@ public class AppointmentTests
         // Arrange
         // Note: Status validation moved to Handler - domain only mutates state
         var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
-        appointment.Cancel();
+        appointment.Cancel("Cancelled");
         var newStartUtc = DateTime.UtcNow.AddDays(2);
         var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
 

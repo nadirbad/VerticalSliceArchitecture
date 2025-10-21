@@ -41,6 +41,9 @@ public class Appointment : AuditableEntity, IHasDomainEvent
     public DateTime EndUtc { get; private set; }
     public AppointmentStatus Status { get; private set; }
     public string? Notes { get; private set; }
+    public DateTime? CompletedUtc { get; private set; }
+    public DateTime? CancelledUtc { get; private set; }
+    public string? CancellationReason { get; private set; }
     public byte[]? RowVersion { get; private set; }
 
     public Patient Patient { get; private set; } = null!;
@@ -73,8 +76,9 @@ public class Appointment : AuditableEntity, IHasDomainEvent
         }
     }
 
-    public void Complete(string? completionNotes = null)
+    public void Complete(string? notes = null)
     {
+        // Validation
         if (Status == AppointmentStatus.Cancelled)
         {
             throw new InvalidOperationException("Cannot complete a cancelled appointment");
@@ -82,22 +86,31 @@ public class Appointment : AuditableEntity, IHasDomainEvent
 
         if (Status == AppointmentStatus.Completed)
         {
-            throw new InvalidOperationException("Appointment is already completed");
+            return; // Idempotent - already completed
         }
 
-        Status = AppointmentStatus.Completed;
-
-        if (!string.IsNullOrWhiteSpace(completionNotes))
+        if (!string.IsNullOrEmpty(notes) && notes.Length > 1024)
         {
-            Notes = string.IsNullOrWhiteSpace(Notes) ? completionNotes : $"{Notes}; {completionNotes}";
+            throw new ArgumentException("Notes cannot exceed 1024 characters", nameof(notes));
         }
+
+        // State transition
+        Status = AppointmentStatus.Completed;
+        CompletedUtc = DateTime.UtcNow;
+        Notes = notes;
     }
 
-    public void Cancel(string? cancellationReason = null)
+    public void Cancel(string reason)
     {
-        if (Status == AppointmentStatus.Cancelled)
+        // Validation
+        if (string.IsNullOrWhiteSpace(reason))
         {
-            throw new InvalidOperationException("Appointment is already cancelled");
+            throw new ArgumentException("Cancellation reason is required", nameof(reason));
+        }
+
+        if (reason.Length > 512)
+        {
+            throw new ArgumentException("Cancellation reason cannot exceed 512 characters", nameof(reason));
         }
 
         if (Status == AppointmentStatus.Completed)
@@ -105,12 +118,15 @@ public class Appointment : AuditableEntity, IHasDomainEvent
             throw new InvalidOperationException("Cannot cancel a completed appointment");
         }
 
-        Status = AppointmentStatus.Cancelled;
-
-        if (!string.IsNullOrWhiteSpace(cancellationReason))
+        if (Status == AppointmentStatus.Cancelled)
         {
-            Notes = string.IsNullOrWhiteSpace(Notes) ? cancellationReason : $"{Notes}; {cancellationReason}";
+            return; // Idempotent - already cancelled
         }
+
+        // State transition
+        Status = AppointmentStatus.Cancelled;
+        CancelledUtc = DateTime.UtcNow;
+        CancellationReason = reason;
     }
 
     public void UpdateNotes(string? newNotes)
