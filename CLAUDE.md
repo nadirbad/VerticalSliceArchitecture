@@ -216,3 +216,295 @@ The project enforces:
 - `EnforceCodeStyleInBuild=true`
 - StyleCop analyzers for consistent code style
 - EditorConfig for formatting standards
+
+## Integration Testing
+
+### Overview
+
+Integration tests verify the complete request/response cycle including HTTP endpoints, validation, business logic, and database operations. The test infrastructure uses `WebApplicationFactory` for in-memory hosting and provides complete test isolation.
+
+### Test Infrastructure
+
+**Location**: `tests/Application.IntegrationTests/`
+
+**Key Components**:
+- `CustomWebApplicationFactory`: Configures in-memory database for testing
+- `IntegrationTestBase`: Base class providing test lifecycle management and database reset
+- `ResponseHelper`: Utilities for parsing and asserting ProblemDetails responses
+- `HttpClientExtensions`: Extension methods for common HTTP operations
+
+### Running Integration Tests
+
+```bash
+# Run all integration tests
+dotnet test tests/Application.IntegrationTests/Application.IntegrationTests.csproj
+
+# Run specific test class
+dotnet test --filter "FullyQualifiedName~BookAppointmentTests"
+
+# Run specific test method
+dotnet test --filter "BookAppointment_WithValidData_Returns201CreatedWithAppointmentDetails"
+```
+
+### Test Isolation Strategy
+
+Each test class inherits from `IntegrationTestBase` which:
+1. Creates a fresh database before each test (`InitializeAsync`)
+2. Seeds deterministic test data (patients, doctors with known GUIDs)
+3. Cleans up resources after each test (`DisposeAsync`)
+
+This ensures complete test isolation - no test can affect another test's state.
+
+### Test Data Builders
+
+Use immutable test data builders to create request payloads with sensible defaults:
+
+```csharp
+// Basic usage with defaults
+var command = new BookAppointmentTestDataBuilder().Build();
+
+// Customize specific properties via fluent API
+var command = new BookAppointmentTestDataBuilder()
+    .WithPatientId(TestSeedData.SecondPatientId)
+    .WithStartTime(DateTimeOffset.UtcNow.AddDays(5))
+    .WithDuration(45)
+    .WithNotes("Follow-up appointment")
+    .Build();
+
+// Use helper methods for common scenarios
+var command = new BookAppointmentTestDataBuilder()
+    .WithNonExistentPatient()  // Tests 404 scenarios
+    .Build();
+
+var command = new BookAppointmentTestDataBuilder()
+    .WithTooShortDuration()    // Tests validation errors
+    .Build();
+```
+
+**Available Builders**:
+- `BookAppointmentTestDataBuilder`: For appointment booking
+- `RescheduleAppointmentTestDataBuilder`: For appointment rescheduling
+- `IssuePrescriptionTestDataBuilder`: For prescription issuance
+
+**Deterministic Test Data** (`TestSeedData`):
+- `DefaultPatientId`, `SecondPatientId`, `ThirdPatientId`: Known patient GUIDs
+- `DefaultDoctorId`, `SecondDoctorId`, `ThirdDoctorId`: Known doctor GUIDs
+- `NonExistentId`: For testing 404 scenarios
+
+### Writing Integration Tests
+
+#### 1. Create Test Class
+
+```csharp
+public class MyFeatureTests : IntegrationTestBase
+{
+    public MyFeatureTests(CustomWebApplicationFactory factory)
+        : base(factory)
+    {
+    }
+
+    [Fact]
+    public async Task MyFeature_WithValidData_Returns201Created()
+    {
+        // Test implementation
+    }
+}
+```
+
+#### 2. Follow Arrange-Act-Assert Pattern
+
+```csharp
+[Fact]
+public async Task BookAppointment_WithValidData_Returns201CreatedWithAppointmentDetails()
+{
+    // Arrange - Prepare test data
+    var command = new BookAppointmentTestDataBuilder().Build();
+
+    // Act - Execute HTTP request
+    var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+
+    // Assert - Verify response and side effects
+    response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+    var result = await response.Content.ReadFromJsonAsync<BookAppointmentResult>();
+    result.Should().NotBeNull();
+    result!.Id.Should().NotBeEmpty();
+
+    // Verify database state
+    var savedAppointment = await DbContext.Appointments
+        .FirstOrDefaultAsync(a => a.Id == result.Id);
+    savedAppointment.Should().NotBeNull();
+}
+```
+
+#### 3. Test Validation Errors
+
+```csharp
+[Fact]
+public async Task BookAppointment_WithInvalidData_Returns400WithValidationErrors()
+{
+    // Arrange
+    var command = new BookAppointmentTestDataBuilder()
+        .WithTooShortDuration()
+        .Build();
+
+    // Act
+    var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+
+    // Assert
+    response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+    var problemDetails = await ResponseHelper.GetProblemDetailsAsync(response);
+    ResponseHelper.IsValidationError(problemDetails).Should().BeTrue();
+    ResponseHelper.HasValidationError(problemDetails, "End").Should().BeTrue();
+
+    var errorMessage = ResponseHelper.GetFirstValidationError(problemDetails, "End");
+    errorMessage.Should().Contain("at least 10 minutes");
+}
+```
+
+#### 4. Test Business Logic Errors
+
+```csharp
+[Fact]
+public async Task RescheduleAppointment_Within24Hours_Returns400()
+{
+    // Arrange - Book appointment starting in 23 hours
+    var startTime = DateTimeOffset.UtcNow.AddHours(23);
+    var bookCommand = new BookAppointmentTestDataBuilder()
+        .WithStartTime(startTime)
+        .Build();
+
+    var bookResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", bookCommand);
+    var bookResult = await bookResponse.Content.ReadFromJsonAsync<BookAppointmentResult>();
+
+    // Try to reschedule (should fail due to 24-hour rule)
+    var rescheduleCommand = new RescheduleAppointmentTestDataBuilder()
+        .WithAppointmentId(bookResult!.Id)
+        .Build();
+
+    // Act
+    var response = await Client.PostAsJsonAsync(
+        $"/api/healthcare/appointments/{bookResult.Id}/reschedule",
+        rescheduleCommand);
+
+    // Assert
+    response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+    var problemDetails = await ResponseHelper.GetProblemDetailsAsync(response);
+    var errorMessage = ResponseHelper.GetFirstValidationError(
+        problemDetails,
+        "Appointment.RescheduleWindowClosed");
+    errorMessage.Should().Contain("within 24 hours");
+}
+```
+
+### Test Naming Convention
+
+Use descriptive test names following the pattern:
+`MethodName_Scenario_ExpectedBehavior`
+
+**Examples**:
+- `BookAppointment_WithValidData_Returns201Created`
+- `BookAppointment_WithNonExistentPatientId_Returns404NotFound`
+- `BookAppointment_WithOverlappingDoctorAppointment_Returns409Conflict`
+- `RescheduleAppointment_Within24Hours_Returns400WithValidationError`
+
+### ResponseHelper Utilities
+
+The `ResponseHelper` provides methods for working with ProblemDetails:
+
+```csharp
+// Parse ProblemDetails from response
+var problemDetails = await ResponseHelper.GetProblemDetailsAsync(response);
+
+// Check error type
+ResponseHelper.IsValidationError(problemDetails);     // 400
+ResponseHelper.IsNotFoundError(problemDetails);       // 404
+ResponseHelper.IsConflictError(problemDetails);       // 409
+ResponseHelper.IsUnprocessableEntityError(problemDetails); // 422
+
+// Get validation errors
+ResponseHelper.HasValidationError(problemDetails, "PropertyName");
+ResponseHelper.GetFirstValidationError(problemDetails, "PropertyName");
+ResponseHelper.GetAllValidationErrors(problemDetails, "PropertyName");
+ResponseHelper.GetValidationErrorCount(problemDetails);
+```
+
+### Best Practices
+
+1. **Test One Thing**: Each test should verify a single behavior or scenario
+2. **Use Builders**: Leverage test data builders to minimize test setup code
+3. **Verify Side Effects**: Don't just test HTTP responses - verify database state changed correctly
+4. **Test Edge Cases**: Include boundary conditions, null handling, empty collections
+5. **Use FluentAssertions**: Provides readable assertions with helpful error messages
+6. **Test Error Paths**: Validation errors, not found, conflicts, business rule violations
+7. **Isolate Tests**: Never depend on execution order or shared state between tests
+
+### Common Test Patterns
+
+**Testing Created Resources**:
+```csharp
+var response = await Client.PostAsJsonAsync("/api/prescriptions", command);
+response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+// Verify Location header
+response.Headers.Location.Should().NotBeNull();
+response.Headers.Location!.ToString().Should().Contain($"/api/prescriptions/{result.Id}");
+
+// Verify database persistence
+var saved = await DbContext.Prescriptions.FindAsync(result.Id);
+saved.Should().NotBeNull();
+```
+
+**Testing Conflicts**:
+```csharp
+// Create first resource
+var firstResponse = await Client.PostAsJsonAsync("/api/appointments", firstCommand);
+firstResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+// Try to create conflicting resource
+var conflictResponse = await Client.PostAsJsonAsync("/api/appointments", conflictingCommand);
+conflictResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+```
+
+**Testing Domain State Changes**:
+```csharp
+// Perform operation that changes state
+var response = await Client.PostAsJsonAsync($"/api/appointments/{id}/reschedule", command);
+
+// Verify domain object updated
+var appointment = await DbContext.Appointments.FindAsync(id);
+appointment!.Status.Should().Be(AppointmentStatus.Rescheduled);
+```
+
+### When to Write Integration Tests vs Unit Tests
+
+**Integration Tests** - Use for:
+- Full HTTP endpoint testing (request → validation → handler → database → response)
+- Testing interactions between multiple components
+- Verifying database operations and queries
+- Testing error responses and problem details
+- End-to-end feature validation
+
+**Unit Tests** - Use for:
+- Testing individual validators
+- Testing domain object behavior in isolation
+- Testing helper/utility methods
+- Testing business logic without database dependencies
+- Testing edge cases with mocked dependencies
+
+### Troubleshooting
+
+**Tests fail with "Entity already tracked"**:
+- Don't manually call `InitializeAsync()` in tests - it's called automatically
+- Each test gets a fresh DbContext scope
+
+**Tests fail with timezone issues**:
+- Use `builder.BuildValues()` to get the actual values being sent
+- Compare UTC times: `result.StartUtc.Should().BeCloseTo(expected.UtcDateTime, ...)`
+
+**Tests fail intermittently**:
+- Ensure tests don't depend on execution order
+- Check for hardcoded dates/times - use relative times (e.g., `DateTimeOffset.UtcNow.AddDays(7)`)
+- Verify test isolation - each test should reset database state

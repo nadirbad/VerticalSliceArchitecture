@@ -68,15 +68,15 @@
   - [x] 7.7 Implement not found test: invalid doctor ID returns 404
   - [x] 7.8 Verify all IssuePrescription tests pass
 
-- [ ] 8. Documentation and Finalization
-  - [ ] 8.1 Update CLAUDE.md with integration testing section and patterns
-  - [ ] 8.2 Add examples of test data builders and usage to documentation
-  - [ ] 8.3 Document test isolation strategy and database reset approach
-  - [ ] 8.4 Add inline comments to key infrastructure classes (WebApplicationFactory, TestBase)
-  - [ ] 8.5 Create README.md in integration test project with quick start guide
-  - [ ] 8.6 Run full test suite (unit + integration) and verify all pass
-  - [ ] 8.7 Verify tests can run in parallel without conflicts
-  - [ ] 8.8 Mark specification as complete in tasks.md
+- [x] 8. Documentation and Finalization
+  - [x] 8.1 Update CLAUDE.md with integration testing section and patterns
+  - [x] 8.2 Add examples of test data builders and usage to documentation
+  - [x] 8.3 Document test isolation strategy and database reset approach
+  - [x] 8.4 Add inline comments to key infrastructure classes (WebApplicationFactory, TestBase)
+  - [x] 8.5 Create README.md in integration test project with quick start guide
+  - [x] 8.6 Run full test suite (unit + integration) and verify all pass
+  - [x] 8.7 Verify tests can run in parallel without conflicts
+  - [x] 8.8 Mark specification as complete in tasks.md
 
 ## Implementation Notes
 
