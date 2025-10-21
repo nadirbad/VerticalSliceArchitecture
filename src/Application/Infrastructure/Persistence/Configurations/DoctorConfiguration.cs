@@ -10,11 +10,11 @@ public class DoctorConfiguration : IEntityTypeConfiguration<Doctor>
     public void Configure(EntityTypeBuilder<Doctor> builder)
     {
         builder.Property(d => d.FullName)
-            .HasMaxLength(200)
+            .HasMaxLength(100)
             .IsRequired();
 
         builder.Property(d => d.Specialty)
-            .HasMaxLength(100)
+            .HasMaxLength(50)
             .IsRequired();
     }
 }
