@@ -123,7 +123,7 @@ public class MinimalApiProblemHelperTests
         // Assert
         result.Should().BeOfType<ProblemHttpResult>();
         var problemResult = (ProblemHttpResult)result;
-        problemResult.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        problemResult.StatusCode.Should().Be(StatusCodes.Status401Unauthorized);
         problemResult.ProblemDetails.Title.Should().Be("User is not authorized to perform this action");
     }
 
