@@ -47,6 +47,13 @@ public static class AppointmentEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound)
             .AddEndpointFilter<ValidationFilter<CancelAppointmentCommand>>();
 
+        group.MapGet("/{id}", GetAppointmentByIdEndpoint.Handle)
+            .WithName("GetAppointmentById")
+            .Produces<AppointmentDto>(StatusCodes.Status200OK)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .AddEndpointFilter<ValidationFilter<GetAppointmentByIdQuery>>();
+
         return group;
     }
 }

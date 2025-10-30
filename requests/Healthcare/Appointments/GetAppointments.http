@@ -1,0 +1,24 @@
+@baseUrl = https://localhost:7098
+@validAppointmentId = 00000000-0000-0000-0000-000000000000
+@defaultPatientId = 11111111-1111-1111-1111-111111111111
+@defaultDoctorId = bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
+@nonExistentId = 99999999-9999-9999-9999-999999999999
+
+### 1. Get Appointment by ID (happy path - expect 200)
+# First, book an appointment using the BookAppointment request, then use the returned ID here
+GET {{baseUrl}}/api/healthcare/appointments/{{validAppointmentId}}
+
+### 2. Get Appointment by ID - Non-existent ID (expect 404)
+GET {{baseUrl}}/api/healthcare/appointments/{{nonExistentId}}
+
+### 3. Get Appointment by ID - Invalid GUID format (expect 400)
+GET {{baseUrl}}/api/healthcare/appointments/invalid-guid-format
+
+### 4. Get Appointment by ID - Empty GUID (expect 400)
+GET {{baseUrl}}/api/healthcare/appointments/00000000-0000-0000-0000-000000000000
+
+### Note: Replace the validAppointmentId variable above with an actual appointment ID
+### You can get one by:
+### 1. Running the BookAppointment.http request
+### 2. Copying the "id" from the response
+### 3. Pasting it in the @validAppointmentId variable at the top of this file
