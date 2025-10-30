@@ -5,8 +5,8 @@ Content-Type: application/json
 {
   "patientId": "11111111-1111-1111-1111-111111111111",
   "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-  "start": "2025-10-20T10:00:00Z",
-  "end": "2025-10-20T10:30:00Z",
+  "start": "2025-11-20T10:00:00Z",
+  "end": "2025-11-20T10:30:00Z",
   "notes": "Initial consultation"
 }
 

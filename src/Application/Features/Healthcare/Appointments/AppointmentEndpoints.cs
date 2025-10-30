@@ -54,6 +54,13 @@ public static class AppointmentEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound)
             .AddEndpointFilter<ValidationFilter<GetAppointmentByIdQuery>>();
 
+        group.MapGet("/patient/{patientId}", GetPatientAppointmentsEndpoint.Handle)
+            .WithName("GetPatientAppointments")
+            .Produces<Common.Models.PaginatedList<AppointmentDto>>(StatusCodes.Status200OK)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .AddEndpointFilter<ValidationFilter<GetPatientAppointmentsQuery>>();
+
         return group;
     }
 }
