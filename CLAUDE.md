@@ -508,3 +508,520 @@ appointment!.Status.Should().Be(AppointmentStatus.Rescheduled);
 - Ensure tests don't depend on execution order
 - Check for hardcoded dates/times - use relative times (e.g., `DateTimeOffset.UtcNow.AddDays(7)`)
 - Verify test isolation - each test should reset database state
+
+## Unit Testing
+
+### Unit Test Overview
+
+Unit tests verify individual components in isolation without external dependencies like databases or HTTP. The project uses xUnit, FluentAssertions, and NSubstitute for mocking.
+
+### Unit Test Infrastructure
+
+**Location**: `tests/Application.UnitTests/`
+
+**Key Components**:
+
+- **xUnit**: Testing framework with `[Fact]` and `[Theory]` attributes
+- **FluentAssertions**: Readable assertions with detailed error messages
+- **NSubstitute**: Mocking framework for interfaces and dependencies
+- **FluentValidation.TestHelper**: Specialized testing for validators
+
+### Running Unit Tests
+
+```bash
+# Run all unit tests
+dotnet test tests/Application.UnitTests/Application.UnitTests.csproj
+
+# Run specific test class
+dotnet test --filter "FullyQualifiedName~AppointmentTests"
+
+# Run specific test method
+dotnet test --filter "Complete_ScheduledAppointment_SetsStatusAndTimestamp"
+
+# Run with detailed output
+dotnet test --logger "console;verbosity=detailed"
+```
+
+### Test Categories
+
+#### 1. Domain Object Tests
+
+Test domain entities and their business logic in isolation.
+
+**Location**: `tests/Application.UnitTests/Domain/Healthcare/`
+
+**Example - Testing Domain Methods**:
+```csharp
+public class AppointmentTests
+{
+    private static readonly DateTime _baseTimeUtc = DateTime.UtcNow;
+    private readonly Guid _patientId = Guid.NewGuid();
+    private readonly Guid _doctorId = Guid.NewGuid();
+    private readonly DateTime _validStartUtc = _baseTimeUtc.AddHours(1);
+    private readonly DateTime _validEndUtc = _baseTimeUtc.AddHours(2);
+
+    [Fact]
+    public void Complete_ScheduledAppointment_SetsStatusAndTimestamp()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+        var beforeComplete = DateTime.UtcNow;
+
+        // Act
+        appointment.Complete("Patient checked in and seen");
+
+        // Assert
+        appointment.Status.Should().Be(AppointmentStatus.Completed);
+        appointment.CompletedUtc.Should().NotBeNull();
+        appointment.CompletedUtc.Should().BeCloseTo(beforeComplete, TimeSpan.FromSeconds(1));
+        appointment.Notes.Should().Be("Patient checked in and seen");
+    }
+
+    [Fact]
+    public void Complete_CancelledAppointment_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+        appointment.Cancel("Patient cancelled");
+
+        // Act & Assert
+        var act = () => appointment.Complete("Trying to complete cancelled");
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("Cannot complete a cancelled appointment");
+    }
+
+    [Fact]
+    public void Complete_AlreadyCompleted_IsIdempotent()
+    {
+        // Arrange
+        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+        appointment.Complete("First completion");
+        var firstCompletedUtc = appointment.CompletedUtc;
+
+        // Act - complete again
+        appointment.Complete("Second completion");
+
+        // Assert - status remains completed, timestamp unchanged
+        appointment.Status.Should().Be(AppointmentStatus.Completed);
+        appointment.CompletedUtc.Should().Be(firstCompletedUtc);
+        appointment.Notes.Should().Be("First completion"); // Notes not updated
+    }
+}
+```
+
+**Key Patterns**:
+
+- Test state transitions (e.g., Scheduled → Completed)
+- Test validation and exceptions
+- Test idempotency
+- Test edge cases (null values, boundary conditions)
+- Test invariant protection
+
+#### 2. Validator Tests
+
+Test FluentValidation validators using FluentValidation.TestHelper.
+
+**Location**: `tests/Application.UnitTests/Healthcare/` or `tests/Application.UnitTests/Features/`
+
+**Example - Testing Validators**:
+```csharp
+public class CompleteAppointmentValidatorTests
+{
+    private readonly CompleteAppointmentCommandValidator _validator;
+
+    public CompleteAppointmentValidatorTests()
+    {
+        _validator = new CompleteAppointmentCommandValidator();
+    }
+
+    [Fact]
+    public void Should_Have_Error_When_AppointmentId_Is_Empty()
+    {
+        // Arrange
+        var command = new CompleteAppointmentCommand(
+            Guid.Empty,
+            "Test notes");
+
+        // Act & Assert
+        var result = _validator.TestValidate(command);
+        result.ShouldHaveValidationErrorFor(x => x.AppointmentId)
+            .WithErrorMessage("AppointmentId is required");
+    }
+
+    [Fact]
+    public void Should_Have_Error_When_Notes_Exceed_1024_Characters()
+    {
+        // Arrange
+        var longNotes = new string('A', 1025);
+        var command = new CompleteAppointmentCommand(
+            Guid.NewGuid(),
+            longNotes);
+
+        // Act & Assert
+        var result = _validator.TestValidate(command);
+        result.ShouldHaveValidationErrorFor(x => x.Notes)
+            .WithErrorMessage("Notes cannot exceed 1024 characters");
+    }
+
+    [Fact]
+    public void Should_Not_Have_Error_When_All_Fields_Are_Valid()
+    {
+        // Arrange
+        var command = new CompleteAppointmentCommand(
+            Guid.NewGuid(),
+            "Valid completion notes");
+
+        // Act & Assert
+        var result = _validator.TestValidate(command);
+        result.ShouldNotHaveAnyValidationErrors();
+    }
+}
+```
+
+**FluentValidation TestHelper Methods**:
+
+- `TestValidate(command)`: Execute validation
+- `ShouldHaveValidationErrorFor(x => x.Property)`: Assert property has error
+- `WithErrorMessage(message)`: Assert specific error message
+- `ShouldNotHaveValidationErrorFor(x => x.Property)`: Assert property has no error
+- `ShouldNotHaveAnyValidationErrors()`: Assert no validation errors
+
+#### 3. Behavior/Pipeline Tests
+
+Test MediatR pipeline behaviors in isolation.
+
+**Location**: `tests/Application.UnitTests/Common/Behaviours/`
+
+**Example - Testing ValidationBehaviour**:
+```csharp
+public class ValidationBehaviorTests
+{
+    [Fact]
+    public async Task InvokeValidationBehavior_WhenValidatorResultIsNotValid_ShouldReturnListOfErrors()
+    {
+        // Arrange
+        var mockValidator = Substitute.For<IValidator<TestRequest>>();
+        var failures = new List<ValidationFailure>
+        {
+            new ValidationFailure("Property1", "Error 1"),
+            new ValidationFailure("Property2", "Error 2")
+        };
+        mockValidator.ValidateAsync(Arg.Any<ValidationContext<TestRequest>>(), default)
+            .Returns(new ValidationResult(failures));
+
+        var behavior = new ValidationBehaviour<TestRequest, ErrorOr<int>>(
+            new[] { mockValidator });
+
+        // Act
+        var result = await behavior.Handle(
+            new TestRequest(),
+            () => Task.FromResult(ErrorOr<int>.From(1)),
+            CancellationToken.None);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.Errors.Should().HaveCount(2);
+        result.Errors[0].Code.Should().Be("Property1");
+        result.Errors[1].Code.Should().Be("Property2");
+    }
+}
+```
+
+#### 4. Helper/Utility Tests
+
+Test helper methods and utilities.
+
+**Location**: `tests/Application.UnitTests/Common/`
+
+**Example - Testing MinimalApiProblemHelper**:
+```csharp
+public class MinimalApiProblemHelperTests
+{
+    [Fact]
+    public void Problem_WithNotFoundError_ReturnsProblemWithStatus404()
+    {
+        // Arrange
+        var errors = new List<Error>
+        {
+            Error.NotFound("Resource.NotFound", "Resource not found")
+        };
+
+        // Act
+        var result = MinimalApiProblemHelper.Problem(errors);
+
+        // Assert
+        result.Should().BeOfType<ProblemHttpResult>();
+        var problemResult = (ProblemHttpResult)result;
+        problemResult.StatusCode.Should().Be(404);
+    }
+
+    [Fact]
+    public void Problem_WithSingleValidationError_ReturnsValidationProblem()
+    {
+        // Arrange
+        var errors = new List<Error>
+        {
+            Error.Validation("Field", "Field is required")
+        };
+
+        // Act
+        var result = MinimalApiProblemHelper.Problem(errors);
+
+        // Assert
+        var problemResult = result.Should().BeOfType<ProblemHttpResult>().Subject;
+        problemResult.StatusCode.Should().Be(400);
+        problemResult.ProblemDetails.Extensions.Should().ContainKey("errors");
+    }
+}
+```
+
+### Unit Test Naming Convention
+
+Use descriptive test names following the pattern:
+`MethodName_Scenario_ExpectedBehavior`
+
+**Examples**:
+
+- `Complete_ScheduledAppointment_SetsStatusAndTimestamp`
+- `Complete_CancelledAppointment_ThrowsInvalidOperationException`
+- `Complete_AlreadyCompleted_IsIdempotent`
+- `Should_Have_Error_When_AppointmentId_Is_Empty`
+- `Problem_WithNotFoundError_ReturnsProblemWithStatus404`
+
+### FluentAssertions Best Practices
+
+FluentAssertions provides readable, expressive assertions:
+
+```csharp
+// Basic assertions
+result.Should().NotBeNull();
+result.Should().Be(expected);
+result.Should().BeEquivalentTo(expected);
+
+// Strings
+result.Should().Be("expected");
+result.Should().Contain("substring");
+result.Should().StartWith("prefix");
+result.Should().BeNullOrEmpty();
+
+// Numbers
+count.Should().Be(5);
+value.Should().BeGreaterThan(0);
+value.Should().BeLessThanOrEqualTo(100);
+value.Should().BeInRange(1, 10);
+
+// DateTime
+timestamp.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
+timestamp.Should().BeOnOrAfter(startTime);
+
+// Collections
+list.Should().HaveCount(3);
+list.Should().Contain(item);
+list.Should().BeEmpty();
+list.Should().ContainSingle(x => x.Id == expectedId);
+
+// Exceptions
+var act = () => myObject.DoSomething();
+act.Should().Throw<InvalidOperationException>()
+    .WithMessage("Cannot complete a cancelled appointment");
+
+// Boolean
+result.Should().BeTrue();
+result.Should().BeFalse();
+
+// Nullability
+result.Should().BeNull();
+result.Should().NotBeNull();
+
+// Types
+result.Should().BeOfType<AppointmentResult>();
+result.Should().BeAssignableTo<IResult>();
+```
+
+### Mocking with NSubstitute
+
+When testing components with dependencies, use NSubstitute for mocking:
+
+```csharp
+// Create mock
+var mockService = Substitute.For<IMyService>();
+
+// Setup method return
+mockService.GetSomething(Arg.Any<Guid>()).Returns(expectedValue);
+
+// Setup async method
+mockService.GetSomethingAsync(Arg.Any<Guid>())
+    .Returns(Task.FromResult(expectedValue));
+
+// Setup exception throwing
+mockService.DoSomething(Arg.Any<int>())
+    .Throws(new InvalidOperationException("Error message"));
+
+// Verify method was called
+mockService.Received(1).DoSomething(Arg.Any<int>());
+mockService.DidNotReceive().DoSomethingElse();
+
+// Capture arguments
+Guid capturedId = Guid.Empty;
+mockService.DoSomething(Arg.Do<Guid>(x => capturedId = x));
+```
+
+### Testing Domain Events
+
+```csharp
+[Fact]
+public void Complete_RaisesAppointmentCompletedEvent()
+{
+    // Arrange
+    var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+
+    // Act
+    appointment.Complete("Completed successfully");
+
+    // Assert
+    appointment.DomainEvents.Should().ContainSingle();
+    appointment.DomainEvents[0].Should().BeOfType<AppointmentCompletedEvent>();
+
+    var domainEvent = (AppointmentCompletedEvent)appointment.DomainEvents[0];
+    domainEvent.AppointmentId.Should().Be(appointment.Id);
+    domainEvent.CompletedUtc.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
+}
+```
+
+### Unit Tests vs Integration Tests - When to Use Which
+
+**Unit Tests** - Use for:
+
+- **Domain object behavior**: Testing business logic, state transitions, validation
+- **Validators**: Testing FluentValidation rules in isolation
+- **Helper/utility methods**: Pure functions without side effects
+- **Pipeline behaviors**: MediatR behaviors with mocked dependencies
+- **Value objects**: Immutable objects with equality logic
+- **Edge cases**: Boundary conditions, null handling, exceptional paths
+
+**Integration Tests** - Use for:
+
+- **Full HTTP endpoint testing**: Request → validation → handler → database → response
+- **Database operations**: Queries, inserts, updates, deletes
+- **Feature validation**: Complete user workflows
+- **Error responses**: ProblemDetails formatting and status codes
+- **Component interactions**: Multiple services working together
+
+**Rule of Thumb**: If it needs a database or HTTP, use integration tests. If it's pure logic, use unit tests.
+
+### Unit Testing Best Practices
+
+1. **Test One Thing**: Each test should verify a single behavior
+2. **Arrange-Act-Assert**: Follow AAA pattern for clear test structure
+3. **Descriptive Names**: Test names should describe scenario and expected outcome
+4. **No Test Logic**: Tests should be simple and straightforward
+5. **Fast Execution**: Unit tests should complete in milliseconds
+6. **Isolated Tests**: No dependencies on other tests or execution order
+7. **No External Dependencies**: Mock databases, HTTP, file system, time
+8. **Test Public API**: Test public methods, not implementation details
+9. **Avoid Magic Numbers**: Use named constants or variables
+10. **Test Edge Cases**: Null, empty, boundary values, exceptions
+
+### Common Unit Test Patterns
+
+**Testing State Transitions**:
+```csharp
+[Fact]
+public void Cancel_ScheduledAppointment_ChangesStatusToCancelled()
+{
+    // Arrange
+    var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+
+    // Act
+    appointment.Cancel("Patient requested cancellation");
+
+    // Assert
+    appointment.Status.Should().Be(AppointmentStatus.Cancelled);
+    appointment.CancelledUtc.Should().NotBeNull();
+    appointment.CancellationReason.Should().Be("Patient requested cancellation");
+}
+```
+
+**Testing Validation**:
+```csharp
+[Fact]
+public void Complete_NotesExceed1024Characters_ThrowsArgumentException()
+{
+    // Arrange
+    var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+    var longNotes = new string('x', 1025);
+
+    // Act & Assert
+    var act = () => appointment.Complete(longNotes);
+    act.Should().Throw<ArgumentException>()
+        .WithMessage("Notes cannot exceed 1024 characters*")
+        .And.ParamName.Should().Be("notes");
+}
+```
+
+**Testing Idempotency**:
+```csharp
+[Fact]
+public void Complete_AlreadyCompleted_DoesNotChangeState()
+{
+    // Arrange
+    var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+    appointment.Complete("First completion");
+    var originalTimestamp = appointment.CompletedUtc;
+
+    // Act - attempt second completion
+    appointment.Complete("Second attempt");
+
+    // Assert - state unchanged
+    appointment.CompletedUtc.Should().Be(originalTimestamp);
+    appointment.Notes.Should().Be("First completion");
+}
+```
+
+**Testing Invariant Protection**:
+```csharp
+[Fact]
+public void Cancel_CompletedAppointment_ThrowsInvalidOperationException()
+{
+    // Arrange
+    var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
+    appointment.Complete("Completed");
+
+    // Act & Assert
+    var act = () => appointment.Cancel("Trying to cancel");
+    act.Should().Throw<InvalidOperationException>()
+        .WithMessage("Cannot cancel a completed appointment");
+}
+```
+
+### Unit Test Troubleshooting
+
+**Test fails with "Expected X but found Y"**:
+
+- Check the specific assertion message - FluentAssertions provides detailed output
+- Use `.Should().BeEquivalentTo()` for object comparisons (ignores order)
+- Use `.Should().Be()` for value comparisons
+
+**Test fails intermittently**:
+
+- Avoid `DateTime.Now` - use fixed times or relative calculations
+- Don't depend on test execution order
+- Ensure no shared state between tests
+
+**Mock not returning expected value**:
+
+- Check argument matchers: `Arg.Any<T>()`, `Arg.Is<T>(x => x.Id == expectedId)`
+- Verify setup is called before test execution
+- Use `Returns()` for sync methods, `ReturnsAsync()` for async
+
+**Validator test not finding error**:
+
+- Check property expression: `x => x.PropertyName` must match command property
+- Verify validator is registered correctly
+- Use `TestValidate()` not `Validate()`
+
+**Tests are slow**:
+
+- Unit tests should be fast (< 100ms each)
+- Ensure you're not accidentally hitting database or HTTP
+- Check for Thread.Sleep or unnecessary delays
