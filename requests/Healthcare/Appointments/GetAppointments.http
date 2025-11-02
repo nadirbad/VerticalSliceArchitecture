@@ -52,6 +52,91 @@ GET {{baseUrl}}/api/healthcare/appointments/patient/{{defaultPatientId}}?pageNum
 ### 14. Get Patient Appointments - Invalid page size (expect 400)
 GET {{baseUrl}}/api/healthcare/appointments/patient/{{defaultPatientId}}?pageSize=150
 
+### ========== GET DOCTOR APPOINTMENTS ==========
+
+### 15. Get Doctor Appointments - All appointments (expect 200)
+GET {{baseUrl}}/api/healthcare/appointments/doctor/{{defaultDoctorId}}
+
+### 16. Get Doctor Appointments - With pagination (page 1, size 10)
+GET {{baseUrl}}/api/healthcare/appointments/doctor/{{defaultDoctorId}}?pageNumber=1&pageSize=10
+
+### 17. Get Doctor Appointments - Filter by Scheduled status (expect 200)
+GET {{baseUrl}}/api/healthcare/appointments/doctor/{{defaultDoctorId}}?status=1
+
+### 18. Get Doctor Appointments - Filter by Completed status (expect 200)
+GET {{baseUrl}}/api/healthcare/appointments/doctor/{{defaultDoctorId}}?status=3
+
+### 19. Get Doctor Appointments - Filter by Cancelled status (expect 200)
+GET {{baseUrl}}/api/healthcare/appointments/doctor/{{defaultDoctorId}}?status=4
+
+### 20. Get Doctor Appointments - Filter by date range (expect 200)
+GET {{baseUrl}}/api/healthcare/appointments/doctor/{{defaultDoctorId}}?startDate=2025-01-01&endDate=2025-12-31
+
+### 21. Get Doctor Appointments - Multiple filters (status + date range)
+GET {{baseUrl}}/api/healthcare/appointments/doctor/{{defaultDoctorId}}?status=1&startDate=2025-01-01&endDate=2025-12-31&pageNumber=1&pageSize=5
+
+### 22. Get Doctor Appointments - Non-existent doctor (expect 404)
+GET {{baseUrl}}/api/healthcare/appointments/doctor/{{nonExistentId}}
+
+### 23. Get Doctor Appointments - Empty doctor ID (expect 400)
+GET {{baseUrl}}/api/healthcare/appointments/doctor/00000000-0000-0000-0000-000000000000
+
+### 24. Get Doctor Appointments - Invalid page number (expect 400)
+GET {{baseUrl}}/api/healthcare/appointments/doctor/{{defaultDoctorId}}?pageNumber=0
+
+### 25. Get Doctor Appointments - Invalid page size (expect 400)
+GET {{baseUrl}}/api/healthcare/appointments/doctor/{{defaultDoctorId}}?pageSize=150
+
+### ========== GET APPOINTMENTS (GENERAL QUERY / ADMIN) ==========
+
+### 26. Get All Appointments - No filters (expect 200)
+GET {{baseUrl}}/api/healthcare/appointments
+
+### 27. Get All Appointments - With pagination (page 1, size 10)
+GET {{baseUrl}}/api/healthcare/appointments?pageNumber=1&pageSize=10
+
+### 28. Get Appointments - Filter by patient only (expect 200)
+GET {{baseUrl}}/api/healthcare/appointments?patientId={{defaultPatientId}}
+
+### 29. Get Appointments - Filter by doctor only (expect 200)
+GET {{baseUrl}}/api/healthcare/appointments?doctorId={{defaultDoctorId}}
+
+### 30. Get Appointments - Filter by status only (expect 200)
+GET {{baseUrl}}/api/healthcare/appointments?status=1
+
+### 31. Get Appointments - Filter by date range only (expect 200)
+GET {{baseUrl}}/api/healthcare/appointments?startDate=2025-01-01&endDate=2025-12-31
+
+### 32. Get Appointments - Filter by patient + doctor (expect 200)
+GET {{baseUrl}}/api/healthcare/appointments?patientId={{defaultPatientId}}&doctorId={{defaultDoctorId}}
+
+### 33. Get Appointments - Filter by patient + status (expect 200)
+GET {{baseUrl}}/api/healthcare/appointments?patientId={{defaultPatientId}}&status=1
+
+### 34. Get Appointments - Filter by doctor + status (expect 200)
+GET {{baseUrl}}/api/healthcare/appointments?doctorId={{defaultDoctorId}}&status=1
+
+### 35. Get Appointments - Filter by patient + doctor + status (expect 200)
+GET {{baseUrl}}/api/healthcare/appointments?patientId={{defaultPatientId}}&doctorId={{defaultDoctorId}}&status=1
+
+### 36. Get Appointments - All filters combined (expect 200)
+GET {{baseUrl}}/api/healthcare/appointments?patientId={{defaultPatientId}}&doctorId={{defaultDoctorId}}&status=1&startDate=2025-01-01&endDate=2025-12-31&pageNumber=1&pageSize=5
+
+### 37. Get Appointments - Invalid page number (expect 400)
+GET {{baseUrl}}/api/healthcare/appointments?pageNumber=0
+
+### 38. Get Appointments - Invalid page size (expect 400)
+GET {{baseUrl}}/api/healthcare/appointments?pageSize=150
+
+### 39. Get Appointments - Invalid date range (expect 400)
+GET {{baseUrl}}/api/healthcare/appointments?startDate=2025-12-31&endDate=2025-01-01
+
+### 40. Get Appointments - Non-existent patient filter (expect 200 with empty list)
+GET {{baseUrl}}/api/healthcare/appointments?patientId={{nonExistentId}}
+
+### 41. Get Appointments - Non-existent doctor filter (expect 200 with empty list)
+GET {{baseUrl}}/api/healthcare/appointments?doctorId={{nonExistentId}}
+
 ### Note: Replace the validAppointmentId variable above with an actual appointment ID
 ### You can get one by:
 ### 1. Running the BookAppointment.http request
