@@ -1,0 +1,176 @@
+### Prerequisites
+# First, create an appointment using BookAppointment.http scenario 1
+# POST https://localhost:7098/api/healthcare/appointments
+# Then use the returned appointmentId in the tests below
+
+@appointmentId = 28afde4d-0884-455b-bb4c-05a68c6d2ff3
+
+### 1. Reschedule Appointment - Happy path (expect 200)
+# Replace {appointmentId} with actual ID from BookAppointment scenario 1
+POST https://localhost:7098/api/healthcare/appointments/{{appointmentId}}/reschedule
+Content-Type: application/json
+
+{
+  "appointmentId": "{{appointmentId}}",
+  "newStart": "2025-10-21T14:00:00Z",
+  "newEnd": "2025-10-21T14:30:00Z",
+  "reason": "Patient requested different time slot"
+}
+
+### 2. Reschedule Appointment - 24-hour violation (expect 422)
+# First, book an appointment for tomorrow
+
+POST https://localhost:7098/api/healthcare/appointments
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "start": "2025-10-01T10:00:00Z",
+  "end": "2025-10-01T10:30:00Z",
+  "notes": "Next day appointment"
+}
+
+### Then try to reschedule it (should fail if < 24 hours before appointment)
+POST https://localhost:7098/api/healthcare/appointments/{{appointmentId}}/reschedule
+Content-Type: application/json
+
+{
+  "appointmentId": "{{appointmentId}}",
+  "newStart": "2025-10-01T11:00:00Z",
+  "newEnd": "2025-10-01T11:30:00Z",
+  "reason": "Trying to reschedule within 24 hours"
+}
+
+### 3. Reschedule Appointment - Doctor conflict (expect 409)
+# Prerequisites:
+# 1. Book first appointment (scenario 1 from BookAppointment.http)
+# 2. Book second appointment with same doctor at different time
+# POST https://localhost:7098/api/healthcare/appointments
+# {
+#   "patientId": "22222222-2222-2222-2222-222222222222",
+#   "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+#   "start": "2025-10-22T15:00:00Z",
+#   "end": "2025-10-22T15:30:00Z",
+#   "notes": "Another appointment"
+# }
+# 3. Try to reschedule first appointment to overlap with second
+POST https://localhost:7098/api/healthcare/appointments/{{appointmentId}}/reschedule
+Content-Type: application/json
+
+{
+  "appointmentId": "{{appointmentId}}",
+  "newStart": "2025-10-22T15:15:00Z",
+  "newEnd": "2025-10-22T15:45:00Z",
+  "reason": "Attempting to create conflict with another appointment"
+}
+
+### 4. Reschedule Appointment - Not found (expect 404)
+POST https://localhost:7098/api/healthcare/appointments/99999999-9999-9999-9999-999999999999/reschedule
+Content-Type: application/json
+
+{
+  "appointmentId": "99999999-9999-9999-9999-999999999999",
+  "newStart": "2025-10-21T14:00:00Z",
+  "newEnd": "2025-10-21T14:30:00Z",
+  "reason": "Appointment does not exist"
+}
+
+### 5. Reschedule Appointment - Cancelled appointment (expect 400)
+# Prerequisites:
+# 1. Book an appointment
+# 2. Cancel it using CancelAppointment endpoint
+# POST https://localhost:7098/api/healthcare/appointments/{appointmentId}/cancel
+# {
+#   "reason": "Patient cancelled"
+# }
+# 3. Try to reschedule the cancelled appointment
+POST https://localhost:7098/api/healthcare/appointments/{{appointmentId}}/reschedule
+Content-Type: application/json
+
+{
+  "appointmentId": "{{appointmentId}}",
+  "newStart": "2025-10-21T14:00:00Z",
+  "newEnd": "2025-10-21T14:30:00Z",
+  "reason": "Trying to reschedule cancelled appointment"
+}
+
+### 6. Reschedule Appointment - Completed appointment (expect 400)
+# Prerequisites:
+# 1. Book an appointment in the past or mark as completed
+# 2. Try to reschedule it
+# Note: May need to manually update DB or wait for appointment to pass
+POST https://localhost:7098/api/healthcare/appointments/{{appointmentId}}/reschedule
+Content-Type: application/json
+
+{
+  "appointmentId": "{{appointmentId}}",
+  "newStart": "2025-10-21T14:00:00Z",
+  "newEnd": "2025-10-21T14:30:00Z",
+  "reason": "Trying to reschedule completed appointment"
+}
+
+### 7. Reschedule Appointment - Invalid duration: Start >= End (expect 400)
+POST https://localhost:7098/api/healthcare/appointments/{{appointmentId}}/reschedule
+Content-Type: application/json
+
+{
+  "appointmentId": "{{appointmentId}}",
+  "newStart": "2025-10-21T14:00:00Z",
+  "newEnd": "2025-10-21T13:00:00Z",
+  "reason": "End time is before start time"
+}
+
+### 8. Reschedule Appointment - Duration too short: < 10 minutes (expect 400)
+POST https://localhost:7098/api/healthcare/appointments/{{appointmentId}}/reschedule
+Content-Type: application/json
+
+{
+  "appointmentId": "{{appointmentId}}",
+  "newStart": "2025-10-21T14:00:00Z",
+  "newEnd": "2025-10-21T14:05:00Z",
+  "reason": "Only 5 minutes - too short"
+}
+
+### 9. Reschedule Appointment - Duration too long: > 8 hours (expect 400)
+POST https://localhost:7098/api/healthcare/appointments/{{appointmentId}}/reschedule
+Content-Type: application/json
+
+{
+  "appointmentId": "{{appointmentId}}",
+  "newStart": "2025-10-21T08:00:00Z",
+  "newEnd": "2025-10-21T17:00:00Z",
+  "reason": "9 hours - too long"
+}
+
+### 10. Reschedule Appointment - Not enough advance notice: < 2 hours (expect 400)
+# NOTE: Adjust times to be < 2 hours from now for actual testing
+POST https://localhost:7098/api/healthcare/appointments/{{appointmentId}}/reschedule
+Content-Type: application/json
+
+{
+  "appointmentId": "{{appointmentId}}",
+  "newStart": "2025-09-30T12:00:00Z",
+  "newEnd": "2025-09-30T12:30:00Z",
+  "reason": "Scheduled less than 2 hours in advance"
+}
+
+### 11. Reschedule Appointment - Reason too long: > 512 characters (expect 400)
+POST https://localhost:7098/api/healthcare/appointments/{{appointmentId}}/reschedule
+Content-Type: application/json
+
+{
+  "appointmentId": "{{appointmentId}}",
+  "newStart": "2025-10-21T14:00:00Z",
+  "newEnd": "2025-10-21T14:30:00Z",
+  "reason": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+}
+
+### 12. Reschedule Appointment - Empty appointment ID (expect 400)
+POST https://localhost:7098/api/healthcare/appointments/00000000-0000-0000-0000-000000000000/reschedule
+Content-Type: application/json
+
+{
+  "appointmentId": "00000000-0000-0000-0000-000000000000",
+  "newStart": "2025-10-21T14:00:00Z",
+  "newEnd": "2025-10-21T14:30:00Z",
+  "reason": "Empty GUID"
+}

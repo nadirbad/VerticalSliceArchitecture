@@ -1,0 +1,254 @@
+### 1. Issue Prescription - Standard prescription (happy path - expect 201)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "medicationName": "Amoxicillin",
+  "dosage": "500mg",
+  "directions": "Take one capsule three times daily with food",
+  "quantity": 30,
+  "numberOfRefills": 2,
+  "durationInDays": 10
+}
+
+### 2. Issue Prescription - Long-term medication (happy path - expect 201)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "22222222-2222-2222-2222-222222222222",
+  "doctorId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  "medicationName": "Lisinopril",
+  "dosage": "10mg",
+  "directions": "Take one tablet once daily in the morning",
+  "quantity": 90,
+  "numberOfRefills": 12,
+  "durationInDays": 365
+}
+
+### 3. Issue Prescription - No refills (happy path - expect 201)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "33333333-3333-3333-3333-333333333333",
+  "doctorId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+  "medicationName": "Hydrocodone/Acetaminophen",
+  "dosage": "5mg/325mg",
+  "directions": "Take one tablet every 4-6 hours as needed for pain. Do not exceed 6 tablets in 24 hours.",
+  "quantity": 20,
+  "numberOfRefills": 0,
+  "durationInDays": 7
+}
+
+### 4. Issue Prescription - Invalid quantity: 0 (expect 400)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "medicationName": "Amoxicillin",
+  "dosage": "500mg",
+  "directions": "Take one capsule three times daily",
+  "quantity": 0,
+  "numberOfRefills": 2,
+  "durationInDays": 10
+}
+
+### 5. Issue Prescription - Invalid quantity: exceeds 999 (expect 400)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "medicationName": "Aspirin",
+  "dosage": "81mg",
+  "directions": "Take one tablet daily",
+  "quantity": 1000,
+  "numberOfRefills": 1,
+  "durationInDays": 90
+}
+
+### 6. Issue Prescription - Invalid refills: negative (expect 400)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "medicationName": "Metformin",
+  "dosage": "500mg",
+  "directions": "Take one tablet twice daily with meals",
+  "quantity": 60,
+  "numberOfRefills": -1,
+  "durationInDays": 30
+}
+
+### 7. Issue Prescription - Invalid refills: exceeds 12 (expect 400)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "medicationName": "Atorvastatin",
+  "dosage": "20mg",
+  "directions": "Take one tablet daily at bedtime",
+  "quantity": 30,
+  "numberOfRefills": 13,
+  "durationInDays": 30
+}
+
+### 8. Issue Prescription - Invalid duration: 0 days (expect 400)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "medicationName": "Ibuprofen",
+  "dosage": "400mg",
+  "directions": "Take one tablet every 6 hours as needed",
+  "quantity": 30,
+  "numberOfRefills": 0,
+  "durationInDays": 0
+}
+
+### 9. Issue Prescription - Invalid duration: exceeds 365 days (expect 400)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "medicationName": "Levothyroxine",
+  "dosage": "50mcg",
+  "directions": "Take one tablet daily on empty stomach",
+  "quantity": 90,
+  "numberOfRefills": 5,
+  "durationInDays": 366
+}
+
+### 10. Issue Prescription - Invalid patient ID (expect 404)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "99999999-9999-9999-9999-999999999999",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "medicationName": "Amoxicillin",
+  "dosage": "500mg",
+  "directions": "Take one capsule three times daily",
+  "quantity": 30,
+  "numberOfRefills": 2,
+  "durationInDays": 10
+}
+
+### 11. Issue Prescription - Invalid doctor ID (expect 404)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "99999999-9999-9999-9999-999999999999",
+  "medicationName": "Amoxicillin",
+  "dosage": "500mg",
+  "directions": "Take one capsule three times daily",
+  "quantity": 30,
+  "numberOfRefills": 2,
+  "durationInDays": 10
+}
+
+### 12. Issue Prescription - Missing medication name (expect 400)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "medicationName": "",
+  "dosage": "500mg",
+  "directions": "Take one capsule three times daily",
+  "quantity": 30,
+  "numberOfRefills": 2,
+  "durationInDays": 10
+}
+
+### 13. Issue Prescription - Missing dosage (expect 400)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "medicationName": "Amoxicillin",
+  "dosage": "",
+  "directions": "Take one capsule three times daily",
+  "quantity": 30,
+  "numberOfRefills": 2,
+  "durationInDays": 10
+}
+
+### 14. Issue Prescription - Missing directions (expect 400)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "medicationName": "Amoxicillin",
+  "dosage": "500mg",
+  "directions": "",
+  "quantity": 30,
+  "numberOfRefills": 2,
+  "durationInDays": 10
+}
+
+### 15. Issue Prescription - Medication name too long: > 200 characters (expect 400)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "medicationName": "This is an extremely long medication name that exceeds the maximum allowed length of 200 characters for medication names in the prescription system. This should trigger a validation error. Additional padding text here.",
+  "dosage": "500mg",
+  "directions": "Take as directed",
+  "quantity": 30,
+  "numberOfRefills": 2,
+  "durationInDays": 10
+}
+
+### 16. Issue Prescription - Dosage too long: > 50 characters (expect 400)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "medicationName": "Amoxicillin",
+  "dosage": "This dosage description is way too long and exceeds 50 characters",
+  "directions": "Take as directed",
+  "quantity": 30,
+  "numberOfRefills": 2,
+  "durationInDays": 10
+}
+
+### 17. Issue Prescription - Directions too long: > 500 characters (expect 400)
+POST https://localhost:7098/api/prescriptions
+Content-Type: application/json
+
+{
+  "patientId": "11111111-1111-1111-1111-111111111111",
+  "doctorId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "medicationName": "Amoxicillin",
+  "dosage": "500mg",
+  "directions": "Take one capsule three times daily with food. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. More text to exceed the limit of 500 characters for directions.",
+  "quantity": 30,
+  "numberOfRefills": 2,
+  "durationInDays": 10
+}
