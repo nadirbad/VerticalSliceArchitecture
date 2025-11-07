@@ -152,6 +152,16 @@ internal sealed class IssuePrescriptionCommandHandler : IRequestHandler<IssuePre
         _context.Prescriptions.Add(prescription);
         await _context.SaveChangesAsync(cancellationToken);
 
+        // Emit domain event with persisted Id
+        prescription.DomainEvents.Add(new PrescriptionIssuedEvent(
+            prescription.Id,
+            prescription.PatientId,
+            prescription.DoctorId,
+            prescription.MedicationName,
+            prescription.Dosage,
+            prescription.IssuedDateUtc,
+            prescription.ExpirationDateUtc));
+
         // Map to response DTO
         var response = new PrescriptionResponse(
             prescription.Id,
