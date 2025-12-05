@@ -2,7 +2,11 @@
 
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/nadirbad/VerticalSliceArchitecture?utm_source=oss&utm_medium=github&utm_campaign=nadirbad%2FVerticalSliceArchitecture&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
-Check out my blog post [A Guide to Vertical Slice Architecture in C# .NET](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/) for more details about Vertical Slice Architecture.
+## Learn More
+
+Want to learn the theory? Read the [Ultimate Guide to VSA in .NET](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/)
+
+## About
 
 This project is an experiment trying to create an API solution template that uses a Vertical Slice architecture style.
 
