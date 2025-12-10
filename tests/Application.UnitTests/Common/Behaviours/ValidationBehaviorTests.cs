@@ -4,21 +4,20 @@ using FluentValidation.Results;
 using MediatR;
 
 using VerticalSliceArchitecture.Application.Common.Behaviours;
-using VerticalSliceArchitecture.Application.Domain.Todos;
-using VerticalSliceArchitecture.Application.Features.TodoLists;
+using VerticalSliceArchitecture.Application.Features.Healthcare;
 
 namespace VerticalSliceArchitecture.Application.UnitTests.Common.Behaviours;
 
 public class ValidationBehaviorTests
 {
-    private readonly ValidationBehaviour<CreateTodoListCommand, ErrorOr<int>> _validationBehavior;
-    private readonly IValidator<CreateTodoListCommand> _mockValidator;
-    private readonly RequestHandlerDelegate<ErrorOr<int>> _mockNextBehavior;
+    private readonly ValidationBehaviour<IssuePrescriptionCommand, ErrorOr<PrescriptionResponse>> _validationBehavior;
+    private readonly IValidator<IssuePrescriptionCommand> _mockValidator;
+    private readonly RequestHandlerDelegate<ErrorOr<PrescriptionResponse>> _mockNextBehavior;
 
     public ValidationBehaviorTests()
     {
-        _mockNextBehavior = Substitute.For<RequestHandlerDelegate<ErrorOr<int>>>();
-        _mockValidator = Substitute.For<IValidator<CreateTodoListCommand>>();
+        _mockNextBehavior = Substitute.For<RequestHandlerDelegate<ErrorOr<PrescriptionResponse>>>();
+        _mockValidator = Substitute.For<IValidator<IssuePrescriptionCommand>>();
 
         _validationBehavior = new(_mockValidator);
     }
@@ -27,58 +26,118 @@ public class ValidationBehaviorTests
     public async Task InvokeValidationBehavior_WhenValidatorResultIsValid_ShouldInvokeNextBehavior()
     {
         // Arrange
-        var createTodoListCommand = new CreateTodoListCommand("Title");
-        var todoList = new TodoList { Title = createTodoListCommand.Title };
+        var command = new IssuePrescriptionCommand(
+            PatientId: Guid.NewGuid(),
+            DoctorId: Guid.NewGuid(),
+            MedicationName: "Amoxicillin",
+            Dosage: "500mg",
+            Directions: "Take one capsule three times daily",
+            Quantity: 30,
+            NumberOfRefills: 2,
+            DurationInDays: 10);
+
+        var expectedResponse = new PrescriptionResponse(
+            Id: Guid.NewGuid(),
+            PatientId: command.PatientId,
+            PatientName: "John Doe",
+            DoctorId: command.DoctorId,
+            DoctorName: "Dr. Smith",
+            MedicationName: command.MedicationName,
+            Dosage: command.Dosage,
+            Directions: command.Directions,
+            Quantity: command.Quantity,
+            NumberOfRefills: command.NumberOfRefills,
+            RemainingRefills: command.NumberOfRefills,
+            IssuedDateUtc: DateTime.UtcNow,
+            ExpirationDateUtc: DateTime.UtcNow.AddDays(command.DurationInDays),
+            Status: "Active",
+            IsExpired: false,
+            IsDepleted: false);
 
         _mockValidator
-            .ValidateAsync(createTodoListCommand, Arg.Any<CancellationToken>())
+            .ValidateAsync(command, Arg.Any<CancellationToken>())
             .Returns(new ValidationResult());
 
-        _mockNextBehavior.Invoke().Returns(todoList.Id);
+        _mockNextBehavior.Invoke().Returns(expectedResponse);
 
         // Act
-        var result = await _validationBehavior.Handle(createTodoListCommand, _mockNextBehavior, default);
+        var result = await _validationBehavior.Handle(command, _mockNextBehavior, default);
 
         // Assert
         result.IsError.Should().BeFalse();
-        result.Value.Should().Be(todoList.Id);
+        result.Value.Should().Be(expectedResponse);
     }
 
     [Fact]
     public async Task InvokeValidationBehavior_WhenValidatorResultIsNotValid_ShouldReturnListOfErrors()
     {
         // Arrange
-        var createTodoListCommand = new CreateTodoListCommand("Title");
-        List<ValidationFailure> validationFailures = [new(propertyName: "foo", errorMessage: "bad foo")];
+        var command = new IssuePrescriptionCommand(
+            PatientId: Guid.Empty,
+            DoctorId: Guid.NewGuid(),
+            MedicationName: "Amoxicillin",
+            Dosage: "500mg",
+            Directions: "Take one capsule three times daily",
+            Quantity: 30,
+            NumberOfRefills: 2,
+            DurationInDays: 10);
+
+        List<ValidationFailure> validationFailures = [new(propertyName: "PatientId", errorMessage: "Patient ID is required")];
 
         _mockValidator
-            .ValidateAsync(createTodoListCommand, Arg.Any<CancellationToken>())
+            .ValidateAsync(command, Arg.Any<CancellationToken>())
             .Returns(new ValidationResult(validationFailures));
 
         // Act
-        var result = await _validationBehavior.Handle(createTodoListCommand, _mockNextBehavior, default);
+        var result = await _validationBehavior.Handle(command, _mockNextBehavior, default);
 
         // Assert
         result.IsError.Should().BeTrue();
-        result.FirstError.Code.Should().Be("foo");
-        result.FirstError.Description.Should().Be("bad foo");
+        result.FirstError.Code.Should().Be("PatientId");
+        result.FirstError.Description.Should().Be("Patient ID is required");
     }
 
     [Fact]
     public async Task InvokeValidationBehavior_WhenNoValidator_ShouldInvokeNextBehavior()
     {
         // Arrange
-        var createTodoListCommand = new CreateTodoListCommand("Title");
-        var validationBehavior = new ValidationBehaviour<CreateTodoListCommand, ErrorOr<int>>();
+        var command = new IssuePrescriptionCommand(
+            PatientId: Guid.NewGuid(),
+            DoctorId: Guid.NewGuid(),
+            MedicationName: "Amoxicillin",
+            Dosage: "500mg",
+            Directions: "Take one capsule three times daily",
+            Quantity: 30,
+            NumberOfRefills: 2,
+            DurationInDays: 10);
 
-        var todoList = new TodoList { Title = createTodoListCommand.Title };
-        _mockNextBehavior.Invoke().Returns(todoList.Id);
+        var validationBehavior = new ValidationBehaviour<IssuePrescriptionCommand, ErrorOr<PrescriptionResponse>>();
+
+        var expectedResponse = new PrescriptionResponse(
+            Id: Guid.NewGuid(),
+            PatientId: command.PatientId,
+            PatientName: "John Doe",
+            DoctorId: command.DoctorId,
+            DoctorName: "Dr. Smith",
+            MedicationName: command.MedicationName,
+            Dosage: command.Dosage,
+            Directions: command.Directions,
+            Quantity: command.Quantity,
+            NumberOfRefills: command.NumberOfRefills,
+            RemainingRefills: command.NumberOfRefills,
+            IssuedDateUtc: DateTime.UtcNow,
+            ExpirationDateUtc: DateTime.UtcNow.AddDays(command.DurationInDays),
+            Status: "Active",
+            IsExpired: false,
+            IsDepleted: false);
+
+        _mockNextBehavior.Invoke().Returns(expectedResponse);
 
         // Act
-        var result = await validationBehavior.Handle(createTodoListCommand, _mockNextBehavior, default);
+        var result = await validationBehavior.Handle(command, _mockNextBehavior, default);
 
         // Assert
         result.IsError.Should().BeFalse();
-        result.Value.Should().Be(todoList.Id);
+        result.Value.Should().Be(expectedResponse);
     }
 }

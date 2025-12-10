@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
 using VerticalSliceArchitecture.Application.Domain.Healthcare;
-using VerticalSliceArchitecture.Application.Domain.Todos;
 
 namespace VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
@@ -27,10 +26,6 @@ public class ApplicationDbContext : DbContext
         _domainEventService = domainEventService;
         _dateTime = dateTime;
     }
-
-    public DbSet<TodoList> TodoLists => Set<TodoList>();
-
-    public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
     public DbSet<Patient> Patients => Set<Patient>();
 
