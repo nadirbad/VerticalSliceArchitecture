@@ -72,7 +72,7 @@ public class RescheduleAppointmentTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task RescheduleAppointment_Within24Hours_Returns400WithValidationError()
+    public async Task RescheduleAppointment_Within24Hours_Returns400BadRequest()
     {
         // Arrange - Book appointment starting in 23 hours (within the 24-hour window)
         // The validation is "DateTime.UtcNow >= appointment.StartUtc.AddHours(-24)"

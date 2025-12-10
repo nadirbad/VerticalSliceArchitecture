@@ -46,7 +46,7 @@ This is the API specification for the spec detailed in @.agent-os/specs/2025-09-
 | Minimum duration | `newEnd >= newStart + 10 minutes` | 400 Bad Request |
 | Maximum duration | `newEnd <= newStart + 8 hours` | 400 Bad Request |
 | Advance notice (new time) | `newStart > UtcNow + 2 hours` | 400 Bad Request |
-| 24-hour rule (original time) | `UtcNow < originalStart - 24 hours` | 422 Unprocessable Entity |
+| 24-hour rule (original time) | `UtcNow < originalStart - 24 hours` | 400 Bad Request |
 | Appointment exists | Database lookup | 404 Not Found |
 | Appointment not cancelled | `Status != Cancelled` | 400 Bad Request |
 | Appointment not completed | `Status != Completed` | 400 Bad Request |
@@ -193,18 +193,18 @@ This is the API specification for the spec detailed in @.agent-os/specs/2025-09-
 
 ---
 
-### ❌ Reschedule Window Closed (422 Unprocessable Entity)
+### ❌ Reschedule Window Closed (400 Bad Request)
 
 **Scenario:** Attempting to reschedule within 24 hours of original appointment start time
 
-**Status Code:** `422 Unprocessable Entity`
+**Status Code:** `400 Bad Request`
 
 **Body:**
 ```json
 {
-  "type": "https://tools.ietf.org/html/rfc2518#section-10.3",
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
   "title": "Appointment.RescheduleWindowClosed",
-  "status": 422,
+  "status": 400,
   "detail": "Appointments cannot be rescheduled within 24 hours of the start time"
 }
 ```
@@ -243,7 +243,7 @@ Content-Type: application/json
 
 ---
 
-### Example 2: Reschedule Within 24 Hours (422)
+### Example 2: Reschedule Within 24 Hours (400)
 
 ```http
 POST https://localhost:7098/api/healthcare/appointments/3fa85f64-5717-4562-b3fc-2c963f66afa6/reschedule
@@ -258,13 +258,13 @@ Content-Type: application/json
 
 **Expected Response:**
 ```http
-HTTP/1.1 422 Unprocessable Entity
+HTTP/1.1 400 Bad Request
 Content-Type: application/json
 
 {
-  "type": "https://tools.ietf.org/html/rfc2518#section-10.3",
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
   "title": "Appointment.RescheduleWindowClosed",
-  "status": 422,
+  "status": 400,
   "detail": "Appointments cannot be rescheduled within 24 hours of the start time"
 }
 ```
@@ -490,7 +490,7 @@ public class AppointmentRescheduledEvent(
 | `Appointment.NotFound` | 404 | Appointment doesn't exist |
 | `Appointment.CannotRescheduleCancelled` | 400 | Appointment is cancelled |
 | `Appointment.CannotRescheduleCompleted` | 400 | Appointment is completed |
-| `Appointment.RescheduleWindowClosed` | 422 | Within 24 hours of original start time |
+| `Appointment.RescheduleWindowClosed` | 400 | Within 24 hours of original start time |
 | `Appointment.Conflict` | 409 | Doctor has overlapping appointment |
 | Validation errors | 400 | Request fails FluentValidation rules |
 

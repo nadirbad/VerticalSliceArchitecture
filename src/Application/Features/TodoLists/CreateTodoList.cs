@@ -56,9 +56,7 @@ internal sealed class CreateTodoListCommandHandler(ApplicationDbContext context)
     public async Task<ErrorOr<int>> Handle(CreateTodoListCommand request, CancellationToken cancellationToken)
     {
         var todoList = new TodoList { Title = request.Title };
-
         _context.TodoLists.Add(todoList);
-
         await _context.SaveChangesAsync(cancellationToken);
 
         return todoList.Id;
