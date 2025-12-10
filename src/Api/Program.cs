@@ -1,6 +1,8 @@
 using Microsoft.OpenApi.Models;
 
 using VerticalSliceArchitecture.Application;
+using VerticalSliceArchitecture.Application.Features.Healthcare;
+using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +54,17 @@ else
 
 app.UseAuthorization();
 app.MapControllers();
+
+// Map Minimal API endpoints
+app.MapHealthcareEndpoints();
+
+// Seed the database in development only
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await ApplicationDbContextSeed.SeedSampleDataAsync(context);
+}
 
 app.Run();
 
