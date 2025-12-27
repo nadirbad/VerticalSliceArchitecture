@@ -5,7 +5,6 @@ using FluentValidation;
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 using VerticalSliceArchitecture.Application.Common;
@@ -14,21 +13,6 @@ using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 namespace VerticalSliceArchitecture.Application.Features.Healthcare.Appointments;
 
-[Obsolete("This controller has been replaced by Minimal API endpoints. Use AppointmentEndpoints.MapAppointmentEndpoints() instead.")]
-public class BookAppointmentController : ApiControllerBase
-{
-    [HttpPost("/api/healthcare/appointments")]
-    public async Task<IActionResult> Book(BookAppointmentCommand command)
-    {
-        var result = await Mediator.Send(command);
-
-        return result.Match(
-            success => Created($"/api/healthcare/appointments/{success.Id}", success),
-            Problem);
-    }
-}
-
-// Minimal API Endpoint Handler
 public static class BookAppointmentEndpoint
 {
     public static async Task<IResult> Handle(
