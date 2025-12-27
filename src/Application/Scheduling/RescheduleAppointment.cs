@@ -61,20 +61,20 @@ internal sealed class RescheduleAppointmentCommandValidator : AbstractValidator<
             .WithMessage("New start time must be before new end time");
 
         RuleFor(v => v.NewEnd)
-            .GreaterThanOrEqualTo(v => v.NewStart.AddMinutes(10))
-            .WithMessage("Appointment must be at least 10 minutes long");
+            .GreaterThanOrEqualTo(v => v.NewStart.AddMinutes(SchedulingPolicies.MinimumAppointmentDurationMinutes))
+            .WithMessage($"Appointment must be at least {SchedulingPolicies.MinimumAppointmentDurationMinutes} minutes long");
 
         RuleFor(v => v.NewEnd)
-            .LessThanOrEqualTo(v => v.NewStart.AddHours(8))
-            .WithMessage("Appointment cannot be longer than 8 hours");
+            .LessThanOrEqualTo(v => v.NewStart.AddHours(SchedulingPolicies.MaximumAppointmentDurationHours))
+            .WithMessage($"Appointment cannot be longer than {SchedulingPolicies.MaximumAppointmentDurationHours} hours");
 
         RuleFor(v => v.NewStart)
-            .GreaterThan(DateTimeOffset.UtcNow.AddHours(2))
-            .WithMessage("Appointment must be rescheduled at least 2 hours in advance");
+            .GreaterThan(DateTimeOffset.UtcNow.AddHours(SchedulingPolicies.MinimumRescheduleAdvanceHours))
+            .WithMessage($"Appointment must be rescheduled at least {SchedulingPolicies.MinimumRescheduleAdvanceHours} hours in advance");
 
         RuleFor(v => v.Reason)
-            .MaximumLength(512)
-            .WithMessage("Reason cannot exceed 512 characters");
+            .MaximumLength(SchedulingPolicies.MaxRescheduleReasonLength)
+            .WithMessage($"Reason cannot exceed {SchedulingPolicies.MaxRescheduleReasonLength} characters");
     }
 }
 
@@ -97,7 +97,7 @@ internal sealed class RescheduleAppointmentCommandHandler(ApplicationDbContext c
             return Error.NotFound("Appointment.NotFound", $"Appointment with ID {request.AppointmentId} not found");
         }
 
-        // Store original times for response and event
+        // Store original times for response
         var previousStartUtc = appointment.StartUtc;
         var previousEndUtc = appointment.EndUtc;
 
@@ -112,13 +112,14 @@ internal sealed class RescheduleAppointmentCommandHandler(ApplicationDbContext c
             return Error.Validation("Appointment.CannotRescheduleCompleted", "Cannot reschedule a completed appointment");
         }
 
-        // Enforce 24-hour rule
-        if (DateTime.UtcNow >= appointment.StartUtc.AddHours(-24))
+        // Enforce reschedule window cutoff rule
+        if (DateTime.UtcNow >= appointment.StartUtc.AddHours(-SchedulingPolicies.RescheduleWindowCutoffHours))
         {
-            return Error.Validation("Appointment.RescheduleWindowClosed", "Appointments cannot be rescheduled within 24 hours of the start time");
+            return Error.Validation("Appointment.RescheduleWindowClosed", $"Appointments cannot be rescheduled within {SchedulingPolicies.RescheduleWindowCutoffHours} hours of the start time");
         }
 
         // Check doctor availability - exclude current appointment
+        // NOTE: This check-then-act pattern has a race condition window (see BookAppointment.cs for details)
         var hasOverlap = await _context.Appointments
             .AsNoTracking()
             .AnyAsync(
@@ -135,19 +136,24 @@ internal sealed class RescheduleAppointmentCommandHandler(ApplicationDbContext c
         }
 
         // Update appointment via domain method
+        // Note: Domain event (AppointmentRescheduledEvent) is raised inside Appointment.Reschedule()
         appointment.Reschedule(newStartUtc, newEndUtc, request.Reason);
 
-        // Raise domain event
-        appointment.DomainEvents.Add(
-            new AppointmentRescheduledEvent(
-                appointment.Id,
-                previousStartUtc,
-                previousEndUtc,
-                appointment.StartUtc,
-                appointment.EndUtc));
-
-        // Persist changes
-        await _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            // Persist changes
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Optimistic concurrency conflict - another user modified this appointment
+            return Error.Conflict("Appointment.ConcurrencyConflict", "The appointment was modified by another user. Please refresh and try again.");
+        }
+        catch (DbUpdateException)
+        {
+            // Could be a concurrent insert causing overlap - return conflict
+            return Error.Conflict("Appointment.Conflict", "Doctor has a conflicting appointment during the requested time");
+        }
 
         // Return result
         return new RescheduleAppointmentResult(

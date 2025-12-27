@@ -11,6 +11,8 @@ using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Domain;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
+using static VerticalSliceArchitecture.Application.Domain.SchedulingPolicies;
+
 namespace VerticalSliceArchitecture.Application.Scheduling;
 
 // Minimal API Endpoint Handler
@@ -45,21 +47,6 @@ public record CompleteAppointmentResult(
     DateTime CompletedUtc,
     string? Notes);
 
-// Domain Event
-public class AppointmentCompletedEvent(
-    Guid appointmentId,
-    Guid patientId,
-    Guid doctorId,
-    DateTime completedUtc,
-    string? notes) : DomainEvent
-{
-    public Guid AppointmentId { get; } = appointmentId;
-    public Guid PatientId { get; } = patientId;
-    public Guid DoctorId { get; } = doctorId;
-    public DateTime CompletedUtc { get; } = completedUtc;
-    public string? Notes { get; } = notes;
-}
-
 internal sealed class CompleteAppointmentCommandValidator : AbstractValidator<CompleteAppointmentCommand>
 {
     public CompleteAppointmentCommandValidator()
@@ -69,8 +56,8 @@ internal sealed class CompleteAppointmentCommandValidator : AbstractValidator<Co
             .WithMessage("AppointmentId is required");
 
         RuleFor(v => v.Notes)
-            .MaximumLength(1024)
-            .WithMessage("Notes cannot exceed 1024 characters");
+            .MaximumLength(MaxNotesLength)
+            .WithMessage($"Notes cannot exceed {MaxNotesLength} characters");
     }
 }
 
@@ -90,6 +77,7 @@ internal sealed class CompleteAppointmentCommandHandler(ApplicationDbContext con
         }
 
         // Try to complete the appointment - let domain method handle validation
+        // Note: Domain event (AppointmentCompletedEvent) is raised inside Appointment.Complete()
         try
         {
             appointment.Complete(request.Notes);
@@ -103,17 +91,16 @@ internal sealed class CompleteAppointmentCommandHandler(ApplicationDbContext con
             return Error.Validation("Appointment.ValidationFailed", ex.Message);
         }
 
-        // Raise domain event
-        appointment.DomainEvents.Add(
-            new AppointmentCompletedEvent(
-                appointment.Id,
-                appointment.PatientId,
-                appointment.DoctorId,
-                appointment.CompletedUtc!.Value,
-                appointment.Notes));
-
         // Persist changes
-        await _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Optimistic concurrency conflict - another user modified this appointment
+            return Error.Conflict("Appointment.ConcurrencyConflict", "The appointment was modified by another user. Please refresh and try again.");
+        }
 
         // Return result
         return new CompleteAppointmentResult(

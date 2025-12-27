@@ -53,8 +53,8 @@ public class GetAppointmentsTests : IntegrationTestBase
         result.TotalCount.Should().BeGreaterOrEqualTo(2);
         result.PageNumber.Should().Be(1);
 
-        // Verify appointments are sorted by StartUtc descending (most recent first)
-        result.Items.Should().BeInDescendingOrder(a => a.StartUtc);
+        // Verify appointments are sorted by StartUtc ascending (upcoming first)
+        result.Items.Should().BeInAscendingOrder(a => a.StartUtc);
     }
 
     [Fact]
@@ -374,7 +374,7 @@ public class GetAppointmentsTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task GetAppointments_SortOrder_IsDescendingByStartTime()
+    public async Task GetAppointments_SortOrder_IsAscendingByStartTime()
     {
         // Arrange - Book appointments in non-chronological order
         var builder = new BookAppointmentTestDataBuilder()
@@ -401,10 +401,10 @@ public class GetAppointmentsTests : IntegrationTestBase
         result.Should().NotBeNull();
         result!.Items.Should().HaveCount(3);
 
-        // Verify descending order (most recent first)
-        result.Items.Should().BeInDescendingOrder(a => a.StartUtc);
-        result.Items[0].StartUtc.Should().BeCloseTo(time3, TimeSpan.FromSeconds(1));
+        // Verify ascending order (upcoming first)
+        result.Items.Should().BeInAscendingOrder(a => a.StartUtc);
+        result.Items[0].StartUtc.Should().BeCloseTo(time1, TimeSpan.FromSeconds(1));
         result.Items[1].StartUtc.Should().BeCloseTo(time2, TimeSpan.FromSeconds(1));
-        result.Items[2].StartUtc.Should().BeCloseTo(time1, TimeSpan.FromSeconds(1));
+        result.Items[2].StartUtc.Should().BeCloseTo(time3, TimeSpan.FromSeconds(1));
     }
 }

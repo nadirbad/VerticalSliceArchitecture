@@ -8,7 +8,17 @@ public class Appointment : AuditableEntity, IHasDomainEvent
 {
     public static Appointment Schedule(Guid patientId, Guid doctorId, DateTime startUtc, DateTime endUtc, string? notes = null)
     {
-        return new Appointment(patientId, doctorId, startUtc, endUtc, notes);
+        var appointment = new Appointment(patientId, doctorId, startUtc, endUtc, notes);
+
+        // Raise domain event
+        appointment.DomainEvents.Add(new AppointmentBookedEvent(
+            appointment.Id,
+            appointment.PatientId,
+            appointment.DoctorId,
+            appointment.StartUtc,
+            appointment.EndUtc));
+
+        return appointment;
     }
 
     private Appointment()
@@ -16,6 +26,11 @@ public class Appointment : AuditableEntity, IHasDomainEvent
         // Private parameterless constructor for EF Core
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Appointment"/> class, enforcing domain invariants.
+    /// Note: FluentValidation also validates these rules for fast-fail UX.
+    /// Domain validation is authoritative - handlers catch ArgumentException and convert to ErrorOr.
+    /// </summary>
     private Appointment(Guid patientId, Guid doctorId, DateTime startUtc, DateTime endUtc, string? notes)
     {
         ValidateDateTime(startUtc, nameof(startUtc));
@@ -65,6 +80,10 @@ public class Appointment : AuditableEntity, IHasDomainEvent
         ValidateDateTime(newStartUtc, nameof(newStartUtc));
         ValidateDateTime(newEndUtc, nameof(newEndUtc));
 
+        // Capture previous times for domain event
+        var previousStartUtc = StartUtc;
+        var previousEndUtc = EndUtc;
+
         // Mutate state
         StartUtc = newStartUtc;
         EndUtc = newEndUtc;
@@ -74,9 +93,22 @@ public class Appointment : AuditableEntity, IHasDomainEvent
         {
             Notes = string.IsNullOrWhiteSpace(Notes) ? reason : $"{Notes}; {reason}";
         }
+
+        // Raise domain event
+        DomainEvents.Add(new AppointmentRescheduledEvent(
+            Id,
+            previousStartUtc,
+            previousEndUtc,
+            StartUtc,
+            EndUtc));
     }
 
-    public void Complete(string? notes = null)
+    /// <summary>
+    /// Marks the appointment as completed.
+    /// </summary>
+    /// <param name="notes">Optional completion notes.</param>
+    /// <param name="completedAtUtc">Optional timestamp for when completion occurred. Defaults to DateTime.UtcNow if not provided.</param>
+    public void Complete(string? notes = null, DateTime? completedAtUtc = null)
     {
         // Validation
         if (Status == AppointmentStatus.Cancelled)
@@ -89,18 +121,37 @@ public class Appointment : AuditableEntity, IHasDomainEvent
             return; // Idempotent - already completed
         }
 
-        if (!string.IsNullOrEmpty(notes) && notes.Length > 1024)
+        if (!string.IsNullOrEmpty(notes) && notes.Length > SchedulingPolicies.MaxNotesLength)
         {
-            throw new ArgumentException("Notes cannot exceed 1024 characters", nameof(notes));
+            throw new ArgumentException($"Notes cannot exceed {SchedulingPolicies.MaxNotesLength} characters", nameof(notes));
+        }
+
+        var timestamp = completedAtUtc ?? DateTime.UtcNow;
+        if (timestamp.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Timestamp must be in UTC", nameof(completedAtUtc));
         }
 
         // State transition
         Status = AppointmentStatus.Completed;
-        CompletedUtc = DateTime.UtcNow;
+        CompletedUtc = timestamp;
         Notes = notes;
+
+        // Raise domain event
+        DomainEvents.Add(new AppointmentCompletedEvent(
+            Id,
+            PatientId,
+            DoctorId,
+            CompletedUtc.Value,
+            Notes));
     }
 
-    public void Cancel(string reason)
+    /// <summary>
+    /// Cancels the appointment.
+    /// </summary>
+    /// <param name="reason">Required reason for cancellation.</param>
+    /// <param name="cancelledAtUtc">Optional timestamp for when cancellation occurred. Defaults to DateTime.UtcNow if not provided.</param>
+    public void Cancel(string reason, DateTime? cancelledAtUtc = null)
     {
         // Validation
         if (string.IsNullOrWhiteSpace(reason))
@@ -108,9 +159,9 @@ public class Appointment : AuditableEntity, IHasDomainEvent
             throw new ArgumentException("Cancellation reason is required", nameof(reason));
         }
 
-        if (reason.Length > 512)
+        if (reason.Length > SchedulingPolicies.MaxCancellationReasonLength)
         {
-            throw new ArgumentException("Cancellation reason cannot exceed 512 characters", nameof(reason));
+            throw new ArgumentException($"Cancellation reason cannot exceed {SchedulingPolicies.MaxCancellationReasonLength} characters", nameof(reason));
         }
 
         if (Status == AppointmentStatus.Completed)
@@ -123,17 +174,31 @@ public class Appointment : AuditableEntity, IHasDomainEvent
             return; // Idempotent - already cancelled
         }
 
+        var timestamp = cancelledAtUtc ?? DateTime.UtcNow;
+        if (timestamp.Kind != DateTimeKind.Utc)
+        {
+            throw new ArgumentException("Timestamp must be in UTC", nameof(cancelledAtUtc));
+        }
+
         // State transition
         Status = AppointmentStatus.Cancelled;
-        CancelledUtc = DateTime.UtcNow;
+        CancelledUtc = timestamp;
         CancellationReason = reason;
+
+        // Raise domain event
+        DomainEvents.Add(new AppointmentCancelledEvent(
+            Id,
+            PatientId,
+            DoctorId,
+            CancelledUtc.Value,
+            CancellationReason));
     }
 
     public void UpdateNotes(string? newNotes)
     {
-        if (newNotes != null && newNotes.Length > 1024)
+        if (newNotes != null && newNotes.Length > SchedulingPolicies.MaxNotesLength)
         {
-            throw new ArgumentException("Notes cannot exceed 1024 characters", nameof(newNotes));
+            throw new ArgumentException($"Notes cannot exceed {SchedulingPolicies.MaxNotesLength} characters", nameof(newNotes));
         }
 
         Notes = string.IsNullOrWhiteSpace(newNotes) ? null : newNotes.Trim();

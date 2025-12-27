@@ -4,37 +4,29 @@ using FluentValidation;
 
 using MediatR;
 
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Domain;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
+using static VerticalSliceArchitecture.Application.Domain.PrescriptionPolicies;
+
 namespace VerticalSliceArchitecture.Application.Medications;
 
 public static class IssuePrescriptionEndpoint
 {
-    public static void MapIssuePrescription(this IEndpointRouteBuilder app)
+    public static async Task<IResult> Handle(
+        IssuePrescriptionCommand command,
+        ISender sender,
+        CancellationToken cancellationToken)
     {
-        app.MapPost("/api/prescriptions", async (
-            IssuePrescriptionCommand command,
-            ISender sender,
-            CancellationToken cancellationToken) =>
-        {
-            var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-            return result.Match(
-                prescription => Results.Created($"/api/prescriptions/{prescription.Id}", prescription),
-                errors => MinimalApiProblemHelper.Problem(errors));
-        })
-        .WithName("IssuePrescription")
-        .Produces<PrescriptionResponse>(StatusCodes.Status201Created)
-        .ProducesValidationProblem()
-        .ProducesProblem(StatusCodes.Status404NotFound)
-        .WithTags("Prescriptions");
+        return result.Match(
+            prescription => Results.Created($"/api/prescriptions/{prescription.Id}", prescription),
+            errors => MinimalApiProblemHelper.Problem(errors));
     }
 }
 
@@ -60,24 +52,24 @@ internal sealed class IssuePrescriptionCommandValidator : AbstractValidator<Issu
 
         RuleFor(x => x.MedicationName)
             .NotEmpty().WithMessage("Medication name is required")
-            .MaximumLength(200).WithMessage("Medication name cannot exceed 200 characters");
+            .MaximumLength(MaxMedicationNameLength).WithMessage($"Medication name cannot exceed {MaxMedicationNameLength} characters");
 
         RuleFor(x => x.Dosage)
             .NotEmpty().WithMessage("Dosage is required")
-            .MaximumLength(50).WithMessage("Dosage cannot exceed 50 characters");
+            .MaximumLength(MaxDosageLength).WithMessage($"Dosage cannot exceed {MaxDosageLength} characters");
 
         RuleFor(x => x.Directions)
             .NotEmpty().WithMessage("Directions are required")
-            .MaximumLength(500).WithMessage("Directions cannot exceed 500 characters");
+            .MaximumLength(MaxDirectionsLength).WithMessage($"Directions cannot exceed {MaxDirectionsLength} characters");
 
         RuleFor(x => x.Quantity)
-            .InclusiveBetween(1, 999).WithMessage("Quantity must be between 1 and 999");
+            .InclusiveBetween(MinQuantity, MaxQuantity).WithMessage($"Quantity must be between {MinQuantity} and {MaxQuantity}");
 
         RuleFor(x => x.NumberOfRefills)
-            .InclusiveBetween(0, 12).WithMessage("Number of refills must be between 0 and 12");
+            .InclusiveBetween(MinRefills, MaxRefills).WithMessage($"Number of refills must be between {MinRefills} and {MaxRefills}");
 
         RuleFor(x => x.DurationInDays)
-            .InclusiveBetween(1, 365).WithMessage("Duration must be between 1 and 365 days");
+            .InclusiveBetween(MinDurationDays, MaxDurationDays).WithMessage($"Duration must be between {MinDurationDays} and {MaxDurationDays} days");
     }
 }
 
@@ -99,14 +91,10 @@ public record PrescriptionResponse(
     bool IsExpired,
     bool IsDepleted);
 
-internal sealed class IssuePrescriptionCommandHandler : IRequestHandler<IssuePrescriptionCommand, ErrorOr<PrescriptionResponse>>
+internal sealed class IssuePrescriptionCommandHandler(ApplicationDbContext context)
+    : IRequestHandler<IssuePrescriptionCommand, ErrorOr<PrescriptionResponse>>
 {
-    private readonly ApplicationDbContext _context;
-
-    public IssuePrescriptionCommandHandler(ApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly ApplicationDbContext _context = context;
 
     public async Task<ErrorOr<PrescriptionResponse>> Handle(IssuePrescriptionCommand request, CancellationToken cancellationToken)
     {
@@ -116,7 +104,7 @@ internal sealed class IssuePrescriptionCommandHandler : IRequestHandler<IssuePre
 
         if (patient == null)
         {
-            return Error.NotFound(code: "Patient.NotFound", description: $"Patient with ID {request.PatientId} was not found");
+            return Error.NotFound(code: "Prescription.PatientNotFound", description: $"Patient with ID {request.PatientId} was not found");
         }
 
         // Verify doctor exists
@@ -125,7 +113,7 @@ internal sealed class IssuePrescriptionCommandHandler : IRequestHandler<IssuePre
 
         if (doctor == null)
         {
-            return Error.NotFound(code: "Doctor.NotFound", description: $"Doctor with ID {request.DoctorId} was not found");
+            return Error.NotFound(code: "Prescription.DoctorNotFound", description: $"Doctor with ID {request.DoctorId} was not found");
         }
 
         // Issue the prescription using the domain factory method
@@ -148,18 +136,10 @@ internal sealed class IssuePrescriptionCommandHandler : IRequestHandler<IssuePre
         }
 
         // Add to context and save
+        // Note: Domain event (PrescriptionIssuedEvent) is already raised inside Prescription.Issue()
+        // and will be dispatched by ApplicationDbContext.SaveChangesAsync()
         _context.Prescriptions.Add(prescription);
         await _context.SaveChangesAsync(cancellationToken);
-
-        // Emit domain event with persisted Id
-        prescription.DomainEvents.Add(new PrescriptionIssuedEvent(
-            prescription.Id,
-            prescription.PatientId,
-            prescription.DoctorId,
-            prescription.MedicationName,
-            prescription.Dosage,
-            prescription.IssuedDateUtc,
-            prescription.ExpirationDateUtc));
 
         // Map to response DTO
         var response = new PrescriptionResponse(

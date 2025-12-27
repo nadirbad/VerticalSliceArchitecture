@@ -48,20 +48,20 @@ internal sealed class BookAppointmentCommandValidator : AbstractValidator<BookAp
             .WithMessage("Start time must be before end time");
 
         RuleFor(v => v.End)
-            .GreaterThanOrEqualTo(v => v.Start.AddMinutes(10))
-            .WithMessage("Appointment must be at least 10 minutes long");
+            .GreaterThanOrEqualTo(v => v.Start.AddMinutes(SchedulingPolicies.MinimumAppointmentDurationMinutes))
+            .WithMessage($"Appointment must be at least {SchedulingPolicies.MinimumAppointmentDurationMinutes} minutes long");
 
         RuleFor(v => v.End)
-            .LessThanOrEqualTo(v => v.Start.AddHours(8))
-            .WithMessage("Appointment cannot be longer than 8 hours");
+            .LessThanOrEqualTo(v => v.Start.AddHours(SchedulingPolicies.MaximumAppointmentDurationHours))
+            .WithMessage($"Appointment cannot be longer than {SchedulingPolicies.MaximumAppointmentDurationHours} hours");
 
         RuleFor(v => v.Start)
-            .GreaterThan(DateTimeOffset.UtcNow.AddMinutes(15))
-            .WithMessage("Appointment must be scheduled at least 15 minutes in advance");
+            .GreaterThan(DateTimeOffset.UtcNow.AddMinutes(SchedulingPolicies.MinimumBookingAdvanceMinutes))
+            .WithMessage($"Appointment must be scheduled at least {SchedulingPolicies.MinimumBookingAdvanceMinutes} minutes in advance");
 
         RuleFor(v => v.Notes)
-            .MaximumLength(1024)
-            .WithMessage("Notes cannot exceed 1024 characters");
+            .MaximumLength(SchedulingPolicies.MaxNotesLength)
+            .WithMessage($"Notes cannot exceed {SchedulingPolicies.MaxNotesLength} characters");
     }
 }
 
@@ -96,6 +96,11 @@ internal sealed class BookAppointmentCommandHandler(ApplicationDbContext context
         }
 
         // Check for overlapping appointments for the doctor
+        // NOTE: This check-then-act pattern has a race condition window. Two concurrent requests
+        // could both pass the overlap check before either inserts. For production systems with
+        // SQL Server, wrap in a SERIALIZABLE transaction. The optimistic concurrency (RowVersion)
+        // can help detect concurrent modifications but won't prevent overlapping inserts.
+        // Consider using a database exclusion constraint (PostgreSQL) or application-level locking.
         var hasOverlap = await _context.Appointments
             .AsNoTracking()
             .AnyAsync(
@@ -107,28 +112,39 @@ internal sealed class BookAppointmentCommandHandler(ApplicationDbContext context
 
         if (hasOverlap)
         {
-            return Error.Conflict("Appointment.Conflict", $"Doctor has a conflicting appointment during the requested time");
+            return Error.Conflict("Appointment.Conflict", "Doctor has a conflicting appointment during the requested time");
         }
 
         // Create the appointment using factory method
-        var appointment = Appointment.Schedule(
-            request.PatientId,
-            request.DoctorId,
-            startUtc,
-            endUtc,
-            request.Notes);
-
-        // Add domain event
-        appointment.DomainEvents.Add(
-            new AppointmentBookedEvent(
-                appointment.Id,
-                appointment.PatientId,
-                appointment.DoctorId,
-                appointment.StartUtc,
-                appointment.EndUtc));
+        // Note: Domain event (AppointmentBookedEvent) is raised inside Appointment.Schedule()
+        // Note: Domain validates invariants (start < end). Validator also checks this for fast-fail UX,
+        // but domain is the authoritative source of truth.
+        Appointment appointment;
+        try
+        {
+            appointment = Appointment.Schedule(
+                request.PatientId,
+                request.DoctorId,
+                startUtc,
+                endUtc,
+                request.Notes);
+        }
+        catch (ArgumentException ex)
+        {
+            return Error.Validation("Appointment.ValidationFailed", ex.Message);
+        }
 
         _context.Appointments.Add(appointment);
-        await _context.SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            // Could be a concurrent insert - return conflict
+            return Error.Conflict("Appointment.Conflict", "Doctor has a conflicting appointment during the requested time");
+        }
 
         return new BookAppointmentResult(appointment.Id, appointment.StartUtc, appointment.EndUtc);
     }

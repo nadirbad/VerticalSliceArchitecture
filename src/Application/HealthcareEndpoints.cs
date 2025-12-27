@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+
 using VerticalSliceArchitecture.Application.Medications;
 using VerticalSliceArchitecture.Application.Scheduling;
 
@@ -19,12 +21,15 @@ public static class HealthcareEndpoints
     {
         var apiGroup = app.MapGroup("/api");
 
-        // Map appointment endpoints under /api/appointments
+        // Map appointment endpoints under /api/healthcare/appointments
         apiGroup.MapGroup("/healthcare/appointments")
+            .WithTags("Appointments")
             .MapAppointmentEndpoints();
 
         // Map prescription endpoints under /api/prescriptions
-        app.MapIssuePrescription();
+        apiGroup.MapGroup("/prescriptions")
+            .WithTags("Prescriptions")
+            .MapPrescriptionEndpoints();
 
         return app;
     }

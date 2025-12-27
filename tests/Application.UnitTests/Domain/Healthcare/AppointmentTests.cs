@@ -324,29 +324,36 @@ public class AppointmentTests
     }
 
     [Fact]
-    public void DomainEvents_ShouldBeInitializedAsEmptyList()
+    public void Schedule_ShouldRaiseAppointmentBookedEvent()
     {
         // Act
         var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
 
         // Assert
         appointment.DomainEvents.Should().NotBeNull();
-        appointment.DomainEvents.Should().BeEmpty();
+        appointment.DomainEvents.Should().ContainSingle();
+        appointment.DomainEvents.First().Should().BeOfType<AppointmentBookedEvent>();
+
+        var domainEvent = (AppointmentBookedEvent)appointment.DomainEvents.First();
+        domainEvent.PatientId.Should().Be(_patientId);
+        domainEvent.DoctorId.Should().Be(_doctorId);
+        domainEvent.StartUtc.Should().Be(_validStartUtc);
+        domainEvent.EndUtc.Should().Be(_validEndUtc);
     }
 
     [Fact]
-    public void DomainEvents_ShouldAllowAddingEvents()
+    public void DomainEvents_ShouldAllowAddingAdditionalEvents()
     {
         // Arrange
         var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
-        var domainEvent = new AppointmentBookedEvent(appointment.Id, _patientId, _doctorId, _validStartUtc, _validEndUtc);
+        var additionalEvent = new AppointmentBookedEvent(appointment.Id, _patientId, _doctorId, _validStartUtc, _validEndUtc);
 
-        // Act
-        appointment.DomainEvents.Add(domainEvent);
+        // Act - Schedule already adds AppointmentBookedEvent, so we add another
+        appointment.DomainEvents.Add(additionalEvent);
 
-        // Assert
-        appointment.DomainEvents.Should().HaveCount(1);
-        appointment.DomainEvents.First().Should().Be(domainEvent);
+        // Assert - Should have 2 events: one from Schedule(), one manually added
+        appointment.DomainEvents.Should().HaveCount(2);
+        appointment.DomainEvents.Last().Should().Be(additionalEvent);
     }
 
     [Fact]
@@ -543,11 +550,12 @@ public class AppointmentTests
         var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
         var domainEvent = new AppointmentRescheduledEvent(appointment.Id, _validStartUtc, _validEndUtc, newStartUtc, newEndUtc);
 
-        // Act
+        // Act - Schedule already adds AppointmentBookedEvent, then we add reschedule event
         appointment.DomainEvents.Add(domainEvent);
 
-        // Assert
-        appointment.DomainEvents.Should().HaveCount(1);
-        appointment.DomainEvents.First().Should().Be(domainEvent);
+        // Assert - Should have 2 events: AppointmentBookedEvent from Schedule(), plus AppointmentRescheduledEvent
+        appointment.DomainEvents.Should().HaveCount(2);
+        appointment.DomainEvents.First().Should().BeOfType<AppointmentBookedEvent>();
+        appointment.DomainEvents.Last().Should().Be(domainEvent);
     }
 }

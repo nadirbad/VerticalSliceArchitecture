@@ -11,6 +11,8 @@ using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Domain;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
+using static VerticalSliceArchitecture.Application.Domain.SchedulingPolicies;
+
 namespace VerticalSliceArchitecture.Application.Scheduling;
 
 // Minimal API Endpoint Handler
@@ -45,21 +47,6 @@ public record CancelAppointmentResult(
     DateTime CancelledUtc,
     string CancellationReason);
 
-// Domain Event
-public class AppointmentCancelledEvent(
-    Guid appointmentId,
-    Guid patientId,
-    Guid doctorId,
-    DateTime cancelledUtc,
-    string cancellationReason) : DomainEvent
-{
-    public Guid AppointmentId { get; } = appointmentId;
-    public Guid PatientId { get; } = patientId;
-    public Guid DoctorId { get; } = doctorId;
-    public DateTime CancelledUtc { get; } = cancelledUtc;
-    public string CancellationReason { get; } = cancellationReason;
-}
-
 internal sealed class CancelAppointmentCommandValidator : AbstractValidator<CancelAppointmentCommand>
 {
     public CancelAppointmentCommandValidator()
@@ -73,8 +60,8 @@ internal sealed class CancelAppointmentCommandValidator : AbstractValidator<Canc
             .WithMessage("Cancellation reason is required");
 
         RuleFor(v => v.Reason)
-            .MaximumLength(512)
-            .WithMessage("Cancellation reason cannot exceed 512 characters");
+            .MaximumLength(MaxCancellationReasonLength)
+            .WithMessage($"Cancellation reason cannot exceed {MaxCancellationReasonLength} characters");
     }
 }
 
@@ -94,6 +81,7 @@ internal sealed class CancelAppointmentCommandHandler(ApplicationDbContext conte
         }
 
         // Try to cancel the appointment - let domain method handle validation
+        // Note: Domain event (AppointmentCancelledEvent) is raised inside Appointment.Cancel()
         try
         {
             appointment.Cancel(request.Reason);
@@ -107,17 +95,16 @@ internal sealed class CancelAppointmentCommandHandler(ApplicationDbContext conte
             return Error.Validation("Appointment.ValidationFailed", ex.Message);
         }
 
-        // Raise domain event
-        appointment.DomainEvents.Add(
-            new AppointmentCancelledEvent(
-                appointment.Id,
-                appointment.PatientId,
-                appointment.DoctorId,
-                appointment.CancelledUtc!.Value,
-                appointment.CancellationReason!));
-
         // Persist changes
-        await _context.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Optimistic concurrency conflict - another user modified this appointment
+            return Error.Conflict("Appointment.ConcurrencyConflict", "The appointment was modified by another user. Please refresh and try again.");
+        }
 
         // Return result
         return new CancelAppointmentResult(

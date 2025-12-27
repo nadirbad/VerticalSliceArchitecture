@@ -19,14 +19,14 @@ namespace VerticalSliceArchitecture.Application.Scheduling;
 public static class GetAppointmentsEndpoint
 {
     public static async Task<IResult> Handle(
+        ISender mediator,
         Guid? patientId = null,
         Guid? doctorId = null,
         AppointmentStatus? status = null,
         DateTime? startDate = null,
         DateTime? endDate = null,
         int pageNumber = 1,
-        int pageSize = 10,
-        ISender mediator = null!)
+        int pageSize = 10)
     {
         var query = new GetAppointmentsQuery(
             patientId,
@@ -120,8 +120,8 @@ internal sealed class GetAppointmentsQueryHandler(ApplicationDbContext context)
             query = query.Where(a => a.EndUtc <= request.EndDate.Value);
         }
 
-        // Sort by StartUtc descending (most recent first) for general admin/reporting view
-        query = query.OrderByDescending(a => a.StartUtc);
+        // Sort by StartUtc ascending (upcoming appointments first) for better usability
+        query = query.OrderBy(a => a.StartUtc);
 
         // Project to DTO and paginate
         var paginatedResult = await query
