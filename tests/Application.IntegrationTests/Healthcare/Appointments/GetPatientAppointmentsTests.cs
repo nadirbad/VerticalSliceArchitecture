@@ -4,11 +4,11 @@ using System.Net.Http.Json;
 using FluentAssertions;
 
 using VerticalSliceArchitecture.Application.Common.Models;
-using VerticalSliceArchitecture.Application.Domain.Healthcare;
-using VerticalSliceArchitecture.Application.Features.Healthcare.Appointments;
+using VerticalSliceArchitecture.Application.Domain;
 using VerticalSliceArchitecture.Application.IntegrationTests.Helpers;
 using VerticalSliceArchitecture.Application.IntegrationTests.Infrastructure;
 using VerticalSliceArchitecture.Application.IntegrationTests.TestData;
+using VerticalSliceArchitecture.Application.Scheduling;
 
 namespace VerticalSliceArchitecture.Application.IntegrationTests.Healthcare.Appointments;
 

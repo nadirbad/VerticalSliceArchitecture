@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
-using VerticalSliceArchitecture.Application.Domain.Healthcare;
+using VerticalSliceArchitecture.Application.Domain;
 
 namespace VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 

@@ -4,7 +4,7 @@ using Moq;
 
 using VerticalSliceArchitecture.Application.Common.Behaviours;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
-using VerticalSliceArchitecture.Application.Features.Healthcare;
+using VerticalSliceArchitecture.Application.Medications;
 
 namespace VerticalSliceArchitecture.Application.UnitTests.Common.Behaviours;
 

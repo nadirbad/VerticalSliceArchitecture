@@ -5,11 +5,11 @@ using FluentAssertions;
 
 using Microsoft.EntityFrameworkCore;
 
-using VerticalSliceArchitecture.Application.Domain.Healthcare;
-using VerticalSliceArchitecture.Application.Features.Healthcare;
+using VerticalSliceArchitecture.Application.Domain;
 using VerticalSliceArchitecture.Application.IntegrationTests.Helpers;
 using VerticalSliceArchitecture.Application.IntegrationTests.Infrastructure;
 using VerticalSliceArchitecture.Application.IntegrationTests.TestData;
+using VerticalSliceArchitecture.Application.Medications;
 
 namespace VerticalSliceArchitecture.Application.IntegrationTests.Healthcare.Prescriptions;
 

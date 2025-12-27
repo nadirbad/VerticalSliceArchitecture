@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using VerticalSliceArchitecture.Application.Domain.Healthcare;
+using VerticalSliceArchitecture.Application.Domain;
 
 namespace VerticalSliceArchitecture.Application.Infrastructure.Persistence.Configurations;
 

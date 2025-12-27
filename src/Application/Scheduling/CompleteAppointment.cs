@@ -8,10 +8,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 using VerticalSliceArchitecture.Application.Common;
-using VerticalSliceArchitecture.Application.Domain.Healthcare;
+using VerticalSliceArchitecture.Application.Domain;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
-namespace VerticalSliceArchitecture.Application.Features.Healthcare.Appointments;
+namespace VerticalSliceArchitecture.Application.Scheduling;
 
 // Minimal API Endpoint Handler
 public static class CompleteAppointmentEndpoint

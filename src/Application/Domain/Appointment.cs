@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 using VerticalSliceArchitecture.Application.Common;
 
-namespace VerticalSliceArchitecture.Application.Domain.Healthcare;
+namespace VerticalSliceArchitecture.Application.Domain;
 
 public class Appointment : AuditableEntity, IHasDomainEvent
 {

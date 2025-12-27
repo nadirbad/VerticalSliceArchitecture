@@ -10,10 +10,10 @@ using Microsoft.EntityFrameworkCore;
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Mappings;
 using VerticalSliceArchitecture.Application.Common.Models;
-using VerticalSliceArchitecture.Application.Domain.Healthcare;
+using VerticalSliceArchitecture.Application.Domain;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
-namespace VerticalSliceArchitecture.Application.Features.Healthcare.Appointments;
+namespace VerticalSliceArchitecture.Application.Scheduling;
 
 // Minimal API Endpoint Handler
 public static class GetAppointmentsEndpoint

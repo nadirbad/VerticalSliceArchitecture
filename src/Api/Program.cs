@@ -1,7 +1,6 @@
 using Microsoft.OpenApi.Models;
 
 using VerticalSliceArchitecture.Application;
-using VerticalSliceArchitecture.Application.Features.Healthcare;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);

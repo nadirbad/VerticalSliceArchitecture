@@ -3,9 +3,9 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 using VerticalSliceArchitecture.Application.Common.Models;
-using VerticalSliceArchitecture.Application.Domain.Healthcare;
+using VerticalSliceArchitecture.Application.Domain;
 
-namespace VerticalSliceArchitecture.Application.Features.Healthcare.Appointments.EventHandlers;
+namespace VerticalSliceArchitecture.Application.Scheduling.EventHandlers;
 
 internal sealed class AppointmentBookedEventHandler(ILogger<AppointmentBookedEventHandler> logger)
     : INotificationHandler<DomainEventNotification<AppointmentBookedEvent>>

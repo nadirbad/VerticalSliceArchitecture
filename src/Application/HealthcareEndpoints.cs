@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
+using VerticalSliceArchitecture.Application.Medications;
+using VerticalSliceArchitecture.Application.Scheduling;
 
-using VerticalSliceArchitecture.Application.Features.Healthcare.Appointments;
-
-namespace VerticalSliceArchitecture.Application.Features.Healthcare;
+namespace VerticalSliceArchitecture.Application;
 
 /// <summary>
 /// Extension methods for mapping all Healthcare feature endpoints to Minimal APIs.
@@ -17,14 +17,13 @@ public static class HealthcareEndpoints
     /// <returns>The endpoint route builder for chaining.</returns>
     public static IEndpointRouteBuilder MapHealthcareEndpoints(this IEndpointRouteBuilder app)
     {
-        var healthcareGroup = app.MapGroup("/api/healthcare");
+        var apiGroup = app.MapGroup("/api");
 
-        // Map appointment endpoints under /api/healthcare/appointments
-        healthcareGroup.MapGroup("/appointments")
+        // Map appointment endpoints under /api/appointments
+        apiGroup.MapGroup("/healthcare/appointments")
             .MapAppointmentEndpoints();
 
-        // Map prescription endpoints directly under /api (not under healthcare)
-        // This is done separately since prescriptions use /api/prescriptions route
+        // Map prescription endpoints under /api/prescriptions
         app.MapIssuePrescription();
 
         return app;

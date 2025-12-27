@@ -1,8 +1,8 @@
 using FluentValidation.TestHelper;
 
-using VerticalSliceArchitecture.Application.Features.Healthcare;
+using VerticalSliceArchitecture.Application.Medications;
 
-namespace VerticalSliceArchitecture.Application.UnitTests.Features.Healthcare;
+namespace VerticalSliceArchitecture.Application.UnitTests.Medications;
 
 public class IssuePrescriptionValidatorTests
 {

@@ -3,10 +3,10 @@ using System.Net.Http.Json;
 
 using FluentAssertions;
 
-using VerticalSliceArchitecture.Application.Features.Healthcare.Appointments;
 using VerticalSliceArchitecture.Application.IntegrationTests.Helpers;
 using VerticalSliceArchitecture.Application.IntegrationTests.Infrastructure;
 using VerticalSliceArchitecture.Application.IntegrationTests.TestData;
+using VerticalSliceArchitecture.Application.Scheduling;
 
 namespace VerticalSliceArchitecture.Application.IntegrationTests.Healthcare.Appointments;
 
@@ -42,7 +42,7 @@ public class GetAppointmentByIdTests : IntegrationTestBase
         result.PatientFullName.Should().Be("John Smith"); // From IntegrationTestBase seed data
         result.DoctorId.Should().Be(TestSeedData.DefaultDoctorId);
         result.DoctorFullName.Should().Be("Dr. Michael Chen"); // From IntegrationTestBase seed data
-        result.Status.Should().Be(Domain.Healthcare.AppointmentStatus.Scheduled);
+        result.Status.Should().Be(Domain.AppointmentStatus.Scheduled);
         result.StartUtc.Should().BeCloseTo(bookResult.StartUtc, TimeSpan.FromSeconds(1));
         result.EndUtc.Should().BeCloseTo(bookResult.EndUtc, TimeSpan.FromSeconds(1));
         result.CompletedUtc.Should().BeNull();
@@ -111,7 +111,7 @@ public class GetAppointmentByIdTests : IntegrationTestBase
         var result = await response.Content.ReadFromJsonAsync<AppointmentDto>();
         result.Should().NotBeNull();
         result!.Id.Should().Be(bookResult.Id);
-        result.Status.Should().Be(Domain.Healthcare.AppointmentStatus.Completed);
+        result.Status.Should().Be(Domain.AppointmentStatus.Completed);
         result.CompletedUtc.Should().NotBeNull();
         result.CompletedUtc.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromMinutes(1));
         result.Notes.Should().Be("Patient seen and treated");
@@ -139,7 +139,7 @@ public class GetAppointmentByIdTests : IntegrationTestBase
         var result = await response.Content.ReadFromJsonAsync<AppointmentDto>();
         result.Should().NotBeNull();
         result!.Id.Should().Be(bookResult.Id);
-        result.Status.Should().Be(Domain.Healthcare.AppointmentStatus.Cancelled);
+        result.Status.Should().Be(Domain.AppointmentStatus.Cancelled);
         result.CancelledUtc.Should().NotBeNull();
         result.CancelledUtc.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromMinutes(1));
         result.CancellationReason.Should().Be("Patient requested cancellation");

@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 using VerticalSliceArchitecture.Application.Common;
 
-namespace VerticalSliceArchitecture.Application.Domain.Healthcare;
+namespace VerticalSliceArchitecture.Application.Domain;
 
 public class Patient : AuditableEntity
 {

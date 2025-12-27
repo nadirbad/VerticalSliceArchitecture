@@ -4,7 +4,7 @@ using FluentValidation.Results;
 using MediatR;
 
 using VerticalSliceArchitecture.Application.Common.Behaviours;
-using VerticalSliceArchitecture.Application.Features.Healthcare;
+using VerticalSliceArchitecture.Application.Medications;
 
 namespace VerticalSliceArchitecture.Application.UnitTests.Common.Behaviours;
 

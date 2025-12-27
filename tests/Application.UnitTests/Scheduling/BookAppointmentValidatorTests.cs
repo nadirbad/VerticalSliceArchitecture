@@ -1,8 +1,8 @@
 using FluentValidation.TestHelper;
 
-using VerticalSliceArchitecture.Application.Features.Healthcare.Appointments;
+using VerticalSliceArchitecture.Application.Scheduling;
 
-namespace VerticalSliceArchitecture.Application.UnitTests.Healthcare.Appointments;
+namespace VerticalSliceArchitecture.Application.UnitTests.Scheduling;
 
 public class BookAppointmentValidatorTests
 {

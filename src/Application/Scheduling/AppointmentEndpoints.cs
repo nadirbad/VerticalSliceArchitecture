@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Routing;
 
 using VerticalSliceArchitecture.Application.Common;
 
-namespace VerticalSliceArchitecture.Application.Features.Healthcare.Appointments;
+namespace VerticalSliceArchitecture.Application.Scheduling;
 
 /// <summary>
-/// Extension methods for mapping Healthcare Appointment endpoints to Minimal APIs.
+/// Extension methods for mapping Healthcare Scheduling endpoints to Minimal APIs.
 /// </summary>
-public static class AppointmentEndpoints
+public static class SchedulingEndpoints
 {
     /// <summary>
     /// Maps all appointment-related endpoints.

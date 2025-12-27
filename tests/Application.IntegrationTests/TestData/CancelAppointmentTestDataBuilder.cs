@@ -1,4 +1,4 @@
-using VerticalSliceArchitecture.Application.Features.Healthcare.Appointments;
+using VerticalSliceArchitecture.Application.Scheduling;
 
 namespace VerticalSliceArchitecture.Application.IntegrationTests.TestData;
 

@@ -5,10 +5,10 @@ using FluentAssertions;
 
 using Microsoft.EntityFrameworkCore;
 
-using VerticalSliceArchitecture.Application.Features.Healthcare.Appointments;
 using VerticalSliceArchitecture.Application.IntegrationTests.Helpers;
 using VerticalSliceArchitecture.Application.IntegrationTests.Infrastructure;
 using VerticalSliceArchitecture.Application.IntegrationTests.TestData;
+using VerticalSliceArchitecture.Application.Scheduling;
 
 namespace VerticalSliceArchitecture.Application.IntegrationTests.Healthcare.Appointments;
 
@@ -56,7 +56,7 @@ public class BookAppointmentTests : IntegrationTestBase
         savedAppointment.Should().NotBeNull();
         savedAppointment!.PatientId.Should().Be(TestSeedData.DefaultPatientId);
         savedAppointment.DoctorId.Should().Be(TestSeedData.DefaultDoctorId);
-        savedAppointment.Status.Should().Be(Domain.Healthcare.AppointmentStatus.Scheduled);
+        savedAppointment.Status.Should().Be(Domain.AppointmentStatus.Scheduled);
     }
 
     [Fact]

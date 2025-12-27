@@ -2,7 +2,7 @@ using FluentAssertions;
 
 using Microsoft.EntityFrameworkCore;
 
-using VerticalSliceArchitecture.Application.Domain.Healthcare;
+using VerticalSliceArchitecture.Application.Domain;
 
 namespace VerticalSliceArchitecture.Application.IntegrationTests.Infrastructure;
 

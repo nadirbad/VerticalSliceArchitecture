@@ -10,16 +10,16 @@ using Microsoft.EntityFrameworkCore;
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Common.Mappings;
 using VerticalSliceArchitecture.Application.Common.Models;
-using VerticalSliceArchitecture.Application.Domain.Healthcare;
+using VerticalSliceArchitecture.Application.Domain;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
-namespace VerticalSliceArchitecture.Application.Features.Healthcare.Appointments;
+namespace VerticalSliceArchitecture.Application.Scheduling;
 
 // Minimal API Endpoint Handler
-public static class GetPatientAppointmentsEndpoint
+public static class GetDoctorAppointmentsEndpoint
 {
     public static async Task<IResult> Handle(
-        Guid patientId,
+        Guid doctorId,
         AppointmentStatus? status = null,
         DateTime? startDate = null,
         DateTime? endDate = null,
@@ -27,8 +27,8 @@ public static class GetPatientAppointmentsEndpoint
         int pageSize = 10,
         ISender mediator = null!)
     {
-        var query = new GetPatientAppointmentsQuery(
-            patientId,
+        var query = new GetDoctorAppointmentsQuery(
+            doctorId,
             status,
             startDate,
             endDate,
@@ -43,21 +43,21 @@ public static class GetPatientAppointmentsEndpoint
     }
 }
 
-public record GetPatientAppointmentsQuery(
-    Guid PatientId,
+public record GetDoctorAppointmentsQuery(
+    Guid DoctorId,
     AppointmentStatus? Status,
     DateTime? StartDate,
     DateTime? EndDate,
     int PageNumber,
     int PageSize) : IRequest<ErrorOr<PaginatedList<AppointmentDto>>>;
 
-internal sealed class GetPatientAppointmentsQueryValidator : AbstractValidator<GetPatientAppointmentsQuery>
+internal sealed class GetDoctorAppointmentsQueryValidator : AbstractValidator<GetDoctorAppointmentsQuery>
 {
-    public GetPatientAppointmentsQueryValidator()
+    public GetDoctorAppointmentsQueryValidator()
     {
-        RuleFor(v => v.PatientId)
+        RuleFor(v => v.DoctorId)
             .NotEmpty()
-            .WithMessage("PatientId is required");
+            .WithMessage("DoctorId is required");
 
         RuleFor(v => v.PageNumber)
             .GreaterThanOrEqualTo(1)
@@ -76,25 +76,25 @@ internal sealed class GetPatientAppointmentsQueryValidator : AbstractValidator<G
     }
 }
 
-internal sealed class GetPatientAppointmentsQueryHandler(ApplicationDbContext context)
-    : IRequestHandler<GetPatientAppointmentsQuery, ErrorOr<PaginatedList<AppointmentDto>>>
+internal sealed class GetDoctorAppointmentsQueryHandler(ApplicationDbContext context)
+    : IRequestHandler<GetDoctorAppointmentsQuery, ErrorOr<PaginatedList<AppointmentDto>>>
 {
     private readonly ApplicationDbContext _context = context;
 
     public async Task<ErrorOr<PaginatedList<AppointmentDto>>> Handle(
-        GetPatientAppointmentsQuery request,
+        GetDoctorAppointmentsQuery request,
         CancellationToken cancellationToken)
     {
-        // Check if patient exists
-        var patientExists = await _context.Patients
+        // Check if doctor exists
+        var doctorExists = await _context.Doctors
             .AsNoTracking()
-            .AnyAsync(p => p.Id == request.PatientId, cancellationToken);
+            .AnyAsync(d => d.Id == request.DoctorId, cancellationToken);
 
-        if (!patientExists)
+        if (!doctorExists)
         {
             return Error.NotFound(
-                "Patient.NotFound",
-                $"Patient with ID {request.PatientId} not found");
+                "Doctor.NotFound",
+                $"Doctor with ID {request.DoctorId} not found");
         }
 
         // Build query with filters
@@ -102,7 +102,7 @@ internal sealed class GetPatientAppointmentsQueryHandler(ApplicationDbContext co
             .Include(a => a.Patient)
             .Include(a => a.Doctor)
             .AsNoTracking()
-            .Where(a => a.PatientId == request.PatientId);
+            .Where(a => a.DoctorId == request.DoctorId);
 
         // Apply status filter
         if (request.Status.HasValue)
@@ -121,8 +121,8 @@ internal sealed class GetPatientAppointmentsQueryHandler(ApplicationDbContext co
             query = query.Where(a => a.EndUtc <= request.EndDate.Value);
         }
 
-        // Sort by StartUtc descending (most recent first)
-        query = query.OrderByDescending(a => a.StartUtc);
+        // Sort by StartUtc ascending (chronological schedule - earliest first)
+        query = query.OrderBy(a => a.StartUtc);
 
         // Project to DTO and paginate
         var paginatedResult = await query

@@ -1,4 +1,4 @@
-using VerticalSliceArchitecture.Application.Domain.Healthcare;
+using VerticalSliceArchitecture.Application.Domain;
 
 namespace VerticalSliceArchitecture.Application.UnitTests.Domain.Healthcare;
 
