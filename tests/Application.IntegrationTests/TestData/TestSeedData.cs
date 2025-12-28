@@ -2,64 +2,66 @@ namespace VerticalSliceArchitecture.Application.IntegrationTests.TestData;
 
 /// <summary>
 /// Provides deterministic test data with well-known GUIDs for integration tests.
-/// These GUIDs match the seed data in HTTP request files for consistency.
+/// These GUIDs match the seed data in CustomWebApplicationFactory for consistency.
 /// </summary>
 public static class TestSeedData
 {
     /// <summary>
     /// Default patient ID for happy path tests.
-    /// Corresponds to "Alice Johnson" in the HTTP request files.
+    /// Corresponds to "John Smith" in the test database.
     /// </summary>
     public static readonly Guid DefaultPatientId = new("11111111-1111-1111-1111-111111111111");
 
     /// <summary>
     /// Alternative patient ID for tests requiring multiple patients.
-    /// Corresponds to "Bob Smith" in the HTTP request files.
+    /// Corresponds to "Jane Doe" in the test database.
     /// </summary>
     public static readonly Guid SecondPatientId = new("22222222-2222-2222-2222-222222222222");
 
     /// <summary>
     /// Third patient ID for tests requiring multiple patients.
-    /// Corresponds to "Charlie Davis" in the HTTP request files.
+    /// Corresponds to "Bob Johnson" in the test database.
     /// </summary>
     public static readonly Guid ThirdPatientId = new("33333333-3333-3333-3333-333333333333");
 
     /// <summary>
     /// Patient names for reference in tests.
+    /// These match the names seeded in CustomWebApplicationFactory.
     /// </summary>
     public static class PatientNames
     {
-        public const string Default = "Alice Johnson";
-        public const string Second = "Bob Smith";
-        public const string Third = "Charlie Davis";
+        public const string Default = "John Smith";
+        public const string Second = "Jane Doe";
+        public const string Third = "Bob Johnson";
     }
 
     /// <summary>
     /// Default doctor ID for happy path tests.
-    /// Corresponds to "Dr. Emily White" in the HTTP request files.
+    /// Corresponds to "Dr. Michael Chen" (Cardiology) in the test database.
     /// </summary>
     public static readonly Guid DefaultDoctorId = new("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
     /// <summary>
     /// Alternative doctor ID for tests requiring multiple doctors.
-    /// Corresponds to "Dr. Michael Green" in the HTTP request files.
+    /// Corresponds to "Dr. Sarah Wilson" (Family Medicine) in the test database.
     /// </summary>
     public static readonly Guid SecondDoctorId = new("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
 
     /// <summary>
     /// Third doctor ID for tests requiring multiple doctors.
-    /// Corresponds to "Dr. Sarah Brown" in the HTTP request files.
+    /// Corresponds to "Dr. Emily Rodriguez" (Pediatrics) in the test database.
     /// </summary>
     public static readonly Guid ThirdDoctorId = new("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
     /// <summary>
     /// Doctor names for reference in tests.
+    /// These match the names seeded in CustomWebApplicationFactory.
     /// </summary>
     public static class DoctorNames
     {
-        public const string Default = "Dr. Emily White";
-        public const string Second = "Dr. Michael Green";
-        public const string Third = "Dr. Sarah Brown";
+        public const string Default = "Dr. Michael Chen";
+        public const string Second = "Dr. Sarah Wilson";
+        public const string Third = "Dr. Emily Rodriguez";
     }
 
     /// <summary>
