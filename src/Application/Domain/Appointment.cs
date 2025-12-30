@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 using VerticalSliceArchitecture.Application.Common;
+using VerticalSliceArchitecture.Application.Domain.Events;
 
 namespace VerticalSliceArchitecture.Application.Domain;
 

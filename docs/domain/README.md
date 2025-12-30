@@ -166,32 +166,30 @@ Sharing a single "Schedule" model leads to conditional logic and tight coupling.
 
 ## Code Organization
 
-Bounded contexts map to feature folders:
+Bounded contexts map to top-level feature folders:
 
 ```text
 src/Application/
-├── Features/Healthcare/
-│   ├── Appointments/           # Scheduling context
-│   │   ├── BookAppointment.cs
-│   │   ├── RescheduleAppointment.cs
-│   │   ├── CancelAppointment.cs
-│   │   ├── CompleteAppointment.cs
-│   │   └── EventHandlers/
-│   │
-│   ├── Prescriptions/          # Medications context
-│   │   └── IssuePrescription.cs
-│   │
-│   └── HealthcareEndpoints.cs
+├── Scheduling/                 # Scheduling bounded context
+│   ├── BookAppointment.cs          # Command + Handler + Validator
+│   ├── GetAppointments.cs          # Query + Handler
+│   ├── AppointmentEndpoints.cs     # Minimal API routes
+│   └── EventHandlers/              # Domain event handlers
 │
-└── Domain/Healthcare/
-    ├── Appointment.cs          # Aggregate root
-    ├── Prescription.cs         # Aggregate root
-    ├── Patient.cs              # Entity
-    ├── Doctor.cs               # Entity
-    └── Events/
-        ├── AppointmentBookedEvent.cs
-        └── PrescriptionIssuedEvent.cs
+├── Medications/                # Medications bounded context
+│   ├── IssuePrescription.cs
+│   └── PrescriptionEndpoints.cs
+│
+├── Domain/                     # Shared domain model
+│   ├── Appointment.cs              # Aggregate roots
+│   ├── SchedulingPolicies.cs       # Business rules
+│   └── Events/                     # Domain events
+│
+├── Common/                     # Cross-cutting concerns
+└── Infrastructure/             # Persistence & services
 ```
+
+Each vertical slice (e.g., `BookAppointment.cs`) contains all related code: command, validator, handler, and DTOs in a single file.
 
 ---
 

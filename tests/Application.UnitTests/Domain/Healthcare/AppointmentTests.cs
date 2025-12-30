@@ -1,4 +1,5 @@
 using VerticalSliceArchitecture.Application.Domain;
+using VerticalSliceArchitecture.Application.Domain.Events;
 
 namespace VerticalSliceArchitecture.Application.UnitTests.Domain.Healthcare;
 

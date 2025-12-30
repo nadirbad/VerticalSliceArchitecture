@@ -1,6 +1,6 @@
 using VerticalSliceArchitecture.Application.Common;
 
-namespace VerticalSliceArchitecture.Application.Domain;
+namespace VerticalSliceArchitecture.Application.Domain.Events;
 
 public class AppointmentCompletedEvent(
     Guid appointmentId,

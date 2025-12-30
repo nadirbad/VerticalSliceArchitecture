@@ -1,6 +1,6 @@
 using VerticalSliceArchitecture.Application.Common;
 
-namespace VerticalSliceArchitecture.Application.Domain;
+namespace VerticalSliceArchitecture.Application.Domain.Events;
 
 public class AppointmentBookedEvent(Guid appointmentId, Guid patientId, Guid doctorId, DateTime startUtc, DateTime endUtc) : DomainEvent
 {

@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 using VerticalSliceArchitecture.Application.Common.Models;
-using VerticalSliceArchitecture.Application.Domain;
+using VerticalSliceArchitecture.Application.Domain.Events;
 
 namespace VerticalSliceArchitecture.Application.Scheduling.EventHandlers;
 
