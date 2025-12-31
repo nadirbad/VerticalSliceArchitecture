@@ -12,7 +12,7 @@ namespace VerticalSliceArchitecture.Application;
 public static class HealthcareEndpoints
 {
     /// <summary>
-    /// Maps all healthcare-related endpoints under the /api/healthcare route prefix.
+    /// Maps all healthcare-related endpoints under the /api route prefix.
     /// </summary>
     /// <param name="app">The endpoint route builder.</param>
     /// <returns>The endpoint route builder for chaining.</returns>
@@ -20,8 +20,8 @@ public static class HealthcareEndpoints
     {
         var apiGroup = app.MapGroup("/api");
 
-        // Map appointment endpoints under /api/healthcare/appointments
-        apiGroup.MapGroup("/healthcare/appointments")
+        // Map appointment endpoints under /api/appointments
+        apiGroup.MapGroup("/appointments")
             .WithTags("Appointments")
             .MapAppointmentEndpoints();
 

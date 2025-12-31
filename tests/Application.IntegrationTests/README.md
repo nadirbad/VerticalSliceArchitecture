@@ -105,16 +105,16 @@ var notFoundCommand = new BookAppointmentTestDataBuilder()
 
 ```csharp
 // POST request
-var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
 // GET request
-var response = await Client.GetAsync($"/api/healthcare/appointments/{id}");
+var response = await Client.GetAsync($"/api/appointments/{id}");
 
 // PUT request
-var response = await Client.PutAsJsonAsync($"/api/healthcare/appointments/{id}", updateCommand);
+var response = await Client.PutAsJsonAsync($"/api/appointments/{id}", updateCommand);
 
 // DELETE request
-var response = await Client.DeleteAsync($"/api/healthcare/appointments/{id}");
+var response = await Client.DeleteAsync($"/api/appointments/{id}");
 ```
 
 ### 4. Assert Responses

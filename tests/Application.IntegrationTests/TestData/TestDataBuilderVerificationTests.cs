@@ -29,7 +29,7 @@ public class TestDataBuilderVerificationTests : IntegrationTestBase
         var command = builder.Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created, "default builder values should create a valid appointment");
@@ -50,7 +50,7 @@ public class TestDataBuilderVerificationTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -65,7 +65,7 @@ public class TestDataBuilderVerificationTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -83,7 +83,7 @@ public class TestDataBuilderVerificationTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -102,7 +102,7 @@ public class TestDataBuilderVerificationTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);

@@ -26,11 +26,11 @@ public class GetAppointmentByIdTests : IntegrationTestBase
     {
         // Arrange - First book an appointment
         var bookCommand = new BookAppointmentTestDataBuilder().Build();
-        var bookResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", bookCommand);
+        var bookResponse = await Client.PostAsJsonAsync("/api/appointments", bookCommand);
         var bookResult = await bookResponse.Content.ReadFromJsonAsync<BookAppointmentResult>();
 
         // Act - Retrieve the appointment
-        var response = await Client.GetAsync($"/api/healthcare/appointments/{bookResult!.Id}");
+        var response = await Client.GetAsync($"/api/appointments/{bookResult!.Id}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -58,7 +58,7 @@ public class GetAppointmentByIdTests : IntegrationTestBase
         var nonExistentId = TestSeedData.NonExistentId;
 
         // Act
-        var response = await Client.GetAsync($"/api/healthcare/appointments/{nonExistentId}");
+        var response = await Client.GetAsync($"/api/appointments/{nonExistentId}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -77,7 +77,7 @@ public class GetAppointmentByIdTests : IntegrationTestBase
         var emptyGuid = Guid.Empty;
 
         // Act
-        var response = await Client.GetAsync($"/api/healthcare/appointments/{emptyGuid}");
+        var response = await Client.GetAsync($"/api/appointments/{emptyGuid}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -96,14 +96,14 @@ public class GetAppointmentByIdTests : IntegrationTestBase
     {
         // Arrange - Book and complete an appointment
         var bookCommand = new BookAppointmentTestDataBuilder().Build();
-        var bookResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", bookCommand);
+        var bookResponse = await Client.PostAsJsonAsync("/api/appointments", bookCommand);
         var bookResult = await bookResponse.Content.ReadFromJsonAsync<BookAppointmentResult>();
 
         var completeCommand = new CompleteAppointmentCommand(bookResult!.Id, "Patient seen and treated");
-        await Client.PostAsJsonAsync($"/api/healthcare/appointments/{bookResult.Id}/complete", completeCommand);
+        await Client.PostAsJsonAsync($"/api/appointments/{bookResult.Id}/complete", completeCommand);
 
         // Act - Retrieve the completed appointment
-        var response = await Client.GetAsync($"/api/healthcare/appointments/{bookResult.Id}");
+        var response = await Client.GetAsync($"/api/appointments/{bookResult.Id}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -124,14 +124,14 @@ public class GetAppointmentByIdTests : IntegrationTestBase
     {
         // Arrange - Book and cancel an appointment
         var bookCommand = new BookAppointmentTestDataBuilder().Build();
-        var bookResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", bookCommand);
+        var bookResponse = await Client.PostAsJsonAsync("/api/appointments", bookCommand);
         var bookResult = await bookResponse.Content.ReadFromJsonAsync<BookAppointmentResult>();
 
         var cancelCommand = new CancelAppointmentCommand(bookResult!.Id, "Patient requested cancellation");
-        await Client.PostAsJsonAsync($"/api/healthcare/appointments/{bookResult.Id}/cancel", cancelCommand);
+        await Client.PostAsJsonAsync($"/api/appointments/{bookResult.Id}/cancel", cancelCommand);
 
         // Act - Retrieve the cancelled appointment
-        var response = await Client.GetAsync($"/api/healthcare/appointments/{bookResult.Id}");
+        var response = await Client.GetAsync($"/api/appointments/{bookResult.Id}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -155,11 +155,11 @@ public class GetAppointmentByIdTests : IntegrationTestBase
             .WithDoctorId(TestSeedData.SecondDoctorId)
             .Build();
 
-        var bookResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", bookCommand);
+        var bookResponse = await Client.PostAsJsonAsync("/api/appointments", bookCommand);
         var bookResult = await bookResponse.Content.ReadFromJsonAsync<BookAppointmentResult>();
 
         // Act
-        var response = await Client.GetAsync($"/api/healthcare/appointments/{bookResult!.Id}");
+        var response = await Client.GetAsync($"/api/appointments/{bookResult!.Id}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

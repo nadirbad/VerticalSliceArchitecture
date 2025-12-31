@@ -38,11 +38,11 @@ public class GetAppointmentsTests : IntegrationTestBase
             .WithDoctorId(TestSeedData.SecondDoctorId)
             .WithStartTime(DateTimeOffset.UtcNow.AddDays(8).Date.AddHours(14));
 
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", builder1.Build());
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", builder2.Build());
+        await Client.PostAsJsonAsync("/api/appointments", builder1.Build());
+        await Client.PostAsJsonAsync("/api/appointments", builder2.Build());
 
         // Act
-        var response = await Client.GetAsync("/api/healthcare/appointments");
+        var response = await Client.GetAsync("/api/appointments");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -63,7 +63,7 @@ public class GetAppointmentsTests : IntegrationTestBase
         // Arrange - No appointments booked (using clean database from IntegrationTestBase)
 
         // Act
-        var response = await Client.GetAsync("/api/healthcare/appointments");
+        var response = await Client.GetAsync("/api/appointments");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -87,12 +87,12 @@ public class GetAppointmentsTests : IntegrationTestBase
             .WithPatientId(TestSeedData.SecondPatientId)
             .WithStartTime(DateTimeOffset.UtcNow.AddDays(8).Date.AddHours(10));
 
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", patient1Builder.Build());
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", patient1Builder.WithStartTime(DateTimeOffset.UtcNow.AddDays(9).Date.AddHours(10)).Build());
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", patient2Builder.Build());
+        await Client.PostAsJsonAsync("/api/appointments", patient1Builder.Build());
+        await Client.PostAsJsonAsync("/api/appointments", patient1Builder.WithStartTime(DateTimeOffset.UtcNow.AddDays(9).Date.AddHours(10)).Build());
+        await Client.PostAsJsonAsync("/api/appointments", patient2Builder.Build());
 
         // Act - Filter by patient1
-        var response = await Client.GetAsync($"/api/healthcare/appointments?patientId={TestSeedData.DefaultPatientId}");
+        var response = await Client.GetAsync($"/api/appointments?patientId={TestSeedData.DefaultPatientId}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -117,12 +117,12 @@ public class GetAppointmentsTests : IntegrationTestBase
             .WithPatientId(TestSeedData.SecondPatientId)
             .WithStartTime(DateTimeOffset.UtcNow.AddDays(8).Date.AddHours(10));
 
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", doctor1Builder.Build());
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", doctor1Builder.WithPatientId(TestSeedData.SecondPatientId).WithStartTime(DateTimeOffset.UtcNow.AddDays(9).Date.AddHours(10)).Build());
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", doctor2Builder.Build());
+        await Client.PostAsJsonAsync("/api/appointments", doctor1Builder.Build());
+        await Client.PostAsJsonAsync("/api/appointments", doctor1Builder.WithPatientId(TestSeedData.SecondPatientId).WithStartTime(DateTimeOffset.UtcNow.AddDays(9).Date.AddHours(10)).Build());
+        await Client.PostAsJsonAsync("/api/appointments", doctor2Builder.Build());
 
         // Act - Filter by doctor1
-        var response = await Client.GetAsync($"/api/healthcare/appointments?doctorId={TestSeedData.DefaultDoctorId}");
+        var response = await Client.GetAsync($"/api/appointments?doctorId={TestSeedData.DefaultDoctorId}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -142,19 +142,19 @@ public class GetAppointmentsTests : IntegrationTestBase
             .WithDoctorId(TestSeedData.DefaultDoctorId);
 
         // Book 2 scheduled appointments
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", builder.WithStartTime(DateTimeOffset.UtcNow.AddDays(7).Date.AddHours(10)).Build());
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", builder.WithStartTime(DateTimeOffset.UtcNow.AddDays(8).Date.AddHours(10)).Build());
+        await Client.PostAsJsonAsync("/api/appointments", builder.WithStartTime(DateTimeOffset.UtcNow.AddDays(7).Date.AddHours(10)).Build());
+        await Client.PostAsJsonAsync("/api/appointments", builder.WithStartTime(DateTimeOffset.UtcNow.AddDays(8).Date.AddHours(10)).Build());
 
         // Book and complete 1 appointment
         var completeCommand = builder.WithStartTime(DateTimeOffset.UtcNow.AddDays(9).Date.AddHours(10)).Build();
-        var completeResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", completeCommand);
+        var completeResponse = await Client.PostAsJsonAsync("/api/appointments", completeCommand);
         var completeResult = await completeResponse.Content.ReadFromJsonAsync<BookAppointmentResult>();
         await Client.PostAsJsonAsync(
-            $"/api/healthcare/appointments/{completeResult!.Id}/complete",
+            $"/api/appointments/{completeResult!.Id}/complete",
             new CompleteAppointmentCommand(completeResult.Id, "Completed"));
 
         // Act - Filter by Scheduled status
-        var response = await Client.GetAsync("/api/healthcare/appointments?status=1");
+        var response = await Client.GetAsync("/api/appointments?status=1");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -178,14 +178,14 @@ public class GetAppointmentsTests : IntegrationTestBase
         var date2 = baseDate.AddDays(5).Date.AddHours(10);
         var date3 = baseDate.AddDays(10).Date.AddHours(10);
 
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", builder.WithStartTime(new DateTimeOffset(date1, TimeSpan.Zero)).Build());
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", builder.WithStartTime(new DateTimeOffset(date2, TimeSpan.Zero)).Build());
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", builder.WithStartTime(new DateTimeOffset(date3, TimeSpan.Zero)).Build());
+        await Client.PostAsJsonAsync("/api/appointments", builder.WithStartTime(new DateTimeOffset(date1, TimeSpan.Zero)).Build());
+        await Client.PostAsJsonAsync("/api/appointments", builder.WithStartTime(new DateTimeOffset(date2, TimeSpan.Zero)).Build());
+        await Client.PostAsJsonAsync("/api/appointments", builder.WithStartTime(new DateTimeOffset(date3, TimeSpan.Zero)).Build());
 
         // Act - Filter appointments in the middle date range (date2 should be included, date1 and date3 excluded)
         var filterStart = baseDate.AddDays(3).Date;
         var filterEnd = baseDate.AddDays(7).Date;
-        var response = await Client.GetAsync($"/api/healthcare/appointments?startDate={filterStart:yyyy-MM-dd}&endDate={filterEnd:yyyy-MM-dd}");
+        var response = await Client.GetAsync($"/api/appointments?startDate={filterStart:yyyy-MM-dd}&endDate={filterEnd:yyyy-MM-dd}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -208,7 +208,7 @@ public class GetAppointmentsTests : IntegrationTestBase
             .WithDoctorId(TestSeedData.DefaultDoctorId)
             .WithStartTime(new DateTimeOffset(baseDate.Date.AddHours(10), TimeSpan.Zero))
             .Build();
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", command1);
+        await Client.PostAsJsonAsync("/api/appointments", command1);
 
         // Patient1 + Doctor1 + Scheduled + date2 (outside date range)
         var command2 = new BookAppointmentTestDataBuilder()
@@ -216,7 +216,7 @@ public class GetAppointmentsTests : IntegrationTestBase
             .WithDoctorId(TestSeedData.DefaultDoctorId)
             .WithStartTime(new DateTimeOffset(baseDate.AddDays(10).Date.AddHours(10), TimeSpan.Zero))
             .Build();
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", command2);
+        await Client.PostAsJsonAsync("/api/appointments", command2);
 
         // Patient2 + Doctor1 + Scheduled + date1 (different patient)
         var command3 = new BookAppointmentTestDataBuilder()
@@ -224,7 +224,7 @@ public class GetAppointmentsTests : IntegrationTestBase
             .WithDoctorId(TestSeedData.DefaultDoctorId)
             .WithStartTime(new DateTimeOffset(baseDate.Date.AddHours(14), TimeSpan.Zero))
             .Build();
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", command3);
+        await Client.PostAsJsonAsync("/api/appointments", command3);
 
         // Patient1 + Doctor1 + Completed + date1 (wrong status)
         var command4 = new BookAppointmentTestDataBuilder()
@@ -232,17 +232,17 @@ public class GetAppointmentsTests : IntegrationTestBase
             .WithDoctorId(TestSeedData.DefaultDoctorId)
             .WithStartTime(new DateTimeOffset(baseDate.Date.AddHours(16), TimeSpan.Zero))
             .Build();
-        var response4 = await Client.PostAsJsonAsync("/api/healthcare/appointments", command4);
+        var response4 = await Client.PostAsJsonAsync("/api/appointments", command4);
         var result4 = await response4.Content.ReadFromJsonAsync<BookAppointmentResult>();
         await Client.PostAsJsonAsync(
-            $"/api/healthcare/appointments/{result4!.Id}/complete",
+            $"/api/appointments/{result4!.Id}/complete",
             new CompleteAppointmentCommand(result4.Id, "Done"));
 
         // Act - Filter by Patient1 + Doctor1 + Scheduled + date range (should return only command1)
         var filterStart = baseDate.Date;
         var filterEnd = baseDate.AddDays(5).Date;
         var response = await Client.GetAsync(
-            $"/api/healthcare/appointments?patientId={TestSeedData.DefaultPatientId}&doctorId={TestSeedData.DefaultDoctorId}&status=1&startDate={filterStart:yyyy-MM-dd}&endDate={filterEnd:yyyy-MM-dd}");
+            $"/api/appointments?patientId={TestSeedData.DefaultPatientId}&doctorId={TestSeedData.DefaultDoctorId}&status=1&startDate={filterStart:yyyy-MM-dd}&endDate={filterEnd:yyyy-MM-dd}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -269,11 +269,11 @@ public class GetAppointmentsTests : IntegrationTestBase
             var command = builder
                 .WithStartTime(DateTimeOffset.UtcNow.AddDays(7 + i).Date.AddHours(10))
                 .Build();
-            await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+            await Client.PostAsJsonAsync("/api/appointments", command);
         }
 
         // Act - Request page 2 with pageSize 2
-        var response = await Client.GetAsync("/api/healthcare/appointments?pageNumber=2&pageSize=2");
+        var response = await Client.GetAsync("/api/appointments?pageNumber=2&pageSize=2");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -292,7 +292,7 @@ public class GetAppointmentsTests : IntegrationTestBase
     public async Task GetAppointments_WithInvalidPageNumber_Returns400BadRequest()
     {
         // Act - PageNumber must be >= 1
-        var response = await Client.GetAsync("/api/healthcare/appointments?pageNumber=0");
+        var response = await Client.GetAsync("/api/appointments?pageNumber=0");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -306,7 +306,7 @@ public class GetAppointmentsTests : IntegrationTestBase
     public async Task GetAppointments_WithInvalidPageSize_Returns400BadRequest()
     {
         // Act - PageSize must be between 1 and 100
-        var response = await Client.GetAsync("/api/healthcare/appointments?pageSize=150");
+        var response = await Client.GetAsync("/api/appointments?pageSize=150");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -320,7 +320,7 @@ public class GetAppointmentsTests : IntegrationTestBase
     public async Task GetAppointments_WithEndDateBeforeStartDate_Returns400BadRequest()
     {
         // Act - EndDate before StartDate
-        var response = await Client.GetAsync("/api/healthcare/appointments?startDate=2025-01-20&endDate=2025-01-10");
+        var response = await Client.GetAsync("/api/appointments?startDate=2025-01-20&endDate=2025-01-10");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -337,10 +337,10 @@ public class GetAppointmentsTests : IntegrationTestBase
             .WithPatientId(TestSeedData.DefaultPatientId)
             .WithStartTime(DateTimeOffset.UtcNow.AddDays(7).Date.AddHours(10));
 
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", builder.Build());
+        await Client.PostAsJsonAsync("/api/appointments", builder.Build());
 
         // Act - Filter by non-existent patient
-        var response = await Client.GetAsync($"/api/healthcare/appointments?patientId={TestSeedData.NonExistentId}");
+        var response = await Client.GetAsync($"/api/appointments?patientId={TestSeedData.NonExistentId}");
 
         // Assert - Returns empty list, not 404 (general query doesn't validate patient/doctor existence)
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -359,10 +359,10 @@ public class GetAppointmentsTests : IntegrationTestBase
             .WithDoctorId(TestSeedData.DefaultDoctorId)
             .WithStartTime(DateTimeOffset.UtcNow.AddDays(7).Date.AddHours(10));
 
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", builder.Build());
+        await Client.PostAsJsonAsync("/api/appointments", builder.Build());
 
         // Act - Filter by non-existent doctor
-        var response = await Client.GetAsync($"/api/healthcare/appointments?doctorId={TestSeedData.NonExistentId}");
+        var response = await Client.GetAsync($"/api/appointments?doctorId={TestSeedData.NonExistentId}");
 
         // Assert - Returns empty list, not 404 (general query doesn't validate patient/doctor existence)
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -387,12 +387,12 @@ public class GetAppointmentsTests : IntegrationTestBase
         var time2 = baseDate.AddDays(5).Date.AddHours(10);
 
         // Book in random order: 3, 1, 2
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", builder.WithStartTime(new DateTimeOffset(time3, TimeSpan.Zero)).Build());
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", builder.WithStartTime(new DateTimeOffset(time1, TimeSpan.Zero)).Build());
-        await Client.PostAsJsonAsync("/api/healthcare/appointments", builder.WithStartTime(new DateTimeOffset(time2, TimeSpan.Zero)).Build());
+        await Client.PostAsJsonAsync("/api/appointments", builder.WithStartTime(new DateTimeOffset(time3, TimeSpan.Zero)).Build());
+        await Client.PostAsJsonAsync("/api/appointments", builder.WithStartTime(new DateTimeOffset(time1, TimeSpan.Zero)).Build());
+        await Client.PostAsJsonAsync("/api/appointments", builder.WithStartTime(new DateTimeOffset(time2, TimeSpan.Zero)).Build());
 
         // Act
-        var response = await Client.GetAsync("/api/healthcare/appointments");
+        var response = await Client.GetAsync("/api/appointments");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

@@ -1,5 +1,0 @@
-# Product Mission (Lite)
-
-Vertical Slice Architecture Template is a reference implementation that helps .NET developers learn and adopt Vertical Slice Architecture by providing a realistic healthcare domain example demonstrating feature-oriented code organization, rich domain modeling, and modern .NET patterns.
-
-This template serves .NET developers and architects seeking a pragmatic alternative to layered architectures. Unlike traditional Clean Architecture templates that organize code by technical layers and demonstrate patterns with simplistic Todo examples, this template organizes by business features with all related code in single files and showcases realistic healthcare scenarios (appointment scheduling with conflict detection, prescription workflows with refill management) that demonstrate how VSA scales to production complexity.

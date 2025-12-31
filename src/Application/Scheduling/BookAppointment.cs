@@ -22,7 +22,7 @@ public static class BookAppointmentEndpoint
         var result = await mediator.Send(command);
 
         return result.Match(
-            success => Results.Created($"/api/healthcare/appointments/{success.Id}", success),
+            success => Results.Created($"/api/appointments/{success.Id}", success),
             errors => MinimalApiProblemHelper.Problem(errors));
     }
 }

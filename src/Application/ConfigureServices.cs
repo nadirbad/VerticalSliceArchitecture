@@ -19,7 +19,6 @@ public static class DependencyInjection
         {
             options.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
 
-            options.AddOpenBehavior(typeof(AuthorizationBehaviour<,>));
             options.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
             options.AddOpenBehavior(typeof(ValidationBehaviour<,>));
         });

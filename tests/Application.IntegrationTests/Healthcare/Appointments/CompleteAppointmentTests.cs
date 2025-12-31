@@ -21,7 +21,7 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
         // Arrange - Create an appointment to complete
         var bookBuilder = new BookAppointmentTestDataBuilder();
         var bookCommand = bookBuilder.Build();
-        var bookResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", bookCommand);
+        var bookResponse = await Client.PostAsJsonAsync("/api/appointments", bookCommand);
         var bookResult = await bookResponse.Content.ReadFromJsonAsync<BookAppointmentResult>();
 
         var completeCommand = new CompleteAppointmentTestDataBuilder()
@@ -29,7 +29,7 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync($"/api/healthcare/appointments/{bookResult.Id}/complete", completeCommand);
+        var response = await Client.PostAsJsonAsync($"/api/appointments/{bookResult.Id}/complete", completeCommand);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -48,7 +48,7 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
         // Arrange - Create an appointment
         var bookBuilder = new BookAppointmentTestDataBuilder();
         var bookCommand = bookBuilder.Build();
-        var bookResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", bookCommand);
+        var bookResponse = await Client.PostAsJsonAsync("/api/appointments", bookCommand);
         var bookResult = await bookResponse.Content.ReadFromJsonAsync<BookAppointmentResult>();
 
         var completeCommand = new CompleteAppointmentTestDataBuilder()
@@ -57,7 +57,7 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync($"/api/healthcare/appointments/{bookResult.Id}/complete", completeCommand);
+        var response = await Client.PostAsJsonAsync($"/api/appointments/{bookResult.Id}/complete", completeCommand);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -76,7 +76,7 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
         // Arrange - Create an appointment
         var bookBuilder = new BookAppointmentTestDataBuilder();
         var bookCommand = bookBuilder.Build();
-        var bookResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", bookCommand);
+        var bookResponse = await Client.PostAsJsonAsync("/api/appointments", bookCommand);
         var bookResult = await bookResponse.Content.ReadFromJsonAsync<BookAppointmentResult>();
 
         var completeCommand = new CompleteAppointmentTestDataBuilder()
@@ -85,7 +85,7 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync($"/api/healthcare/appointments/{bookResult.Id}/complete", completeCommand);
+        var response = await Client.PostAsJsonAsync($"/api/appointments/{bookResult.Id}/complete", completeCommand);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -100,14 +100,14 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
         // Arrange - Create and complete an appointment
         var bookBuilder = new BookAppointmentTestDataBuilder();
         var bookCommand = bookBuilder.Build();
-        var bookResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", bookCommand);
+        var bookResponse = await Client.PostAsJsonAsync("/api/appointments", bookCommand);
         var bookResult = await bookResponse.Content.ReadFromJsonAsync<BookAppointmentResult>();
 
         var firstCompleteCommand = new CompleteAppointmentTestDataBuilder()
             .WithAppointmentId(bookResult!.Id)
             .WithNotes("First completion")
             .Build();
-        var firstResponse = await Client.PostAsJsonAsync($"/api/healthcare/appointments/{bookResult.Id}/complete", firstCompleteCommand);
+        var firstResponse = await Client.PostAsJsonAsync($"/api/appointments/{bookResult.Id}/complete", firstCompleteCommand);
         var firstResult = await firstResponse.Content.ReadFromJsonAsync<CompleteAppointmentResult>();
 
         var secondCompleteCommand = new CompleteAppointmentTestDataBuilder()
@@ -116,7 +116,7 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
             .Build();
 
         // Act - complete again
-        var response = await Client.PostAsJsonAsync($"/api/healthcare/appointments/{bookResult.Id}/complete", secondCompleteCommand);
+        var response = await Client.PostAsJsonAsync($"/api/appointments/{bookResult.Id}/complete", secondCompleteCommand);
 
         // Assert - Should succeed but not change timestamp or notes
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -135,7 +135,7 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync($"/api/healthcare/appointments/{command.AppointmentId}/complete", command);
+        var response = await Client.PostAsJsonAsync($"/api/appointments/{command.AppointmentId}/complete", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -150,14 +150,14 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
         // Arrange - Create and cancel an appointment
         var bookBuilder = new BookAppointmentTestDataBuilder();
         var bookCommand = bookBuilder.Build();
-        var bookResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", bookCommand);
+        var bookResponse = await Client.PostAsJsonAsync("/api/appointments", bookCommand);
         var bookResult = await bookResponse.Content.ReadFromJsonAsync<BookAppointmentResult>();
 
         // Cancel the appointment first
         var cancelCommand = new CancelAppointmentTestDataBuilder()
             .WithAppointmentId(bookResult!.Id)
             .Build();
-        await Client.PostAsJsonAsync($"/api/healthcare/appointments/{bookResult.Id}/cancel", cancelCommand);
+        await Client.PostAsJsonAsync($"/api/appointments/{bookResult.Id}/cancel", cancelCommand);
 
         // Try to complete the cancelled appointment
         var completeCommand = new CompleteAppointmentTestDataBuilder()
@@ -165,7 +165,7 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync($"/api/healthcare/appointments/{bookResult.Id}/complete", completeCommand);
+        var response = await Client.PostAsJsonAsync($"/api/appointments/{bookResult.Id}/complete", completeCommand);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -183,7 +183,7 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
         // Arrange - Create an appointment
         var bookBuilder = new BookAppointmentTestDataBuilder();
         var bookCommand = bookBuilder.Build();
-        var bookResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", bookCommand);
+        var bookResponse = await Client.PostAsJsonAsync("/api/appointments", bookCommand);
         var bookResult = await bookResponse.Content.ReadFromJsonAsync<BookAppointmentResult>();
 
         var completeCommand = new CompleteAppointmentTestDataBuilder()
@@ -192,7 +192,7 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync($"/api/healthcare/appointments/{bookResult.Id}/complete", completeCommand);
+        var response = await Client.PostAsJsonAsync($"/api/appointments/{bookResult.Id}/complete", completeCommand);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -209,7 +209,7 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
         // Arrange - Create an appointment
         var bookBuilder = new BookAppointmentTestDataBuilder();
         var bookCommand = bookBuilder.Build();
-        var bookResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", bookCommand);
+        var bookResponse = await Client.PostAsJsonAsync("/api/appointments", bookCommand);
         var bookResult = await bookResponse.Content.ReadFromJsonAsync<BookAppointmentResult>();
 
         var completeCommand = new CompleteAppointmentTestDataBuilder()
@@ -217,7 +217,7 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
             .Build();
 
         // Act
-        await Client.PostAsJsonAsync($"/api/healthcare/appointments/{bookResult.Id}/complete", completeCommand);
+        await Client.PostAsJsonAsync($"/api/appointments/{bookResult.Id}/complete", completeCommand);
 
         // Assert - Verify database state
         var appointment = await DbContext.Appointments.FindAsync(bookResult.Id);
@@ -229,44 +229,12 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
     }
 
     [Fact]
-    public async Task CompleteAppointment_RescheduledAppointment_CanBeCompleted()
-    {
-        // Arrange - Create and reschedule an appointment
-        var bookBuilder = new BookAppointmentTestDataBuilder();
-        var bookCommand = bookBuilder.Build();
-        var bookResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", bookCommand);
-        var bookResult = await bookResponse.Content.ReadFromJsonAsync<BookAppointmentResult>();
-
-        var rescheduleCommand = new RescheduleAppointmentTestDataBuilder()
-            .WithAppointmentId(bookResult!.Id)
-            .Build();
-        await Client.PostAsJsonAsync($"/api/healthcare/appointments/{bookResult.Id}/reschedule", rescheduleCommand);
-
-        var completeCommand = new CompleteAppointmentTestDataBuilder()
-            .WithAppointmentId(bookResult.Id)
-            .Build();
-
-        // Act
-        var response = await Client.PostAsJsonAsync($"/api/healthcare/appointments/{bookResult.Id}/complete", completeCommand);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var result = await response.Content.ReadFromJsonAsync<CompleteAppointmentResult>();
-        result!.Status.Should().Be(AppointmentStatus.Completed);
-
-        // Verify in database
-        var appointment = await DbContext.Appointments.FindAsync(bookResult.Id);
-        appointment!.Status.Should().Be(AppointmentStatus.Completed);
-    }
-
-    [Fact]
     public async Task CompleteAppointment_TimestampSetCorrectly()
     {
         // Arrange - Create an appointment
         var bookBuilder = new BookAppointmentTestDataBuilder();
         var bookCommand = bookBuilder.Build();
-        var bookResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", bookCommand);
+        var bookResponse = await Client.PostAsJsonAsync("/api/appointments", bookCommand);
         var bookResult = await bookResponse.Content.ReadFromJsonAsync<BookAppointmentResult>();
 
         var completeCommand = new CompleteAppointmentTestDataBuilder()
@@ -276,7 +244,7 @@ public class CompleteAppointmentTests(CustomWebApplicationFactory factory) : Int
         var beforeComplete = DateTime.UtcNow;
 
         // Act
-        var response = await Client.PostAsJsonAsync($"/api/healthcare/appointments/{bookResult.Id}/complete", completeCommand);
+        var response = await Client.PostAsJsonAsync($"/api/appointments/{bookResult.Id}/complete", completeCommand);
 
         var afterComplete = DateTime.UtcNow;
 

@@ -32,7 +32,7 @@ public class BookAppointmentTests : IntegrationTestBase
         var (_, _, expectedStart, expectedEnd, _) = builder.BuildValues();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -47,7 +47,7 @@ public class BookAppointmentTests : IntegrationTestBase
 
         // Verify Location header
         response.Headers.Location.Should().NotBeNull();
-        response.Headers.Location!.ToString().Should().Contain($"/api/healthcare/appointments/{result.Id}");
+        response.Headers.Location!.ToString().Should().Contain($"/api/appointments/{result.Id}");
 
         // Verify appointment was saved to database
         var savedAppointment = await DbContext.Appointments
@@ -68,7 +68,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -91,7 +91,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -114,7 +114,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -136,7 +136,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .WithDuration(60)
             .Build();
 
-        var firstResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", firstCommand);
+        var firstResponse = await Client.PostAsJsonAsync("/api/appointments", firstCommand);
         firstResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
         // Try to book an overlapping appointment for the same doctor
@@ -146,7 +146,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", overlappingCommand);
+        var response = await Client.PostAsJsonAsync("/api/appointments", overlappingCommand);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -166,7 +166,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -189,7 +189,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -212,7 +212,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -233,7 +233,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -256,7 +256,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -279,7 +279,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -304,7 +304,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .WithDuration(45)
             .Build();
 
-        var firstResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", firstCommand);
+        var firstResponse = await Client.PostAsJsonAsync("/api/appointments", firstCommand);
         firstResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
         // Second patient tries to book the same doctor at the same time
@@ -315,7 +315,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", secondCommand);
+        var response = await Client.PostAsJsonAsync("/api/appointments", secondCommand);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
@@ -337,7 +337,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .WithDuration(30)
             .Build();
 
-        var firstResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", firstCommand);
+        var firstResponse = await Client.PostAsJsonAsync("/api/appointments", firstCommand);
         firstResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
         // Book another appointment with different doctor at same time
@@ -348,7 +348,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", secondCommand);
+        var response = await Client.PostAsJsonAsync("/api/appointments", secondCommand);
 
         // Assert - This should succeed as different doctors can be booked at the same time
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -368,7 +368,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .WithDuration(30)
             .Build();
 
-        var firstResponse = await Client.PostAsJsonAsync("/api/healthcare/appointments", firstCommand);
+        var firstResponse = await Client.PostAsJsonAsync("/api/appointments", firstCommand);
         firstResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
         // Book second appointment from 10:30 to 11:00 (immediately after first)
@@ -379,7 +379,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", secondCommand);
+        var response = await Client.PostAsJsonAsync("/api/appointments", secondCommand);
 
         // Assert - This should succeed as appointments are back-to-back, not overlapping
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -398,7 +398,7 @@ public class BookAppointmentTests : IntegrationTestBase
             .Build();
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/healthcare/appointments", command);
+        var response = await Client.PostAsJsonAsync("/api/appointments", command);
 
         // Assert - Notes are optional, so this should succeed
         response.StatusCode.Should().Be(HttpStatusCode.Created);
