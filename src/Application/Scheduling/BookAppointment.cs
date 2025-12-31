@@ -105,7 +105,7 @@ internal sealed class BookAppointmentCommandHandler(ApplicationDbContext context
             .AsNoTracking()
             .AnyAsync(
                 a => a.DoctorId == request.DoctorId
-                     && (a.Status == AppointmentStatus.Scheduled || a.Status == AppointmentStatus.Rescheduled)
+                     && a.Status == AppointmentStatus.Scheduled
                      && a.StartUtc < endUtc
                      && a.EndUtc > startUtc,
                 cancellationToken);

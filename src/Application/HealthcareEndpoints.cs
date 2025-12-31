@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-using VerticalSliceArchitecture.Application.Medications;
 using VerticalSliceArchitecture.Application.Scheduling;
 
 namespace VerticalSliceArchitecture.Application;
@@ -25,11 +24,6 @@ public static class HealthcareEndpoints
         apiGroup.MapGroup("/healthcare/appointments")
             .WithTags("Appointments")
             .MapAppointmentEndpoints();
-
-        // Map prescription endpoints under /api/prescriptions
-        apiGroup.MapGroup("/prescriptions")
-            .WithTags("Prescriptions")
-            .MapPrescriptionEndpoints();
 
         return app;
     }

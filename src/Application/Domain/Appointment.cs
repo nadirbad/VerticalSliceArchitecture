@@ -69,42 +69,6 @@ public class Appointment : AuditableEntity, IHasDomainEvent
     public List<DomainEvent> DomainEvents { get; } = new List<DomainEvent>();
 
     /// <summary>
-    /// Reschedules the appointment to new times. Assumes caller has validated business rules
-    /// (status checks, time windows, conflicts). This method only mutates state.
-    /// </summary>
-    /// <param name="newStartUtc">The new start time in UTC.</param>
-    /// <param name="newEndUtc">The new end time in UTC.</param>
-    /// <param name="reason">Optional reason for rescheduling, appended to notes.</param>
-    public void Reschedule(DateTime newStartUtc, DateTime newEndUtc, string? reason = null)
-    {
-        // Technical invariants only - business rules validated by caller
-        ValidateDateTime(newStartUtc, nameof(newStartUtc));
-        ValidateDateTime(newEndUtc, nameof(newEndUtc));
-
-        // Capture previous times for domain event
-        var previousStartUtc = StartUtc;
-        var previousEndUtc = EndUtc;
-
-        // Mutate state
-        StartUtc = newStartUtc;
-        EndUtc = newEndUtc;
-        Status = AppointmentStatus.Rescheduled;
-
-        if (!string.IsNullOrWhiteSpace(reason))
-        {
-            Notes = string.IsNullOrWhiteSpace(Notes) ? reason : $"{Notes}; {reason}";
-        }
-
-        // Raise domain event
-        DomainEvents.Add(new AppointmentRescheduledEvent(
-            Id,
-            previousStartUtc,
-            previousEndUtc,
-            StartUtc,
-            EndUtc));
-    }
-
-    /// <summary>
     /// Marks the appointment as completed.
     /// </summary>
     /// <param name="notes">Optional completion notes.</param>
@@ -185,14 +149,6 @@ public class Appointment : AuditableEntity, IHasDomainEvent
         Status = AppointmentStatus.Cancelled;
         CancelledUtc = timestamp;
         CancellationReason = reason;
-
-        // Raise domain event
-        DomainEvents.Add(new AppointmentCancelledEvent(
-            Id,
-            PatientId,
-            DoctorId,
-            CancelledUtc.Value,
-            CancellationReason));
     }
 
     public void UpdateNotes(string? newNotes)
@@ -217,7 +173,6 @@ public class Appointment : AuditableEntity, IHasDomainEvent
 public enum AppointmentStatus
 {
     Scheduled = 1,
-    Rescheduled = 2,
-    Completed = 3,
-    Cancelled = 4,
+    Completed = 2,
+    Cancelled = 3,
 }

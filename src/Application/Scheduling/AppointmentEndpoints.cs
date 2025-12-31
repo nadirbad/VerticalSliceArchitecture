@@ -25,14 +25,6 @@ public static class SchedulingEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict)
             .AddEndpointFilter<ValidationFilter<BookAppointmentCommand>>();
 
-        group.MapPost("/{appointmentId}/reschedule", RescheduleAppointmentEndpoint.Handle)
-            .WithName("RescheduleAppointment")
-            .Produces<RescheduleAppointmentResult>(StatusCodes.Status200OK)
-            .ProducesValidationProblem()
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status409Conflict)
-            .AddEndpointFilter<ValidationFilter<RescheduleAppointmentCommand>>();
-
         group.MapPost("/{appointmentId}/complete", CompleteAppointmentEndpoint.Handle)
             .WithName("CompleteAppointment")
             .Produces<CompleteAppointmentResult>(StatusCodes.Status200OK)
@@ -47,7 +39,6 @@ public static class SchedulingEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound)
             .AddEndpointFilter<ValidationFilter<CancelAppointmentCommand>>();
 
-        // Query endpoints - order matters: most specific routes first
         group.MapGet("/", GetAppointmentsEndpoint.Handle)
             .WithName("GetAppointments")
             .Produces<Common.Models.PaginatedList<AppointmentDto>>(StatusCodes.Status200OK)
@@ -60,20 +51,6 @@ public static class SchedulingEndpoints
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .AddEndpointFilter<ValidationFilter<GetAppointmentByIdQuery>>();
-
-        group.MapGet("/patient/{patientId}", GetPatientAppointmentsEndpoint.Handle)
-            .WithName("GetPatientAppointments")
-            .Produces<Common.Models.PaginatedList<AppointmentDto>>(StatusCodes.Status200OK)
-            .ProducesValidationProblem()
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .AddEndpointFilter<ValidationFilter<GetPatientAppointmentsQuery>>();
-
-        group.MapGet("/doctor/{doctorId}", GetDoctorAppointmentsEndpoint.Handle)
-            .WithName("GetDoctorAppointments")
-            .Produces<Common.Models.PaginatedList<AppointmentDto>>(StatusCodes.Status200OK)
-            .ProducesValidationProblem()
-            .ProducesProblem(StatusCodes.Status404NotFound)
-            .AddEndpointFilter<ValidationFilter<GetDoctorAppointmentsQuery>>();
 
         return group;
     }

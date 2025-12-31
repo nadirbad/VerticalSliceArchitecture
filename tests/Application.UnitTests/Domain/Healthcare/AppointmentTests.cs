@@ -25,8 +25,6 @@ public class AppointmentTests
         appointment.EndUtc.Should().Be(_validEndUtc);
         appointment.Status.Should().Be(AppointmentStatus.Scheduled);
         appointment.Notes.Should().Be("Test notes");
-
-        // Note: Id is set by Entity Framework when saved to database
     }
 
     [Fact]
@@ -114,24 +112,6 @@ public class AppointmentTests
         appointment.CompletedUtc.Should().NotBeNull();
         appointment.CompletedUtc.Should().BeCloseTo(beforeComplete, TimeSpan.FromSeconds(1));
         appointment.Notes.Should().Be("Patient checked in and seen");
-    }
-
-    [Fact]
-    public void Complete_RescheduledAppointment_WorksCorrectly()
-    {
-        // Arrange
-        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
-        var newStartUtc = DateTime.UtcNow.AddDays(2);
-        var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
-        appointment.Reschedule(newStartUtc, newEndUtc);
-
-        // Act
-        appointment.Complete("Completed after reschedule");
-
-        // Assert
-        appointment.Status.Should().Be(AppointmentStatus.Completed);
-        appointment.CompletedUtc.Should().NotBeNull();
-        appointment.Notes.Should().Be("Completed after reschedule");
     }
 
     [Fact]
@@ -307,24 +287,6 @@ public class AppointmentTests
     }
 
     [Fact]
-    public void Cancel_RescheduledAppointment_WorksCorrectly()
-    {
-        // Arrange
-        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
-        var newStartUtc = DateTime.UtcNow.AddDays(2);
-        var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
-        appointment.Reschedule(newStartUtc, newEndUtc);
-
-        // Act
-        appointment.Cancel("Cancelled after reschedule");
-
-        // Assert
-        appointment.Status.Should().Be(AppointmentStatus.Cancelled);
-        appointment.CancelledUtc.Should().NotBeNull();
-        appointment.CancellationReason.Should().Be("Cancelled after reschedule");
-    }
-
-    [Fact]
     public void Schedule_ShouldRaiseAppointmentBookedEvent()
     {
         // Act
@@ -343,220 +305,22 @@ public class AppointmentTests
     }
 
     [Fact]
-    public void DomainEvents_ShouldAllowAddingAdditionalEvents()
+    public void Complete_ShouldRaiseAppointmentCompletedEvent()
     {
         // Arrange
         var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
-        var additionalEvent = new AppointmentBookedEvent(appointment.Id, _patientId, _doctorId, _validStartUtc, _validEndUtc);
-
-        // Act - Schedule already adds AppointmentBookedEvent, so we add another
-        appointment.DomainEvents.Add(additionalEvent);
-
-        // Assert - Should have 2 events: one from Schedule(), one manually added
-        appointment.DomainEvents.Should().HaveCount(2);
-        appointment.DomainEvents.Last().Should().Be(additionalEvent);
-    }
-
-    [Fact]
-    public void Reschedule_WithValidParameters_ShouldUpdateTimes()
-    {
-        // Arrange
-        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
-        var newStartUtc = DateTime.UtcNow.AddDays(2);
-        var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
 
         // Act
-        appointment.Reschedule(newStartUtc, newEndUtc);
+        appointment.Complete("Completed successfully");
 
-        // Assert
-        appointment.StartUtc.Should().Be(newStartUtc);
-        appointment.EndUtc.Should().Be(newEndUtc);
-        appointment.Status.Should().Be(AppointmentStatus.Rescheduled);
-    }
-
-    [Fact]
-    public void Reschedule_WithReason_ShouldAppendToNotes()
-    {
-        // Arrange
-        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc, "Initial notes");
-        var newStartUtc = DateTime.UtcNow.AddDays(2);
-        var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
-
-        // Act
-        appointment.Reschedule(newStartUtc, newEndUtc, "Patient requested earlier time");
-
-        // Assert
-        appointment.Notes.Should().Be("Initial notes; Patient requested earlier time");
-    }
-
-    [Fact]
-    public void Reschedule_WithReasonAndEmptyNotes_ShouldSetNotesToReason()
-    {
-        // Arrange
-        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
-        var newStartUtc = DateTime.UtcNow.AddDays(2);
-        var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
-
-        // Act
-        appointment.Reschedule(newStartUtc, newEndUtc, "Patient requested earlier time");
-
-        // Assert
-        appointment.Notes.Should().Be("Patient requested earlier time");
-    }
-
-    [Fact]
-    public void Reschedule_WithoutReason_ShouldNotChangeNotes()
-    {
-        // Arrange
-        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc, "Initial notes");
-        var newStartUtc = DateTime.UtcNow.AddDays(2);
-        var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
-
-        // Act
-        appointment.Reschedule(newStartUtc, newEndUtc);
-
-        // Assert
-        appointment.Notes.Should().Be("Initial notes");
-    }
-
-    [Fact]
-    public void Reschedule_WhenCancelled_ShouldStillAllowMutation()
-    {
-        // Arrange
-        // Note: Status validation moved to Handler - domain only mutates state
-        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
-        appointment.Cancel("Cancelled");
-        var newStartUtc = DateTime.UtcNow.AddDays(2);
-        var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
-
-        // Act
-        appointment.Reschedule(newStartUtc, newEndUtc);
-
-        // Assert
-        appointment.StartUtc.Should().Be(newStartUtc);
-        appointment.EndUtc.Should().Be(newEndUtc);
-        appointment.Status.Should().Be(AppointmentStatus.Rescheduled);
-    }
-
-    [Fact]
-    public void Reschedule_WhenCompleted_ShouldStillAllowMutation()
-    {
-        // Arrange
-        // Note: Status validation moved to Handler - domain only mutates state
-        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
-        appointment.Complete();
-        var newStartUtc = DateTime.UtcNow.AddDays(2);
-        var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
-
-        // Act
-        appointment.Reschedule(newStartUtc, newEndUtc);
-
-        // Assert
-        appointment.StartUtc.Should().Be(newStartUtc);
-        appointment.EndUtc.Should().Be(newEndUtc);
-        appointment.Status.Should().Be(AppointmentStatus.Rescheduled);
-    }
-
-    [Fact]
-    public void Reschedule_WithNonUtcStartTime_ShouldThrowArgumentException()
-    {
-        // Arrange
-        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
-        var nonUtcStart = DateTime.Now; // Local time
-        var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
-
-        // Act & Assert
-        var act = () => appointment.Reschedule(nonUtcStart, newEndUtc);
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("DateTime must be in UTC*")
-            .And.ParamName.Should().Be("newStartUtc");
-    }
-
-    [Fact]
-    public void Reschedule_WithNonUtcEndTime_ShouldThrowArgumentException()
-    {
-        // Arrange
-        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
-        var newStartUtc = DateTime.UtcNow.AddDays(2);
-        var nonUtcEnd = DateTime.Now; // Local time
-
-        // Act & Assert
-        var act = () => appointment.Reschedule(newStartUtc, nonUtcEnd);
-        act.Should().Throw<ArgumentException>()
-            .WithMessage("DateTime must be in UTC*")
-            .And.ParamName.Should().Be("newEndUtc");
-    }
-
-    [Fact]
-    public void Reschedule_WithStartTimeAfterEndTime_ShouldAllowMutation()
-    {
-        // Arrange
-        // Note: Time ordering validation moved to FluentValidation - domain only mutates state
-        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
-        var newStartUtc = DateTime.UtcNow.AddDays(2);
-        var newEndUtc = DateTime.UtcNow.AddDays(1); // Before start (invalid, but domain doesn't check)
-
-        // Act
-        appointment.Reschedule(newStartUtc, newEndUtc);
-
-        // Assert - domain accepts whatever it's given
-        appointment.StartUtc.Should().Be(newStartUtc);
-        appointment.EndUtc.Should().Be(newEndUtc);
-    }
-
-    [Fact]
-    public void Reschedule_WithStartTimeEqualToEndTime_ShouldAllowMutation()
-    {
-        // Arrange
-        // Note: Time ordering validation moved to FluentValidation - domain only mutates state
-        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
-        var newStartUtc = DateTime.UtcNow.AddDays(2);
-
-        // Act
-        appointment.Reschedule(newStartUtc, newStartUtc);
-
-        // Assert - domain accepts whatever it's given
-        appointment.StartUtc.Should().Be(newStartUtc);
-        appointment.EndUtc.Should().Be(newStartUtc);
-    }
-
-    [Fact]
-    public void AppointmentRescheduledEvent_ShouldBeCreatedWithCorrectProperties()
-    {
-        // Arrange
-        var appointmentId = Guid.NewGuid();
-        var previousStartUtc = DateTime.UtcNow.AddDays(1);
-        var previousEndUtc = DateTime.UtcNow.AddDays(1).AddHours(1);
-        var newStartUtc = DateTime.UtcNow.AddDays(2);
-        var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
-
-        // Act
-        var domainEvent = new AppointmentRescheduledEvent(appointmentId, previousStartUtc, previousEndUtc, newStartUtc, newEndUtc);
-
-        // Assert
-        domainEvent.AppointmentId.Should().Be(appointmentId);
-        domainEvent.PreviousStartUtc.Should().Be(previousStartUtc);
-        domainEvent.PreviousEndUtc.Should().Be(previousEndUtc);
-        domainEvent.NewStartUtc.Should().Be(newStartUtc);
-        domainEvent.NewEndUtc.Should().Be(newEndUtc);
-        domainEvent.DateOccurred.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1));
-    }
-
-    [Fact]
-    public void AppointmentRescheduledEvent_ShouldBeAddableToDomainEvents()
-    {
-        // Arrange
-        var appointment = Appointment.Schedule(_patientId, _doctorId, _validStartUtc, _validEndUtc);
-        var newStartUtc = DateTime.UtcNow.AddDays(2);
-        var newEndUtc = DateTime.UtcNow.AddDays(2).AddHours(1);
-        var domainEvent = new AppointmentRescheduledEvent(appointment.Id, _validStartUtc, _validEndUtc, newStartUtc, newEndUtc);
-
-        // Act - Schedule already adds AppointmentBookedEvent, then we add reschedule event
-        appointment.DomainEvents.Add(domainEvent);
-
-        // Assert - Should have 2 events: AppointmentBookedEvent from Schedule(), plus AppointmentRescheduledEvent
+        // Assert - Should have 2 events: AppointmentBookedEvent from Schedule(), plus AppointmentCompletedEvent
         appointment.DomainEvents.Should().HaveCount(2);
         appointment.DomainEvents.First().Should().BeOfType<AppointmentBookedEvent>();
-        appointment.DomainEvents.Last().Should().Be(domainEvent);
+        appointment.DomainEvents.Last().Should().BeOfType<AppointmentCompletedEvent>();
+
+        var completedEvent = (AppointmentCompletedEvent)appointment.DomainEvents.Last();
+        completedEvent.PatientId.Should().Be(_patientId);
+        completedEvent.DoctorId.Should().Be(_doctorId);
+        completedEvent.Notes.Should().Be("Completed successfully");
     }
 }

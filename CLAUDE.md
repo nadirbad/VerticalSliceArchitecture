@@ -6,10 +6,61 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a .NET 9 Vertical Slice Architecture example that organizes code by features rather than technical layers. The solution consists of 2 projects:
 
-- **src/Api**: ASP.NET Core entry point with DI, middleware, and hosting. Controllers live in the Application project.
-- **src/Application**: Contains all features, domain entities, infrastructure, and shared concerns organized under `Features/**` by vertical slices.
+- **src/Api**: ASP.NET Core entry point with DI, middleware, and hosting
+- **src/Application**: Contains all features, domain entities, infrastructure, and shared concerns organized by vertical slices
 
-Each feature keeps HTTP endpoints, request/response types, validation, and MediatR handlers together in a single file (e.g., `Features/TodoItems/CreateTodoItem.cs` contains controller, command, validator, and handler).
+The project uses **.NET 9 Minimal APIs** instead of MVC controllers. Each feature keeps endpoint handlers, request/response types, validation, and MediatR handlers together in a single file (e.g., `Scheduling/BookAppointment.cs` contains endpoint, command, validator, and handler).
+
+### Current Domain: Healthcare
+
+The codebase implements a Healthcare domain with:
+
+- **Scheduling**: Appointment booking, rescheduling, completion, and cancellation
+- **Medications**: Prescription issuance and management
+
+### Project Structure
+
+```text
+src/Application/
+├── Domain/                    # Domain entities, value objects, events
+│   ├── Appointment.cs
+│   ├── Patient.cs
+│   ├── Doctor.cs
+│   ├── Prescription.cs
+│   ├── SchedulingPolicies.cs
+│   ├── PrescriptionPolicies.cs
+│   └── Events/                # Domain events
+│       ├── AppointmentBookedEvent.cs
+│       ├── AppointmentRescheduledEvent.cs
+│       ├── AppointmentCompletedEvent.cs
+│       └── AppointmentCancelledEvent.cs
+├── Scheduling/                # Appointment feature slice
+│   ├── AppointmentEndpoints.cs
+│   ├── BookAppointment.cs
+│   ├── RescheduleAppointment.cs
+│   ├── CompleteAppointment.cs
+│   ├── CancelAppointment.cs
+│   ├── GetAppointments.cs
+│   ├── GetAppointmentById.cs
+│   ├── GetPatientAppointments.cs
+│   ├── GetDoctorAppointments.cs
+│   └── EventHandlers/
+│       ├── AppointmentBookedEventHandler.cs
+│       └── AppointmentRescheduledEventHandler.cs
+├── Medications/               # Prescription feature slice
+│   ├── PrescriptionEndpoints.cs
+│   └── IssuePrescription.cs
+├── Common/                    # Shared concerns
+│   ├── MinimalApiProblemHelper.cs
+│   ├── ValidationFilter.cs
+│   └── ...
+├── Infrastructure/            # Data access, services
+│   └── Persistence/
+│       ├── ApplicationDbContext.cs
+│       └── Configurations/
+├── HealthcareEndpoints.cs     # Root endpoint mapper
+└── ConfigureServices.cs       # DI registration
+```
 
 ## Development Commands
 
@@ -60,32 +111,114 @@ dotnet ef database update --project src/Application --startup-project src/Api
 
 ### Adding New Features
 
-1. Create file under `src/Application/Features/<Area>/<VerbNoun>.cs`
-2. Include all related code in one file: controller, command/query, validator, handler, and DTOs
-3. Controllers inherit `ApiControllerBase` and use explicit routes (e.g., `[HttpPost("/api/todo-items")]`)
+1. Create feature file under `src/Application/<FeatureArea>/<VerbNoun>.cs` (e.g., `Scheduling/BookAppointment.cs`)
+2. Include all related code in one file: endpoint handler, command/query, validator, handler, and DTOs
+3. Create endpoint registration in `<FeatureArea>Endpoints.cs` using route groups
 4. Use `ErrorOr<T>` return types for consistent error handling
 5. Access data via `ApplicationDbContext` directly (no repository pattern)
 6. Add validators with FluentValidation (auto-registered with `includeInternalTypes: true`)
+7. Register endpoints in `HealthcareEndpoints.cs` (or create new root endpoint mapper)
 
 ### Example Feature Structure
 
 ```csharp
-// Controller
-public class CreateTodoItemController : ApiControllerBase
+// Endpoint Handler (static class with Handle method)
+public static class BookAppointmentEndpoint
 {
-    [HttpPost("/api/todo-items")]
-    public async Task<IActionResult> Create(CreateTodoItemCommand command) { /* ... */ }
+    public static async Task<IResult> Handle(
+        BookAppointmentCommand command,
+        ISender mediator)
+    {
+        var result = await mediator.Send(command);
+
+        return result.Match(
+            success => Results.Created($"/api/healthcare/appointments/{success.Id}", success),
+            errors => MinimalApiProblemHelper.Problem(errors));
+    }
 }
 
 // Command/Query
-public record CreateTodoItemCommand(int ListId, string? Title) : IRequest<ErrorOr<int>>;
+public record BookAppointmentCommand(
+    Guid PatientId,
+    Guid DoctorId,
+    DateTimeOffset Start,
+    DateTimeOffset End,
+    string? Notes) : IRequest<ErrorOr<BookAppointmentResult>>;
+
+// Result DTO
+public record BookAppointmentResult(Guid Id, DateTime StartUtc, DateTime EndUtc);
 
 // Validator
-internal sealed class CreateTodoItemCommandValidator : AbstractValidator<CreateTodoItemCommand> { /* ... */ }
+internal sealed class BookAppointmentCommandValidator : AbstractValidator<BookAppointmentCommand>
+{
+    public BookAppointmentCommandValidator()
+    {
+        RuleFor(v => v.PatientId).NotEmpty().WithMessage("PatientId is required");
+        RuleFor(v => v.DoctorId).NotEmpty().WithMessage("DoctorId is required");
+        // ... more rules
+    }
+}
 
 // Handler
-internal sealed class CreateTodoItemCommandHandler : IRequestHandler<CreateTodoItemCommand, ErrorOr<int>> { /* ... */ }
+internal sealed class BookAppointmentCommandHandler(ApplicationDbContext context)
+    : IRequestHandler<BookAppointmentCommand, ErrorOr<BookAppointmentResult>>
+{
+    public async Task<ErrorOr<BookAppointmentResult>> Handle(
+        BookAppointmentCommand request,
+        CancellationToken cancellationToken)
+    {
+        // Implementation...
+    }
+}
+```
 
+### Endpoint Registration
+
+Register endpoints in the feature's endpoint file:
+
+```csharp
+// Scheduling/AppointmentEndpoints.cs
+public static class SchedulingEndpoints
+{
+    public static RouteGroupBuilder MapAppointmentEndpoints(this RouteGroupBuilder group)
+    {
+        group.MapPost("/", BookAppointmentEndpoint.Handle)
+            .WithName("BookAppointment")
+            .Produces<BookAppointmentResult>(StatusCodes.Status201Created)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .AddEndpointFilter<ValidationFilter<BookAppointmentCommand>>();
+
+        group.MapPost("/{appointmentId}/reschedule", RescheduleAppointmentEndpoint.Handle)
+            .WithName("RescheduleAppointment")
+            // ... more configuration
+
+        return group;
+    }
+}
+```
+
+Wire up in root endpoint mapper:
+
+```csharp
+// HealthcareEndpoints.cs
+public static class HealthcareEndpoints
+{
+    public static IEndpointRouteBuilder MapHealthcareEndpoints(this IEndpointRouteBuilder app)
+    {
+        var apiGroup = app.MapGroup("/api");
+
+        apiGroup.MapGroup("/healthcare/appointments")
+            .WithTags("Appointments")
+            .MapAppointmentEndpoints();
+
+        apiGroup.MapGroup("/prescriptions")
+            .WithTags("Prescriptions")
+            .MapPrescriptionEndpoints();
+
+        return app;
+    }
+}
 ```
 
 ### Domain objects
@@ -126,39 +259,90 @@ When writing domain objects in C#, follow these patterns and principles:
 - Use guard clauses for precondition checks
 - Implement business rules within the domain object, not in external services
 
-Example Structure
+Example Structure (from Appointment domain entity)
 
 ```csharp
-public class DomainEntity
+public class Appointment : AuditableEntity, IHasDomainEvent
 {
-    public Guid Id { get; private set; }
-    public string Name { get; private set; }
-    public Status Status { get; private set; }
-
-    public DomainEntity(string name)
+    // Factory method - preferred over public constructor
+    public static Appointment Schedule(Guid patientId, Guid doctorId, DateTime startUtc, DateTime endUtc, string? notes = null)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Name cannot be empty", nameof(name));
+        var appointment = new Appointment(patientId, doctorId, startUtc, endUtc, notes);
 
-        Id = Guid.NewGuid();
-        Name = name;
-        Status = Status.Active;
+        // Raise domain event
+        appointment.DomainEvents.Add(new AppointmentBookedEvent(
+            appointment.Id,
+            appointment.PatientId,
+            appointment.DoctorId,
+            appointment.StartUtc,
+            appointment.EndUtc));
+
+        return appointment;
     }
 
-    public void UpdateName(string newName)
-    {
-        if (string.IsNullOrWhiteSpace(newName))
-            throw new ArgumentException("Name cannot be empty", nameof(newName));
+    // Private parameterless constructor for EF Core
+    private Appointment() { }
 
-        Name = newName;
+    // Private constructor enforces use of factory method
+    private Appointment(Guid patientId, Guid doctorId, DateTime startUtc, DateTime endUtc, string? notes)
+    {
+        ValidateDateTime(startUtc, nameof(startUtc));
+        ValidateDateTime(endUtc, nameof(endUtc));
+
+        if (startUtc >= endUtc)
+            throw new ArgumentException("Start time must be before end time", nameof(startUtc));
+
+        PatientId = patientId;
+        DoctorId = doctorId;
+        StartUtc = startUtc;
+        EndUtc = endUtc;
+        Status = AppointmentStatus.Scheduled;
+        UpdateNotes(notes);
     }
 
-    public void Deactivate()
-    {
-        if (Status == Status.Inactive)
-            throw new InvalidOperationException("Entity is already inactive");
+    public Guid Id { get; internal set; }
+    public Guid PatientId { get; private set; }
+    public AppointmentStatus Status { get; private set; }
+    // ... other properties with private set
 
-        Status = Status.Inactive;
+    [NotMapped]
+    public List<DomainEvent> DomainEvents { get; } = new List<DomainEvent>();
+
+    // Business method with state transition and domain event
+    public void Complete(string? notes = null, DateTime? completedAtUtc = null)
+    {
+        if (Status == AppointmentStatus.Cancelled)
+            throw new InvalidOperationException("Cannot complete a cancelled appointment");
+
+        if (Status == AppointmentStatus.Completed)
+            return; // Idempotent
+
+        Status = AppointmentStatus.Completed;
+        CompletedUtc = completedAtUtc ?? DateTime.UtcNow;
+        Notes = notes;
+
+        DomainEvents.Add(new AppointmentCompletedEvent(Id, PatientId, DoctorId, CompletedUtc.Value, Notes));
+    }
+
+    public void Cancel(string reason, DateTime? cancelledAtUtc = null)
+    {
+        if (Status == AppointmentStatus.Completed)
+            throw new InvalidOperationException("Cannot cancel a completed appointment");
+
+        if (Status == AppointmentStatus.Cancelled)
+            return; // Idempotent
+
+        Status = AppointmentStatus.Cancelled;
+        CancelledUtc = cancelledAtUtc ?? DateTime.UtcNow;
+        CancellationReason = reason;
+
+        DomainEvents.Add(new AppointmentCancelledEvent(Id, PatientId, DoctorId, CancelledUtc.Value, CancellationReason));
+    }
+
+    private static void ValidateDateTime(DateTime dateTime, string parameterName)
+    {
+        if (dateTime.Kind != DateTimeKind.Utc)
+            throw new ArgumentException("DateTime must be in UTC", parameterName);
     }
 }
 ```
@@ -186,7 +370,8 @@ Focus on creating rich domain models that encapsulate behavior and protect their
 - **FluentValidation**: Request validation with automatic registration
 - **ErrorOr**: Consistent error handling without exceptions
 - **Entity Framework Core**: Data access with domain event dispatching
-- **Domain Events**: Raised by entities, handled by separate event handlers under `Features/.../EventHandlers`
+- **Domain Events**: Raised by entities, handled by separate event handlers under `<FeatureArea>/EventHandlers/`
+- **Minimal APIs**: .NET 9 endpoint routing with `RouteGroupBuilder` and `ValidationFilter<T>`
 
 ## Configuration and Setup
 
@@ -194,7 +379,11 @@ Focus on creating rich domain models that encapsulate behavior and protect their
 - **Swagger**: Available at root URL (/) in development
 - **CORS**: Configured to allow any origin for development
 - **Health Checks**: Available at `/health` endpoint
-- **Sample Requests**: HTTP files in `requests/**` for manual testing
+- **Sample Requests**: HTTP files in `requests/Healthcare/**` for manual testing
+  - `requests/Healthcare/Appointments/BookAppointment.http`
+  - `requests/Healthcare/Appointments/RescheduleAppointment.http`
+  - `requests/Healthcare/Appointments/GetAppointments.http`
+  - `requests/Healthcare/Prescriptions/IssuePrescription.http`
 
 ## Pipeline Behaviors
 
@@ -282,8 +471,11 @@ var command = new BookAppointmentTestDataBuilder()
 ```
 
 **Available Builders**:
+
 - `BookAppointmentTestDataBuilder`: For appointment booking
 - `RescheduleAppointmentTestDataBuilder`: For appointment rescheduling
+- `CompleteAppointmentTestDataBuilder`: For appointment completion
+- `CancelAppointmentTestDataBuilder`: For appointment cancellation
 - `IssuePrescriptionTestDataBuilder`: For prescription issuance
 
 **Deterministic Test Data** (`TestSeedData`):
@@ -621,7 +813,7 @@ public class AppointmentTests
 
 Test FluentValidation validators using FluentValidation.TestHelper.
 
-**Location**: `tests/Application.UnitTests/Healthcare/` or `tests/Application.UnitTests/Features/`
+**Location**: `tests/Application.UnitTests/Scheduling/` or `tests/Application.UnitTests/Medications/`
 
 **Example - Testing Validators**:
 ```csharp

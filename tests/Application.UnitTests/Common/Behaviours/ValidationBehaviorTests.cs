@@ -4,20 +4,20 @@ using FluentValidation.Results;
 using MediatR;
 
 using VerticalSliceArchitecture.Application.Common.Behaviours;
-using VerticalSliceArchitecture.Application.Medications;
+using VerticalSliceArchitecture.Application.Scheduling;
 
 namespace VerticalSliceArchitecture.Application.UnitTests.Common.Behaviours;
 
 public class ValidationBehaviorTests
 {
-    private readonly ValidationBehaviour<IssuePrescriptionCommand, ErrorOr<PrescriptionResponse>> _validationBehavior;
-    private readonly IValidator<IssuePrescriptionCommand> _mockValidator;
-    private readonly RequestHandlerDelegate<ErrorOr<PrescriptionResponse>> _mockNextBehavior;
+    private readonly ValidationBehaviour<BookAppointmentCommand, ErrorOr<BookAppointmentResult>> _validationBehavior;
+    private readonly IValidator<BookAppointmentCommand> _mockValidator;
+    private readonly RequestHandlerDelegate<ErrorOr<BookAppointmentResult>> _mockNextBehavior;
 
     public ValidationBehaviorTests()
     {
-        _mockNextBehavior = Substitute.For<RequestHandlerDelegate<ErrorOr<PrescriptionResponse>>>();
-        _mockValidator = Substitute.For<IValidator<IssuePrescriptionCommand>>();
+        _mockNextBehavior = Substitute.For<RequestHandlerDelegate<ErrorOr<BookAppointmentResult>>>();
+        _mockValidator = Substitute.For<IValidator<BookAppointmentCommand>>();
 
         _validationBehavior = new(_mockValidator);
     }
@@ -26,33 +26,17 @@ public class ValidationBehaviorTests
     public async Task InvokeValidationBehavior_WhenValidatorResultIsValid_ShouldInvokeNextBehavior()
     {
         // Arrange
-        var command = new IssuePrescriptionCommand(
+        var command = new BookAppointmentCommand(
             PatientId: Guid.NewGuid(),
             DoctorId: Guid.NewGuid(),
-            MedicationName: "Amoxicillin",
-            Dosage: "500mg",
-            Directions: "Take one capsule three times daily",
-            Quantity: 30,
-            NumberOfRefills: 2,
-            DurationInDays: 10);
+            Start: DateTimeOffset.UtcNow.AddDays(1),
+            End: DateTimeOffset.UtcNow.AddDays(1).AddHours(1),
+            Notes: "Test appointment");
 
-        var expectedResponse = new PrescriptionResponse(
+        var expectedResponse = new BookAppointmentResult(
             Id: Guid.NewGuid(),
-            PatientId: command.PatientId,
-            PatientName: "John Doe",
-            DoctorId: command.DoctorId,
-            DoctorName: "Dr. Smith",
-            MedicationName: command.MedicationName,
-            Dosage: command.Dosage,
-            Directions: command.Directions,
-            Quantity: command.Quantity,
-            NumberOfRefills: command.NumberOfRefills,
-            RemainingRefills: command.NumberOfRefills,
-            IssuedDateUtc: DateTime.UtcNow,
-            ExpirationDateUtc: DateTime.UtcNow.AddDays(command.DurationInDays),
-            Status: "Active",
-            IsExpired: false,
-            IsDepleted: false);
+            StartUtc: command.Start.UtcDateTime,
+            EndUtc: command.End.UtcDateTime);
 
         _mockValidator
             .ValidateAsync(command, Arg.Any<CancellationToken>())
@@ -72,15 +56,12 @@ public class ValidationBehaviorTests
     public async Task InvokeValidationBehavior_WhenValidatorResultIsNotValid_ShouldReturnListOfErrors()
     {
         // Arrange
-        var command = new IssuePrescriptionCommand(
+        var command = new BookAppointmentCommand(
             PatientId: Guid.Empty,
             DoctorId: Guid.NewGuid(),
-            MedicationName: "Amoxicillin",
-            Dosage: "500mg",
-            Directions: "Take one capsule three times daily",
-            Quantity: 30,
-            NumberOfRefills: 2,
-            DurationInDays: 10);
+            Start: DateTimeOffset.UtcNow.AddDays(1),
+            End: DateTimeOffset.UtcNow.AddDays(1).AddHours(1),
+            Notes: "Test appointment");
 
         List<ValidationFailure> validationFailures = [new(propertyName: "PatientId", errorMessage: "Patient ID is required")];
 
@@ -101,35 +82,19 @@ public class ValidationBehaviorTests
     public async Task InvokeValidationBehavior_WhenNoValidator_ShouldInvokeNextBehavior()
     {
         // Arrange
-        var command = new IssuePrescriptionCommand(
+        var command = new BookAppointmentCommand(
             PatientId: Guid.NewGuid(),
             DoctorId: Guid.NewGuid(),
-            MedicationName: "Amoxicillin",
-            Dosage: "500mg",
-            Directions: "Take one capsule three times daily",
-            Quantity: 30,
-            NumberOfRefills: 2,
-            DurationInDays: 10);
+            Start: DateTimeOffset.UtcNow.AddDays(1),
+            End: DateTimeOffset.UtcNow.AddDays(1).AddHours(1),
+            Notes: "Test appointment");
 
-        var validationBehavior = new ValidationBehaviour<IssuePrescriptionCommand, ErrorOr<PrescriptionResponse>>();
+        var validationBehavior = new ValidationBehaviour<BookAppointmentCommand, ErrorOr<BookAppointmentResult>>();
 
-        var expectedResponse = new PrescriptionResponse(
+        var expectedResponse = new BookAppointmentResult(
             Id: Guid.NewGuid(),
-            PatientId: command.PatientId,
-            PatientName: "John Doe",
-            DoctorId: command.DoctorId,
-            DoctorName: "Dr. Smith",
-            MedicationName: command.MedicationName,
-            Dosage: command.Dosage,
-            Directions: command.Directions,
-            Quantity: command.Quantity,
-            NumberOfRefills: command.NumberOfRefills,
-            RemainingRefills: command.NumberOfRefills,
-            IssuedDateUtc: DateTime.UtcNow,
-            ExpirationDateUtc: DateTime.UtcNow.AddDays(command.DurationInDays),
-            Status: "Active",
-            IsExpired: false,
-            IsDepleted: false);
+            StartUtc: command.Start.UtcDateTime,
+            EndUtc: command.End.UtcDateTime);
 
         _mockNextBehavior.Invoke().Returns(expectedResponse);
 

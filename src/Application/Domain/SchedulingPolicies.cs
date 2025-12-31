@@ -22,17 +22,6 @@ public static class SchedulingPolicies
     public const int MinimumBookingAdvanceMinutes = 15;
 
     /// <summary>
-    /// Minimum advance notice required when rescheduling an appointment (in hours).
-    /// </summary>
-    public const int MinimumRescheduleAdvanceHours = 2;
-
-    /// <summary>
-    /// Window before appointment start during which rescheduling is not allowed (in hours).
-    /// Appointments cannot be rescheduled within this many hours of their start time.
-    /// </summary>
-    public const int RescheduleWindowCutoffHours = 24;
-
-    /// <summary>
     /// Maximum length of appointment notes.
     /// </summary>
     public const int MaxNotesLength = 1024;
@@ -41,9 +30,4 @@ public static class SchedulingPolicies
     /// Maximum length of cancellation reason.
     /// </summary>
     public const int MaxCancellationReasonLength = 512;
-
-    /// <summary>
-    /// Maximum length of reschedule reason.
-    /// </summary>
-    public const int MaxRescheduleReasonLength = 512;
 }
