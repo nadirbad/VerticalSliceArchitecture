@@ -4,6 +4,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="VerticalSliceArchitecture.Application.UnitTests" />
+    <InternalsVisibleTo Include="VerticalSliceArchitecture.Application.IntegrationTests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CsvHelper" />
     <PackageReference Include="ErrorOr" />
     <PackageReference Include="FluentValidation" />
