@@ -15,134 +15,132 @@ using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 
 namespace VerticalSliceArchitecture.Application.Scheduling;
 
-// Minimal API Endpoint Handler
-public static class GetAppointmentsEndpoint
+/// <summary>
+/// Get a paginated list of appointments with optional filters.
+/// </summary>
+public static class GetAppointments
 {
-    public static async Task<IResult> Handle(
-        ISender mediator,
-        Guid? patientId = null,
-        Guid? doctorId = null,
-        AppointmentStatus? status = null,
-        DateTime? startDate = null,
-        DateTime? endDate = null,
-        int pageNumber = 1,
-        int pageSize = 10)
+    public record Query(
+        Guid? PatientId,
+        Guid? DoctorId,
+        AppointmentStatus? Status,
+        DateTime? StartDate,
+        DateTime? EndDate,
+        int PageNumber,
+        int PageSize) : IRequest<ErrorOr<PaginatedList<AppointmentDto>>>;
+
+    internal static class Endpoint
     {
-        var query = new GetAppointmentsQuery(
-            patientId,
-            doctorId,
-            status,
-            startDate,
-            endDate,
-            pageNumber,
-            pageSize);
+        public static async Task<IResult> Handle(
+            ISender mediator,
+            Guid? patientId = null,
+            Guid? doctorId = null,
+            AppointmentStatus? status = null,
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            int pageNumber = 1,
+            int pageSize = 10)
+        {
+            var query = new Query(
+                patientId,
+                doctorId,
+                status,
+                startDate,
+                endDate,
+                pageNumber,
+                pageSize);
 
-        var result = await mediator.Send(query);
+            var result = await mediator.Send(query);
 
-        return result.Match(
-            appointments => Results.Ok(appointments),
-            errors => MinimalApiProblemHelper.Problem(errors));
+            return result.Match(
+                appointments => Results.Ok(appointments),
+                errors => MinimalApiProblemHelper.Problem(errors));
+        }
     }
-}
 
-public record GetAppointmentsQuery(
-    Guid? PatientId,
-    Guid? DoctorId,
-    AppointmentStatus? Status,
-    DateTime? StartDate,
-    DateTime? EndDate,
-    int PageNumber,
-    int PageSize) : IRequest<ErrorOr<PaginatedList<AppointmentDto>>>;
-
-internal sealed class GetAppointmentsQueryValidator : AbstractValidator<GetAppointmentsQuery>
-{
-    public GetAppointmentsQueryValidator()
+    internal sealed class Validator : AbstractValidator<Query>
     {
-        RuleFor(v => v.PageNumber)
-            .GreaterThanOrEqualTo(1)
-            .WithMessage("PageNumber must be at least 1");
+        public Validator()
+        {
+            RuleFor(v => v.PageNumber)
+                .GreaterThanOrEqualTo(1)
+                .WithMessage("PageNumber must be at least 1");
 
-        RuleFor(v => v.PageSize)
-            .GreaterThanOrEqualTo(1)
-            .WithMessage("PageSize must be at least 1")
-            .LessThanOrEqualTo(100)
-            .WithMessage("PageSize must not exceed 100");
+            RuleFor(v => v.PageSize)
+                .GreaterThanOrEqualTo(1)
+                .WithMessage("PageSize must be at least 1")
+                .LessThanOrEqualTo(100)
+                .WithMessage("PageSize must not exceed 100");
 
-        RuleFor(v => v)
-            .Must(v => !v.StartDate.HasValue || !v.EndDate.HasValue || v.StartDate.Value <= v.EndDate.Value)
-            .WithMessage("StartDate must be before or equal to EndDate")
-            .WithName("EndDate");
+            RuleFor(v => v)
+                .Must(v => !v.StartDate.HasValue || !v.EndDate.HasValue || v.StartDate.Value <= v.EndDate.Value)
+                .WithMessage("StartDate must be before or equal to EndDate")
+                .WithName("EndDate");
+        }
     }
-}
 
-internal sealed class GetAppointmentsQueryHandler(ApplicationDbContext context)
-    : IRequestHandler<GetAppointmentsQuery, ErrorOr<PaginatedList<AppointmentDto>>>
-{
-    private readonly ApplicationDbContext _context = context;
-
-    public async Task<ErrorOr<PaginatedList<AppointmentDto>>> Handle(
-        GetAppointmentsQuery request,
-        CancellationToken cancellationToken)
+    internal sealed class Handler(ApplicationDbContext context)
+        : IRequestHandler<Query, ErrorOr<PaginatedList<AppointmentDto>>>
     {
-        // Build query with all optional filters
-        var query = _context.Appointments
-            .Include(a => a.Patient)
-            .Include(a => a.Doctor)
-            .AsNoTracking()
-            .AsQueryable();
+        private readonly ApplicationDbContext _context = context;
 
-        // Apply patient filter if provided
-        if (request.PatientId.HasValue)
+        public async Task<ErrorOr<PaginatedList<AppointmentDto>>> Handle(
+            Query request,
+            CancellationToken cancellationToken)
         {
-            query = query.Where(a => a.PatientId == request.PatientId.Value);
+            var query = _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (request.PatientId.HasValue)
+            {
+                query = query.Where(a => a.PatientId == request.PatientId.Value);
+            }
+
+            if (request.DoctorId.HasValue)
+            {
+                query = query.Where(a => a.DoctorId == request.DoctorId.Value);
+            }
+
+            if (request.Status.HasValue)
+            {
+                query = query.Where(a => a.Status == request.Status.Value);
+            }
+
+            if (request.StartDate.HasValue)
+            {
+                query = query.Where(a => a.StartUtc >= request.StartDate.Value);
+            }
+
+            if (request.EndDate.HasValue)
+            {
+                query = query.Where(a => a.EndUtc <= request.EndDate.Value);
+            }
+
+            query = query.OrderBy(a => a.StartUtc);
+
+            var paginatedResult = await query
+                .Select(a => new AppointmentDto(
+                    a.Id,
+                    a.PatientId,
+                    a.Patient.FullName,
+                    a.DoctorId,
+                    a.Doctor.FullName,
+                    a.Doctor.Specialty,
+                    a.StartUtc,
+                    a.EndUtc,
+                    a.Status,
+                    a.Notes,
+                    a.CompletedUtc,
+                    a.CancelledUtc,
+                    a.CancellationReason,
+                    a.Created,
+                    a.LastModified))
+                .PaginatedListAsync(request.PageNumber, request.PageSize);
+
+            return paginatedResult;
         }
-
-        // Apply doctor filter if provided
-        if (request.DoctorId.HasValue)
-        {
-            query = query.Where(a => a.DoctorId == request.DoctorId.Value);
-        }
-
-        // Apply status filter if provided
-        if (request.Status.HasValue)
-        {
-            query = query.Where(a => a.Status == request.Status.Value);
-        }
-
-        // Apply date range filters if provided
-        if (request.StartDate.HasValue)
-        {
-            query = query.Where(a => a.StartUtc >= request.StartDate.Value);
-        }
-
-        if (request.EndDate.HasValue)
-        {
-            query = query.Where(a => a.EndUtc <= request.EndDate.Value);
-        }
-
-        // Sort by StartUtc ascending (upcoming appointments first) for better usability
-        query = query.OrderBy(a => a.StartUtc);
-
-        // Project to DTO and paginate
-        var paginatedResult = await query
-            .Select(a => new AppointmentDto(
-                a.Id,
-                a.PatientId,
-                a.Patient.FullName,
-                a.DoctorId,
-                a.Doctor.FullName,
-                a.Doctor.Specialty,
-                a.StartUtc,
-                a.EndUtc,
-                a.Status,
-                a.Notes,
-                a.CompletedUtc,
-                a.CancelledUtc,
-                a.CancellationReason,
-                a.Created,
-                a.LastModified))
-            .PaginatedListAsync(request.PageNumber, request.PageSize);
-
-        return paginatedResult;
     }
 }

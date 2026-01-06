@@ -15,98 +15,103 @@ using static VerticalSliceArchitecture.Application.Domain.SchedulingPolicies;
 
 namespace VerticalSliceArchitecture.Application.Scheduling;
 
-// Minimal API Endpoint Handler
-public static class CompleteAppointmentEndpoint
+/// <summary>
+/// Complete an existing appointment.
+/// </summary>
+public static class CompleteAppointment
 {
-    public static async Task<IResult> Handle(
-        Guid appointmentId,
-        CompleteAppointmentCommand command,
-        ISender mediator)
+    public record Command(Guid AppointmentId, string? Notes)
+        : IRequest<ErrorOr<Result>>;
+
+    public record Result(
+        Guid Id,
+        AppointmentStatus Status,
+        DateTime CompletedUtc,
+        string? Notes);
+
+    internal static class Endpoint
     {
-        // Validate that the route parameter matches the command
-        if (appointmentId != command.AppointmentId)
+        internal static async Task<IResult> Handle(
+            Guid appointmentId,
+            Command command,
+            ISender mediator)
         {
-            return Results.BadRequest(new { error = "Route appointmentId does not match command AppointmentId" });
+            if (appointmentId != command.AppointmentId)
+            {
+                return Results.BadRequest(new { error = "Route appointmentId does not match command AppointmentId" });
+            }
+
+            var result = await mediator.Send(command);
+
+            return result.Match(
+                success => Results.Ok(success),
+                errors => MinimalApiProblemHelper.Problem(errors));
         }
-
-        var result = await mediator.Send(command);
-
-        return result.Match(
-            success => Results.Ok(success),
-            errors => MinimalApiProblemHelper.Problem(errors));
     }
-}
 
-public record CompleteAppointmentCommand(
-    Guid AppointmentId,
-    string? Notes) : IRequest<ErrorOr<CompleteAppointmentResult>>;
-
-public record CompleteAppointmentResult(
-    Guid Id,
-    AppointmentStatus Status,
-    DateTime CompletedUtc,
-    string? Notes);
-
-internal sealed class CompleteAppointmentCommandValidator : AbstractValidator<CompleteAppointmentCommand>
-{
-    public CompleteAppointmentCommandValidator()
+    internal sealed class Validator : AbstractValidator<Command>
     {
-        RuleFor(v => v.AppointmentId)
-            .NotEmpty()
-            .WithMessage("AppointmentId is required");
+        public Validator()
+        {
+            RuleFor(v => v.AppointmentId)
+                .NotEmpty()
+                .WithMessage("AppointmentId is required");
 
-        RuleFor(v => v.Notes)
-            .MaximumLength(MaxNotesLength)
-            .WithMessage($"Notes cannot exceed {MaxNotesLength} characters");
+            RuleFor(v => v.Notes)
+                .MaximumLength(MaxNotesLength)
+                .WithMessage($"Notes cannot exceed {MaxNotesLength} characters");
+        }
     }
-}
 
-internal sealed class CompleteAppointmentCommandHandler(ApplicationDbContext context) : IRequestHandler<CompleteAppointmentCommand, ErrorOr<CompleteAppointmentResult>>
-{
-    private readonly ApplicationDbContext _context = context;
-
-    public async Task<ErrorOr<CompleteAppointmentResult>> Handle(CompleteAppointmentCommand request, CancellationToken cancellationToken)
+    internal sealed class Handler(ApplicationDbContext context)
+        : IRequestHandler<Command, ErrorOr<Result>>
     {
-        // Load appointment
-        var appointment = await _context.Appointments
-            .FirstOrDefaultAsync(a => a.Id == request.AppointmentId, cancellationToken);
+        private readonly ApplicationDbContext _context = context;
 
-        if (appointment is null)
+        public async Task<ErrorOr<Result>> Handle(
+            Command request,
+            CancellationToken cancellationToken)
         {
-            return Error.NotFound("Appointment.NotFound", $"Appointment with ID {request.AppointmentId} not found");
-        }
+            var appointment = await _context.Appointments
+                .FirstOrDefaultAsync(a => a.Id == request.AppointmentId, cancellationToken);
 
-        // Try to complete the appointment - let domain method handle validation
-        // Note: Domain event (AppointmentCompletedEvent) is raised inside Appointment.Complete()
-        try
-        {
-            appointment.Complete(request.Notes);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Error.Validation("Appointment.CannotComplete", ex.Message);
-        }
-        catch (ArgumentException ex)
-        {
-            return Error.Validation("Appointment.ValidationFailed", ex.Message);
-        }
+            if (appointment is null)
+            {
+                return Error.NotFound(
+                    "Appointment.NotFound",
+                    $"Appointment with ID {request.AppointmentId} not found");
+            }
 
-        // Persist changes
-        try
-        {
-            await _context.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            // Optimistic concurrency conflict - another user modified this appointment
-            return Error.Conflict("Appointment.ConcurrencyConflict", "The appointment was modified by another user. Please refresh and try again.");
-        }
+            // Let domain method handle business rule validation
+            try
+            {
+                appointment.Complete(request.Notes);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Error.Validation("Appointment.CannotComplete", ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return Error.Validation("Appointment.ValidationFailed", ex.Message);
+            }
 
-        // Return result
-        return new CompleteAppointmentResult(
-            appointment.Id,
-            appointment.Status,
-            appointment.CompletedUtc!.Value,
-            appointment.Notes);
+            try
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Error.Conflict(
+                    "Appointment.ConcurrencyConflict",
+                    "The appointment was modified by another user. Please refresh and try again.");
+            }
+
+            return new Result(
+                appointment.Id,
+                appointment.Status,
+                appointment.CompletedUtc!.Value,
+                appointment.Notes);
+        }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 using VerticalSliceArchitecture.Application.Common;
+using VerticalSliceArchitecture.Application.Common.Models;
 
 namespace VerticalSliceArchitecture.Application.Scheduling;
 
@@ -16,41 +17,41 @@ public static class SchedulingEndpoints
     /// </summary>
     /// <param name="group">The route group builder.</param>
     /// <returns>The route group builder for chaining.</returns>
-    public static RouteGroupBuilder MapAppointmentEndpoints(this RouteGroupBuilder group)
+    internal static RouteGroupBuilder MapAppointmentEndpoints(this RouteGroupBuilder group)
     {
-        group.MapPost("/", BookAppointmentEndpoint.Handle)
+        group.MapPost("/", BookAppointment.Endpoint.Handle)
             .WithName("BookAppointment")
-            .Produces<BookAppointmentResult>(StatusCodes.Status201Created)
+            .Produces<BookAppointment.Result>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status409Conflict)
-            .AddEndpointFilter<ValidationFilter<BookAppointmentCommand>>();
+            .AddEndpointFilter<ValidationFilter<BookAppointment.Command>>();
 
-        group.MapPost("/{appointmentId}/complete", CompleteAppointmentEndpoint.Handle)
+        group.MapPost("/{appointmentId}/complete", CompleteAppointment.Endpoint.Handle)
             .WithName("CompleteAppointment")
-            .Produces<CompleteAppointmentResult>(StatusCodes.Status200OK)
+            .Produces<CompleteAppointment.Result>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .AddEndpointFilter<ValidationFilter<CompleteAppointmentCommand>>();
+            .AddEndpointFilter<ValidationFilter<CompleteAppointment.Command>>();
 
-        group.MapPost("/{appointmentId}/cancel", CancelAppointmentEndpoint.Handle)
+        group.MapPost("/{appointmentId}/cancel", CancelAppointment.Endpoint.Handle)
             .WithName("CancelAppointment")
-            .Produces<CancelAppointmentResult>(StatusCodes.Status200OK)
+            .Produces<CancelAppointment.Result>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .AddEndpointFilter<ValidationFilter<CancelAppointmentCommand>>();
+            .AddEndpointFilter<ValidationFilter<CancelAppointment.Command>>();
 
-        group.MapGet("/", GetAppointmentsEndpoint.Handle)
+        group.MapGet("/", GetAppointments.Endpoint.Handle)
             .WithName("GetAppointments")
-            .Produces<Common.Models.PaginatedList<AppointmentDto>>(StatusCodes.Status200OK)
+            .Produces<PaginatedList<AppointmentDto>>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
-            .AddEndpointFilter<ValidationFilter<GetAppointmentsQuery>>();
+            .AddEndpointFilter<ValidationFilter<GetAppointments.Query>>();
 
-        group.MapGet("/{id}", GetAppointmentByIdEndpoint.Handle)
+        group.MapGet("/{id}", GetAppointmentById.Endpoint.Handle)
             .WithName("GetAppointmentById")
             .Produces<AppointmentDto>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .AddEndpointFilter<ValidationFilter<GetAppointmentByIdQuery>>();
+            .AddEndpointFilter<ValidationFilter<GetAppointmentById.Query>>();
 
         return group;
     }

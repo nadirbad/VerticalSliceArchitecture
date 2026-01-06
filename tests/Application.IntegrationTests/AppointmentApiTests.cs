@@ -30,7 +30,7 @@ public class AppointmentApiTests : IClassFixture<CustomWebApplicationFactory>
     public async Task BookAppointment_WithValidData_ReturnsCreated()
     {
         // Arrange
-        var command = new BookAppointmentCommand(
+        var command = new BookAppointment.Command(
             PatientId: Guid.Parse("11111111-1111-1111-1111-111111111111"),
             DoctorId: Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
             Start: DateTimeOffset.UtcNow.AddDays(1),
@@ -49,7 +49,7 @@ public class AppointmentApiTests : IClassFixture<CustomWebApplicationFactory>
     public async Task BookAppointment_WithInvalidPatient_ReturnsNotFound()
     {
         // Arrange
-        var command = new BookAppointmentCommand(
+        var command = new BookAppointment.Command(
             PatientId: Guid.NewGuid(),
             DoctorId: Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
             Start: DateTimeOffset.UtcNow.AddDays(1),
@@ -67,7 +67,7 @@ public class AppointmentApiTests : IClassFixture<CustomWebApplicationFactory>
     public async Task BookAppointment_WithEmptyPatientId_ReturnsBadRequest()
     {
         // Arrange
-        var command = new BookAppointmentCommand(
+        var command = new BookAppointment.Command(
             PatientId: Guid.Empty,
             DoctorId: Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
             Start: DateTimeOffset.UtcNow.AddDays(1),

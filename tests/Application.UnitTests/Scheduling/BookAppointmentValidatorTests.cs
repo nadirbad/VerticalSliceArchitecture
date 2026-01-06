@@ -6,7 +6,7 @@ namespace VerticalSliceArchitecture.Application.UnitTests.Scheduling;
 
 public class BookAppointmentValidatorTests
 {
-    private readonly BookAppointmentCommandValidator _validator = new();
+    private readonly BookAppointment.Validator _validator = new();
 
     [Fact]
     public void Should_Have_Error_When_PatientId_Is_Empty()
@@ -101,7 +101,7 @@ public class BookAppointmentValidatorTests
         result.ShouldNotHaveAnyValidationErrors();
     }
 
-    private static BookAppointmentCommand CreateCommand(
+    private static BookAppointment.Command CreateCommand(
         Guid? patientId = null,
         Guid? doctorId = null,
         DateTimeOffset? start = null,
@@ -109,7 +109,7 @@ public class BookAppointmentValidatorTests
         string? notes = "Test")
     {
         var defaultStart = DateTimeOffset.UtcNow.AddHours(1);
-        return new BookAppointmentCommand(
+        return new BookAppointment.Command(
             patientId ?? Guid.NewGuid(),
             doctorId ?? Guid.NewGuid(),
             start ?? defaultStart,

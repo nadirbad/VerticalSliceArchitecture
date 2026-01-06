@@ -15,102 +15,107 @@ using static VerticalSliceArchitecture.Application.Domain.SchedulingPolicies;
 
 namespace VerticalSliceArchitecture.Application.Scheduling;
 
-// Minimal API Endpoint Handler
-public static class CancelAppointmentEndpoint
+/// <summary>
+/// Cancel an existing appointment.
+/// </summary>
+public static class CancelAppointment
 {
-    public static async Task<IResult> Handle(
-        Guid appointmentId,
-        CancelAppointmentCommand command,
-        ISender mediator)
+    public record Command(Guid AppointmentId, string Reason)
+        : IRequest<ErrorOr<Result>>;
+
+    public record Result(
+        Guid Id,
+        AppointmentStatus Status,
+        DateTime CancelledUtc,
+        string CancellationReason);
+
+    internal static class Endpoint
     {
-        // Validate that the route parameter matches the command
-        if (appointmentId != command.AppointmentId)
+        internal static async Task<IResult> Handle(
+            Guid appointmentId,
+            Command command,
+            ISender mediator)
         {
-            return Results.BadRequest(new { error = "Route appointmentId does not match command AppointmentId" });
+            if (appointmentId != command.AppointmentId)
+            {
+                return Results.BadRequest(new { error = "Route appointmentId does not match command AppointmentId" });
+            }
+
+            var result = await mediator.Send(command);
+
+            return result.Match(
+                success => Results.Ok(success),
+                errors => MinimalApiProblemHelper.Problem(errors));
         }
-
-        var result = await mediator.Send(command);
-
-        return result.Match(
-            success => Results.Ok(success),
-            errors => MinimalApiProblemHelper.Problem(errors));
     }
-}
 
-public record CancelAppointmentCommand(
-    Guid AppointmentId,
-    string Reason) : IRequest<ErrorOr<CancelAppointmentResult>>;
-
-public record CancelAppointmentResult(
-    Guid Id,
-    AppointmentStatus Status,
-    DateTime CancelledUtc,
-    string CancellationReason);
-
-internal sealed class CancelAppointmentCommandValidator : AbstractValidator<CancelAppointmentCommand>
-{
-    public CancelAppointmentCommandValidator()
+    internal sealed class Validator : AbstractValidator<Command>
     {
-        RuleFor(v => v.AppointmentId)
-            .NotEmpty()
-            .WithMessage("AppointmentId is required");
+        public Validator()
+        {
+            RuleFor(v => v.AppointmentId)
+                .NotEmpty()
+                .WithMessage("AppointmentId is required");
 
-        RuleFor(v => v.Reason)
-            .NotEmpty()
-            .WithMessage("Cancellation reason is required");
+            RuleFor(v => v.Reason)
+                .NotEmpty()
+                .WithMessage("Cancellation reason is required");
 
-        RuleFor(v => v.Reason)
-            .MaximumLength(MaxCancellationReasonLength)
-            .WithMessage($"Cancellation reason cannot exceed {MaxCancellationReasonLength} characters");
+            RuleFor(v => v.Reason)
+                .MaximumLength(MaxCancellationReasonLength)
+                .WithMessage($"Cancellation reason cannot exceed {MaxCancellationReasonLength} characters");
+        }
     }
-}
 
-internal sealed class CancelAppointmentCommandHandler(ApplicationDbContext context) : IRequestHandler<CancelAppointmentCommand, ErrorOr<CancelAppointmentResult>>
-{
-    private readonly ApplicationDbContext _context = context;
-
-    public async Task<ErrorOr<CancelAppointmentResult>> Handle(CancelAppointmentCommand request, CancellationToken cancellationToken)
+    internal sealed class Handler(ApplicationDbContext context)
+        : IRequestHandler<Command, ErrorOr<Result>>
     {
-        // Load appointment
-        var appointment = await _context.Appointments
-            .FirstOrDefaultAsync(a => a.Id == request.AppointmentId, cancellationToken);
+        private readonly ApplicationDbContext _context = context;
 
-        if (appointment is null)
+        public async Task<ErrorOr<Result>> Handle(
+            Command request,
+            CancellationToken cancellationToken)
         {
-            return Error.NotFound("Appointment.NotFound", $"Appointment with ID {request.AppointmentId} not found");
-        }
+            var appointment = await _context.Appointments
+                .FirstOrDefaultAsync(a => a.Id == request.AppointmentId, cancellationToken);
 
-        // Try to cancel the appointment - let domain method handle validation
-        // Note: Domain event (AppointmentCancelledEvent) is raised inside Appointment.Cancel()
-        try
-        {
-            appointment.Cancel(request.Reason);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Error.Validation("Appointment.CannotCancel", ex.Message);
-        }
-        catch (ArgumentException ex)
-        {
-            return Error.Validation("Appointment.ValidationFailed", ex.Message);
-        }
+            if (appointment is null)
+            {
+                return Error.NotFound(
+                    "Appointment.NotFound",
+                    $"Appointment with ID {request.AppointmentId} not found");
+            }
 
-        // Persist changes
-        try
-        {
-            await _context.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            // Optimistic concurrency conflict - another user modified this appointment
-            return Error.Conflict("Appointment.ConcurrencyConflict", "The appointment was modified by another user. Please refresh and try again.");
-        }
+            // Let domain method handle business rule validation
+            try
+            {
+                appointment.Cancel(request.Reason);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Error.Validation("Appointment.CannotCancel", ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return Error.Validation("Appointment.ValidationFailed", ex.Message);
+            }
 
-        // Return result
-        return new CancelAppointmentResult(
-            appointment.Id,
-            appointment.Status,
-            appointment.CancelledUtc!.Value,
-            appointment.CancellationReason!);
+            try
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Error.Conflict(
+                    "Appointment.ConcurrencyConflict",
+                    "The appointment was modified by another user. Please refresh and try again.");
+            }
+
+            return new Result(
+                appointment.Id,
+                appointment.Status,
+                appointment.CancelledUtc!.Value,
+                appointment.CancellationReason!);
+        }
     }
 }
