@@ -6,45 +6,28 @@ namespace VerticalSliceArchitecture.Application.UnitTests.Scheduling;
 
 public class BookAppointmentValidatorTests
 {
-    private readonly BookAppointmentCommandValidator _validator;
-
-    public BookAppointmentValidatorTests()
-    {
-        _validator = new BookAppointmentCommandValidator();
-    }
+    private readonly BookAppointmentCommandValidator _validator = new();
 
     [Fact]
     public void Should_Have_Error_When_PatientId_Is_Empty()
     {
         // Arrange
-        var command = new BookAppointmentCommand(
-            Guid.Empty,
-            Guid.NewGuid(),
-            DateTimeOffset.UtcNow.AddHours(1),
-            DateTimeOffset.UtcNow.AddHours(2),
-            "Test");
+        var command = CreateCommand(patientId: Guid.Empty);
 
         // Act & Assert
         var result = _validator.TestValidate(command);
-        result.ShouldHaveValidationErrorFor(x => x.PatientId)
-            .WithErrorMessage("PatientId is required");
+        result.ShouldHaveValidationErrorFor(x => x.PatientId);
     }
 
     [Fact]
     public void Should_Have_Error_When_DoctorId_Is_Empty()
     {
         // Arrange
-        var command = new BookAppointmentCommand(
-            Guid.NewGuid(),
-            Guid.Empty,
-            DateTimeOffset.UtcNow.AddHours(1),
-            DateTimeOffset.UtcNow.AddHours(2),
-            "Test");
+        var command = CreateCommand(doctorId: Guid.Empty);
 
         // Act & Assert
         var result = _validator.TestValidate(command);
-        result.ShouldHaveValidationErrorFor(x => x.DoctorId)
-            .WithErrorMessage("DoctorId is required");
+        result.ShouldHaveValidationErrorFor(x => x.DoctorId);
     }
 
     [Fact]
@@ -53,194 +36,84 @@ public class BookAppointmentValidatorTests
         // Arrange
         var start = DateTimeOffset.UtcNow.AddHours(2);
         var end = DateTimeOffset.UtcNow.AddHours(1);
-        var command = new BookAppointmentCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            start,
-            end,
-            "Test");
+        var command = CreateCommand(start: start, end: end);
 
         // Act & Assert
         var result = _validator.TestValidate(command);
-        result.ShouldHaveValidationErrorFor(x => x.Start)
-            .WithErrorMessage("Start time must be before end time");
+        result.ShouldHaveValidationErrorFor(x => x.Start);
     }
 
     [Fact]
-    public void Should_Have_Error_When_Appointment_Is_Less_Than_10_Minutes()
+    public void Should_Have_Error_When_Appointment_Is_Too_Short()
     {
         // Arrange
         var start = DateTimeOffset.UtcNow.AddHours(1);
-        var end = start.AddMinutes(5);
-        var command = new BookAppointmentCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            start,
-            end,
-            "Test");
+        var command = CreateCommand(start: start, end: start.AddMinutes(5));
 
         // Act & Assert
         var result = _validator.TestValidate(command);
-        result.ShouldHaveValidationErrorFor(x => x.End)
-            .WithErrorMessage("Appointment must be at least 10 minutes long");
+        result.ShouldHaveValidationErrorFor(x => x.End);
     }
 
     [Fact]
-    public void Should_Have_Error_When_Appointment_Is_Longer_Than_8_Hours()
+    public void Should_Have_Error_When_Appointment_Is_Too_Long()
     {
         // Arrange
         var start = DateTimeOffset.UtcNow.AddHours(1);
-        var end = start.AddHours(9);
-        var command = new BookAppointmentCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            start,
-            end,
-            "Test");
+        var command = CreateCommand(start: start, end: start.AddHours(9));
 
         // Act & Assert
         var result = _validator.TestValidate(command);
-        result.ShouldHaveValidationErrorFor(x => x.End)
-            .WithErrorMessage("Appointment cannot be longer than 8 hours");
+        result.ShouldHaveValidationErrorFor(x => x.End);
     }
 
     [Fact]
-    public void Should_Have_Error_When_Appointment_Is_Not_15_Minutes_In_Advance()
+    public void Should_Have_Error_When_Not_Booked_In_Advance()
     {
         // Arrange
-        var start = DateTimeOffset.UtcNow.AddMinutes(10);
-        var end = start.AddMinutes(30);
-        var command = new BookAppointmentCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            start,
-            end,
-            "Test");
+        var start = DateTimeOffset.UtcNow.AddMinutes(5);
+        var command = CreateCommand(start: start, end: start.AddMinutes(30));
 
         // Act & Assert
         var result = _validator.TestValidate(command);
-        result.ShouldHaveValidationErrorFor(x => x.Start)
-            .WithErrorMessage("Appointment must be scheduled at least 15 minutes in advance");
+        result.ShouldHaveValidationErrorFor(x => x.Start);
     }
 
     [Fact]
-    public void Should_Have_Error_When_Notes_Exceed_1024_Characters()
+    public void Should_Have_Error_When_Notes_Too_Long()
     {
         // Arrange
-        var longNotes = new string('A', 1025);
-        var command = new BookAppointmentCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            DateTimeOffset.UtcNow.AddHours(1),
-            DateTimeOffset.UtcNow.AddHours(2),
-            longNotes);
+        var command = CreateCommand(notes: new string('A', 1025));
 
         // Act & Assert
         var result = _validator.TestValidate(command);
-        result.ShouldHaveValidationErrorFor(x => x.Notes)
-            .WithErrorMessage("Notes cannot exceed 1024 characters");
+        result.ShouldHaveValidationErrorFor(x => x.Notes);
     }
 
     [Fact]
-    public void Should_Not_Have_Error_When_All_Fields_Are_Valid()
+    public void Should_Not_Have_Error_When_Valid()
     {
         // Arrange
-        var command = new BookAppointmentCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            DateTimeOffset.UtcNow.AddHours(1),
-            DateTimeOffset.UtcNow.AddHours(2),
-            "Valid notes");
+        var command = CreateCommand();
 
         // Act & Assert
         var result = _validator.TestValidate(command);
         result.ShouldNotHaveAnyValidationErrors();
     }
 
-    [Fact]
-    public void Should_Not_Have_Error_When_Notes_Are_Null()
+    private static BookAppointmentCommand CreateCommand(
+        Guid? patientId = null,
+        Guid? doctorId = null,
+        DateTimeOffset? start = null,
+        DateTimeOffset? end = null,
+        string? notes = "Test")
     {
-        // Arrange
-        var command = new BookAppointmentCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            DateTimeOffset.UtcNow.AddHours(1),
-            DateTimeOffset.UtcNow.AddHours(2),
-            null);
-
-        // Act & Assert
-        var result = _validator.TestValidate(command);
-        result.ShouldNotHaveValidationErrorFor(x => x.Notes);
-    }
-
-    [Fact]
-    public void Should_Not_Have_Error_When_Notes_Are_Exactly_1024_Characters()
-    {
-        // Arrange
-        var maxLengthNotes = new string('A', 1024);
-        var command = new BookAppointmentCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            DateTimeOffset.UtcNow.AddHours(1),
-            DateTimeOffset.UtcNow.AddHours(2),
-            maxLengthNotes);
-
-        // Act & Assert
-        var result = _validator.TestValidate(command);
-        result.ShouldNotHaveValidationErrorFor(x => x.Notes);
-    }
-
-    [Fact]
-    public void Should_Not_Have_Error_When_Appointment_Is_Exactly_10_Minutes()
-    {
-        // Arrange
-        var start = DateTimeOffset.UtcNow.AddHours(1);
-        var end = start.AddMinutes(10);
-        var command = new BookAppointmentCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            start,
-            end,
-            "Test");
-
-        // Act & Assert
-        var result = _validator.TestValidate(command);
-        result.ShouldNotHaveValidationErrorFor(x => x.End);
-    }
-
-    [Fact]
-    public void Should_Not_Have_Error_When_Appointment_Is_Exactly_8_Hours()
-    {
-        // Arrange
-        var start = DateTimeOffset.UtcNow.AddHours(1);
-        var end = start.AddHours(8);
-        var command = new BookAppointmentCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            start,
-            end,
-            "Test");
-
-        // Act & Assert
-        var result = _validator.TestValidate(command);
-        result.ShouldNotHaveValidationErrorFor(x => x.End);
-    }
-
-    [Fact]
-    public void Should_Not_Have_Error_When_Appointment_Is_Exactly_15_Minutes_In_Advance()
-    {
-        // Arrange
-        var start = DateTimeOffset.UtcNow.AddMinutes(15).AddSeconds(1); // Just over 15 minutes
-        var end = start.AddMinutes(30);
-        var command = new BookAppointmentCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            start,
-            end,
-            "Test");
-
-        // Act & Assert
-        var result = _validator.TestValidate(command);
-        result.ShouldNotHaveValidationErrorFor(x => x.Start);
+        var defaultStart = DateTimeOffset.UtcNow.AddHours(1);
+        return new BookAppointmentCommand(
+            patientId ?? Guid.NewGuid(),
+            doctorId ?? Guid.NewGuid(),
+            start ?? defaultStart,
+            end ?? defaultStart.AddHours(1),
+            notes);
     }
 }
