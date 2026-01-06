@@ -14,9 +14,30 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(
             .AllowAnyHeader()
             .AllowAnyMethod()));
 
-// Register the Swagger generator, defining 1 or more Swagger documents
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "VSA Todo API", Version = "v1" }));
+builder.Services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo
+{
+    Title = "Healthcare Appointments API",
+    Version = "v1",
+    Description = """
+        ## Sample Data (Development)
+
+        The following sample data is seeded automatically in development mode.
+
+        ### Patients
+        | ID | Name | Email |
+        |----|------|-------|
+        | `11111111-1111-1111-1111-111111111111` | John Smith | john.smith@example.com |
+        | `22222222-2222-2222-2222-222222222222` | Jane Doe | jane.doe@example.com |
+        | `33333333-3333-3333-3333-333333333333` | Bob Johnson | bob.johnson@example.com |
+
+        ### Doctors
+        | ID | Name | Specialty |
+        |----|------|-----------|
+        | `aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa` | Dr. Sarah Wilson | Family Medicine |
+        | `bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb` | Dr. Michael Chen | Cardiology |
+        | `cccccccc-cccc-cccc-cccc-cccccccccccc` | Dr. Emily Rodriguez | Pediatrics |
+        """,
+}));
 
 builder.Services.AddProblemDetails();
 
