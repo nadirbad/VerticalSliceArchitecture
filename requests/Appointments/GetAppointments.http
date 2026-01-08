@@ -1,0 +1,59 @@
+@baseUrl = https://localhost:7098
+@validAppointmentId = 00000000-0000-0000-0000-000000000000
+@defaultPatientId = 11111111-1111-1111-1111-111111111111
+@secondPatientId = 22222222-2222-2222-2222-222222222222
+@defaultDoctorId = bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
+@nonExistentId = 99999999-9999-9999-9999-999999999999
+
+### ========== GET APPOINTMENT BY ID ==========
+
+### 1. Get Appointment by ID (happy path - expect 200)
+# First, book an appointment using the BookAppointment request, then use the returned ID here
+GET {{baseUrl}}/api/appointments/{{validAppointmentId}}
+
+### 2. Get Appointment by ID - Non-existent ID (expect 404)
+GET {{baseUrl}}/api/appointments/{{nonExistentId}}
+
+### 3. Get Appointment by ID - Empty GUID (expect 400)
+GET {{baseUrl}}/api/appointments/00000000-0000-0000-0000-000000000000
+
+### ========== GET APPOINTMENTS (GENERAL QUERY) ==========
+
+### 4. Get All Appointments - No filters (expect 200)
+GET {{baseUrl}}/api/appointments
+
+### 5. Get All Appointments - With pagination (page 1, size 10)
+GET {{baseUrl}}/api/appointments?pageNumber=1&pageSize=10
+
+### 6. Get Appointments - Filter by patient only (expect 200)
+GET {{baseUrl}}/api/appointments?patientId={{defaultPatientId}}
+
+### 7. Get Appointments - Filter by doctor only (expect 200)
+GET {{baseUrl}}/api/appointments?doctorId={{defaultDoctorId}}
+
+### 8. Get Appointments - Filter by status only (expect 200)
+GET {{baseUrl}}/api/appointments?status=1
+
+### 9. Get Appointments - Filter by date range only (expect 200)
+GET {{baseUrl}}/api/appointments?startDate=2026-01-01&endDate=2026-12-31
+
+### 10. Get Appointments - Filter by patient + doctor (expect 200)
+GET {{baseUrl}}/api/appointments?patientId={{defaultPatientId}}&doctorId={{defaultDoctorId}}
+
+### 11. Get Appointments - Filter by patient + status (expect 200)
+GET {{baseUrl}}/api/appointments?patientId={{defaultPatientId}}&status=1
+
+### 12. Get Appointments - All filters combined (expect 200)
+GET {{baseUrl}}/api/appointments?patientId={{defaultPatientId}}&doctorId={{defaultDoctorId}}&status=1&startDate=2025-01-01&endDate=2025-12-31&pageNumber=1&pageSize=5
+
+### 13. Get Appointments - Invalid page number (expect 400)
+GET {{baseUrl}}/api/appointments?pageNumber=0
+
+### 14. Get Appointments - Invalid page size (expect 400)
+GET {{baseUrl}}/api/appointments?pageSize=150
+
+### Note: Replace the validAppointmentId variable above with an actual appointment ID
+### You can get one by:
+### 1. Running the BookAppointment.http request
+### 2. Copying the "id" from the response
+### 3. Pasting it in the @validAppointmentId variable at the top of this file

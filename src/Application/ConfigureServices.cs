@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 using VerticalSliceArchitecture.Application.Common.Behaviours;
 using VerticalSliceArchitecture.Application.Common.Interfaces;
-using VerticalSliceArchitecture.Application.Infrastructure.Files;
 using VerticalSliceArchitecture.Application.Infrastructure.Persistence;
 using VerticalSliceArchitecture.Application.Infrastructure.Services;
 
@@ -20,7 +19,6 @@ public static class DependencyInjection
         {
             options.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
 
-            options.AddOpenBehavior(typeof(AuthorizationBehaviour<,>));
             options.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
             options.AddOpenBehavior(typeof(ValidationBehaviour<,>));
         });
@@ -48,9 +46,8 @@ public static class DependencyInjection
         services.AddScoped<IDomainEventService, DomainEventService>();
 
         services.AddTransient<IDateTime, DateTimeService>();
-        services.AddTransient<ICsvFileBuilder, CsvFileBuilder>();
 
-        services.AddSingleton<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         return services;
     }

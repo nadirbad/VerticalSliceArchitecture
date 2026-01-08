@@ -1,203 +1,257 @@
-# Vertical Slice Architecture example in .NET 9
+# Vertical Slice Architecture in .NET 9
 
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/nadirbad/VerticalSliceArchitecture?utm_source=oss&utm_medium=github&utm_campaign=nadirbad%2FVerticalSliceArchitecture&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+A learning template demonstrating **Vertical Slice Architecture** with a healthcare appointment scheduling domain.
 
-## Learn More
+![.NET 9](https://img.shields.io/badge/.NET-9.0-512BD4)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-Want to learn the theory? Read the [Ultimate Guide to VSA in .NET](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/)
+> **New to Vertical Slice Architecture?** Read my blog post: [A Guide to Vertical Slice Architecture in C# .NET](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/)
 
-## About
+## What is Vertical Slice Architecture?
 
-This project is an experiment trying to create an API solution template that uses a Vertical Slice architecture style.
+Instead of organizing code by technical layers (Controllers, Services, Repositories), **Vertical Slice Architecture** organizes code by **features**. Each feature contains everything it needs - endpoint, validation, business logic, and data access - all in one place.
 
-The Vertical Slice architecture style is about organizing code by features and vertical slices instead of organizing by technical concerns. It's about an idea of grouping code according to the business functionality and putting all the relevant code close together.
-Vertical Slice architecture can be a starting point and can be evolved later when an application becomes more sophisticated:
+```text
+Traditional Layered:              Vertical Slice:
+├── Controllers/                  ├── Features/
+│   └── AppointmentsController    │   ├── BookAppointment.cs      ← Everything in one file
+├── Services/                     │   ├── CancelAppointment.cs
+│   └── AppointmentService        │   ├── CompleteAppointment.cs
+├── Repositories/                 │   └── GetAppointments.cs
+│   └── AppointmentRepository     │
+└── Models/                       └── Domain/
+    └── Appointment                   └── Appointment.cs
+```
 
-> We can start simple (Transaction Script) and simply refactor to the patterns that emerges from code smells we see in the business logic. [Vertical slice architecture by Jimmy Bogard](https://jimmybogard.com/vertical-slice-architecture/).
+**Benefits:**
 
-## Give it a star ⭐
+- Change one feature without touching others
+- No jumping between layers - everything is co-located
+- Easier to understand, test, and maintain
+- Features can evolve independently
 
-Loving it? Show your support by giving this project a star!
+## Domain: Healthcare Appointments
 
-## Technologies and patterns
+This template implements a **medical clinic scheduling system** - a realistic domain with meaningful business rules:
 
-This project repository is created based on [Clean Architecture solution template by Jason Taylor](https://github.com/jasontaylordev/CleanArchitecture), and it uses technology choices and application business logic from this template.
+| Feature              | Endpoint                              | Business Rules                                                       |
+| -------------------- | ------------------------------------- | -------------------------------------------------------------------- |
+| **Book Appointment** | `POST /api/appointments`              | No double-booking doctors, 15-min advance notice, 10min-8hr duration |
+| **Get Appointments** | `GET /api/appointments`               | Filter by patient, doctor, status, date range                        |
+| **Get by ID**        | `GET /api/appointments/{id}`          | Returns full appointment details                                     |
+| **Complete**         | `POST /api/appointments/{id}/complete`| Cannot complete cancelled appointments                               |
+| **Cancel**           | `POST /api/appointments/{id}/cancel`  | Cannot cancel completed appointments, requires reason                |
 
-- [ASP.NET API with .NET 9](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-9.0)
-- CQRS with [MediatR](https://github.com/jbogard/MediatR)
-- [FluentValidation](https://fluentvalidation.net/)
-- [Entity Framework Core 9](https://docs.microsoft.com/en-us/ef/core/)
-- [xUnit](https://xunit.net/), [FluentAssertions](https://fluentassertions.com/), [Moq](https://github.com/moq)
-- Result pattern for handling exceptions and errors using [ErrorOr package](https://github.com/amantinband/error-or)
-
-Afterwards, the projects and architecture is refactored towards the Vertical slice architecture style.
-
-## Purpose of this repository
-
-Most applications start simple but they tend to change and evolve over time. Because of this, I wanted to create a simpler API solution template that focuses on the vertical slices architecture style.
-
-Typically if I need to change a feature in an application, I end up touching different layers of the application and navigating through piles of projects, folders, and files.
-
-The goal is to stop thinking about horizontal layers and start thinking about vertical slices and organize code by **Features**. When the code is organized by feature you get the benefits of not having to jump around projects, folders, and files. Things related to given features are placed close together.
-
-When moving towards the vertical slices we stop thinking about layers and abstractions. The reason is the vertical slice doesn't necessarily need shared layer abstractions like repositories, services, controllers. We are more focused on concrete behavior implementation and what is the best solution to implement.
-
-## Projects breakdown
-
-The solution template is broken into 2 projects:
-
-### Api
-
-ASP.NET Web API project is an entry point to the application, but it doesn't have any controllers, all the controller actions are moved to the **Application** project features.
-
-### Application
-
-This project contains all application logic and shared concerns like Domain Entities, Infrastructure, and other common concerns. All the business logic is placed in a `Feature` folder. Instead of having a file for basically controller, command/query, validator, handlers, and models, I placed everything usually in one file, and have all the relevant things close together.
-
-## Getting started
-
-1. Install the latest [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
-2. Navigate to `src/Api` and run `dotnet run` to launch the back end (ASP.NET Core Web API) or via `dotnet run --project src/Api/Api.csproj`
-
-### Build, test, and publish the application
-
-CLI commands executed from the root folder.
+## Quick Start
 
 ```bash
-# build
+# Clone and run
+git clone https://github.com/nadirbad/VerticalSliceArchitecture.git
+cd VerticalSliceArchitecture
+dotnet run --project src/Api/Api.csproj
+
+# Open Swagger UI
+open https://localhost:7098
+```
+
+## Project Structure
+
+```text
+src/
+├── Api/                          # ASP.NET Core entry point
+│   └── Program.cs                # Minimal hosting setup
+│
+└── Application/                  # All features and domain logic
+    ├── Scheduling/               # ← Feature slice
+    │   ├── BookAppointment.cs    #   Command + Validator + Handler + Endpoint
+    │   ├── CancelAppointment.cs
+    │   ├── CompleteAppointment.cs
+    │   ├── GetAppointments.cs
+    │   └── GetAppointmentById.cs
+    │
+    ├── Domain/                   # Domain entities and events
+    │   ├── Appointment.cs        #   Rich domain model with business logic
+    │   ├── Patient.cs
+    │   ├── Doctor.cs
+    │   └── Events/
+    │
+    ├── Common/                   # Shared infrastructure
+    │   ├── ValidationFilter.cs
+    │   └── MinimalApiProblemHelper.cs
+    │
+    └── Infrastructure/           # Data access
+        └── Persistence/
+            └── ApplicationDbContext.cs
+```
+
+## Feature Anatomy
+
+Each feature file contains everything needed for that operation:
+
+```csharp
+// BookAppointment.cs - Complete feature in one file
+
+// 1. Endpoint Handler
+public static class BookAppointmentEndpoint
+{
+    public static async Task<IResult> Handle(BookAppointmentCommand command, ISender mediator)
+    {
+        var result = await mediator.Send(command);
+        return result.Match(
+            success => Results.Created($"/api/appointments/{success.Id}", success),
+            errors => MinimalApiProblemHelper.Problem(errors));
+    }
+}
+
+// 2. Command (Request)
+public record BookAppointmentCommand(
+    Guid PatientId, Guid DoctorId,
+    DateTimeOffset Start, DateTimeOffset End,
+    string? Notes) : IRequest<ErrorOr<BookAppointmentResult>>;
+
+// 3. Validator
+internal sealed class BookAppointmentCommandValidator : AbstractValidator<BookAppointmentCommand>
+{
+    public BookAppointmentCommandValidator()
+    {
+        RuleFor(v => v.PatientId).NotEmpty();
+        RuleFor(v => v.DoctorId).NotEmpty();
+        RuleFor(v => v.Start).Must(BeInFuture).WithMessage("Must book at least 15 minutes in advance");
+        // ... more rules
+    }
+}
+
+// 4. Handler (Business Logic)
+internal sealed class BookAppointmentCommandHandler : IRequestHandler<BookAppointmentCommand, ErrorOr<BookAppointmentResult>>
+{
+    public async Task<ErrorOr<BookAppointmentResult>> Handle(BookAppointmentCommand request, CancellationToken ct)
+    {
+        // Check for conflicts, create appointment, save to database
+    }
+}
+```
+
+## Technologies
+
+| Technology                   | Purpose                                      |
+| ---------------------------- | -------------------------------------------- |
+| **.NET 9 Minimal APIs**      | Lightweight HTTP endpoints                   |
+| **MediatR**                  | Request/response pattern, pipeline behaviors |
+| **FluentValidation**         | Declarative validation rules                 |
+| **ErrorOr**                  | Result pattern for error handling            |
+| **Entity Framework Core 9**  | Data access with in-memory or SQL Server     |
+| **xUnit + FluentAssertions** | Testing framework                            |
+
+## Development Commands
+
+```bash
+# Build
 dotnet build
 
-# run
+# Run (Swagger at https://localhost:7098)
 dotnet run --project src/Api/Api.csproj
 
-# run unit tests
-dotnet test tests/Application.UnitTests/Application.UnitTests.csproj 
+# Run tests
+dotnet test
 
-# run integrations tests (required database up and running)
-dotnet test tests/Application.IntegrationTests/Application.IntegrationTests.csproj 
-
-# publish
-dotnet publish src/Api/Api.csproj --configuration Release 
-```
-
-### Test solution locally
-
-To run API locally, for example, to debug them, you can use the VS Code (just open and press F5) or other IDE (VisualStudio, Rider).
-By default, the project uses in-memory database, but if you would like to change that check the next section about [Database Configuration](#database-configuration)
-
-To run the project from the terminal
-
-```shell
-dotnet run --project src/Api/Api.csproj
-```
-
-and you'll be good to go everything will be up and running. Go the the indicated URL [https://localhost:7098/](https://localhost:7098/) and you'll see the API Swagger UI.
-
-### Database Configuration
-
-The project is configured to use an in-memory database by default. So you can run the project without additional infrastructure (SQL Server)
-
-If you would like to use SQL Server, you will need to update **Api/appsettings.json** as follows:
-
-```json
-  "UseInMemoryDatabase": false,
-```
-
-Verify that the **DefaultConnection** connection string within **appsettings.json** points to a valid SQL Server instance.
-
-When you run the application the database will be automatically created (if necessary) and the latest migrations will be applied.
-
-The solution I work with is running Azure SQL Edge in Docker as a database for local development and testing. In the following section, I'll describe the steps needed to setup SQL Edge:
-
-#### Use Azure SQL Edge
-
-Docker is a great way to play with SQL Server without the administrative overhead of managing an instance.
-
-Azure SQL Edge is a way to test and develop using SQL Server locally, and have a consistent experience between machines, whether they're PCs running Windows, Intel-based Macs, or the new Apple silicon M1 (there are no Docker images for SQL Server that support ARM64 just yet).
-
-We'll need Docker first to get started – easiest is to install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
-
-With Docker up and running, next we need to pull the most recent Azure SQL Edge container image:
-
-```bash
-sudo docker pull mcr.microsoft.com/azure-sql-edge:latest
-```
-
-We can create and start the appropriate container with the following command:
-
-```bash
-sudo docker run --cap-add SYS_PTRACE -e 'ACCEPT_EULA=1' -e 'MSSQL_SA_PASSWORD=yourStrong(!)Password' -p 1433:1433 --name azuresqledge -d mcr.microsoft.com/azure-sql-edge
-```
-
-I decided to use Azure SQL Edge as flavor of SQL Server in Docker, and enable local development and testing no matter which OS you're running.
-
-#### Database Migrations
-
-To use `dotnet-ef` for your migrations please add the following flags to your command (values assume you are executing from repository root)
-
-- `--project src/Application` (optional if in this folder)
-- `--startup-project src/Api`
-- `--output-dir Infrastructure/Persistence/Migrations`
-
-For example, to add a new migration from the root folder:
-
- ```shell
-dotnet ef migrations add "InitialMigration" --project src/Application --startup-project src/Api --output-dir Infrastructure/Persistence/Migrations
-```
-
-and apply migration and update the database:
-
-```shell
-dotnet ef database update --project src/Application --startup-project src/Api   
-```
-
-### Testing API endpoints
-
-You can test the endpoints using tools like [Postman](https://www.postman.com/) or simply from VS Code using the [REST Client extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client).
-
-Find the example requests in the `requests` folder in the root of the project.
-
-## Code analysis
-
-Developers should follow Microsoft's [C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions).
-
-To enforce consistent coding styles and settings in the codebase, we use an EditorConfig file (**.editorconfig**) prepopulated with the default [.NET code style, formatting, and naming conventions](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/code-style-rule-options).
-
-For [code analysis](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/overview?tabs=net-9)
-we use the built-in analyzers.
-
-**IMPORTANT NOTES:**
-
-- EditorConfig settings take precedence over global IDE text editor settings.
-- New lines of code are formatted according to the EditorConfig settings
-- **The formatting of existing code is not changed unless you run**:
-  - `dotnet format` from the command line
-
-There are a few arguments we can supply to the dotnet format command to control its usage. A useful one is the `--verify-no-changes argument`. This argument is useful when we want to understand when code breaks standards, but not automatically clean it up.
-
-```shell
-dotnet format --verify-no-changes
-```
-
-Both code formating and analysis can be performed from the cli by running:
-
-```shell
-dotnet format style
-dotnet format analyzers
-```
-
-or to execute both
-
-```shell
+# Format code
 dotnet format
 ```
 
-## Inspired by
+## Sample Data
 
-- [Clean Architecture solution template by Jason Taylor](https://github.com/jasontaylordev/CleanArchitecture)
-- [Vertical slice architecture by Jimmy Bogard](https://jimmybogard.com/vertical-slice-architecture/)
-- [Organize code by Feature using Vertical Slices by Derek Comartin](https://codeopinion.com/organizing-code-by-feature-using-vertical-slices/)
+In development mode, the API automatically seeds sample patients and doctors:
+
+### Patients
+
+| ID                                     | Name        | Email                       |
+| -------------------------------------- | ----------- | --------------------------- |
+| `11111111-1111-1111-1111-111111111111` | John Smith  | `john.smith@example.com`    |
+| `22222222-2222-2222-2222-222222222222` | Jane Doe    | `jane.doe@example.com`      |
+| `33333333-3333-3333-3333-333333333333` | Bob Johnson | `bob.johnson@example.com`   |
+
+### Doctors
+
+| ID                                     | Name                | Specialty       |
+| -------------------------------------- | ------------------- | --------------- |
+| `aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa` | Dr. Sarah Wilson    | Family Medicine |
+| `bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb` | Dr. Michael Chen    | Cardiology      |
+| `cccccccc-cccc-cccc-cccc-cccccccccccc` | Dr. Emily Rodriguez | Pediatrics      |
+
+### Example: Book an Appointment
+
+```bash
+curl -X POST https://localhost:7098/api/appointments \
+  -H "Content-Type: application/json" \
+  -d '{
+    "patientId": "11111111-1111-1111-1111-111111111111",
+    "doctorId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "start": "2025-01-15T09:00:00Z",
+    "end": "2025-01-15T09:30:00Z",
+    "notes": "Annual checkup"
+  }'
+```
+
+## Database
+
+**Default:** In-memory database (no setup required)
+
+**SQL Server:** Update `src/Api/appsettings.json`:
+
+```json
+{
+  "UseInMemoryDatabase": false,
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=VerticalSliceDb;..."
+  }
+}
+```
+
+### Azure SQL Edge (Docker)
+
+For local development with SQL Server on any OS (including Apple Silicon):
+
+```bash
+# Pull the image
+docker pull mcr.microsoft.com/azure-sql-edge:latest
+
+# Run the container
+docker run --cap-add SYS_PTRACE -e 'ACCEPT_EULA=1' -e 'MSSQL_SA_PASSWORD=yourStrong(!)Password' -p 1433:1433 --name azuresqledge -d mcr.microsoft.com/azure-sql-edge
+```
+
+### Database Migrations
+
+```bash
+# Add a new migration
+dotnet ef migrations add "MigrationName" --project src/Application --startup-project src/Api --output-dir Infrastructure/Persistence/Migrations
+
+# Apply migrations
+dotnet ef database update --project src/Application --startup-project src/Api
+```
+
+## Testing
+
+```bash
+# Run all tests
+dotnet test
+
+# Unit tests - Domain logic, validators
+dotnet test tests/Application.UnitTests
+
+# Integration tests - API smoke tests
+dotnet test tests/Application.IntegrationTests
+```
+
+## Give it a Star ⭐
+
+If you find this template useful, please give it a star! It helps others discover this project.
+
+## Learn More
+
+- [My Blog Post on Vertical Slice Architecture](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/)
+- [Jimmy Bogard: Vertical Slice Architecture](https://jimmybogard.com/vertical-slice-architecture/)
+- [Derek Comartin: Organizing Code by Feature](https://codeopinion.com/organizing-code-by-feature-using-vertical-slices/)
 
 ## License
 
-This project is licensed with the [MIT license](./LICENSE).
+[MIT License](./LICENSE)
