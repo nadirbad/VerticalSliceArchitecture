@@ -114,6 +114,7 @@ public static class BookAppointment
 
             // Check for overlapping appointments for the doctor
             // NOTE: This check-then-act pattern has a race condition window.
+            // PRODUCTION: Use serializable transaction isolation level to make overlap check + insert atomic.
             var hasOverlap = await _context.Appointments
                 .AsNoTracking()
                 .AnyAsync(

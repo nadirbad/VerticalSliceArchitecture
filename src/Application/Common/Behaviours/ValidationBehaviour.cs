@@ -35,6 +35,8 @@ public class ValidationBehaviour<TRequest, TResponse>(IValidator<TRequest>? vali
                 code: error.PropertyName,
                 description: error.ErrorMessage));
 
+        // ErrorOr<T> has implicit conversion from List<Error>, but we need to cast to TResponse.
+        // Using (dynamic) triggers runtime implicit conversion. This is a known pattern with ErrorOr.
         return (dynamic)errors;
     }
 }

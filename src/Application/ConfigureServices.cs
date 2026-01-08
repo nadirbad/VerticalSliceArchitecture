@@ -47,7 +47,7 @@ public static class DependencyInjection
 
         services.AddTransient<IDateTime, DateTimeService>();
 
-        services.AddSingleton<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         return services;
     }
