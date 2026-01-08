@@ -240,3 +240,7 @@ _Pvt_Extensions
 .DS_Store
 
 .docs/
+
+# AI Agent configuration files
+CLAUDE.md
+.github/copilot-instructions.md
