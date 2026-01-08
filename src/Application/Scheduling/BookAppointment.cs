@@ -66,7 +66,7 @@ public static class BookAppointment
                 .WithMessage($"Appointment cannot be longer than {SchedulingPolicies.MaximumAppointmentDurationHours} hours");
 
             RuleFor(v => v.Start)
-                .GreaterThan(DateTimeOffset.UtcNow.AddMinutes(SchedulingPolicies.MinimumBookingAdvanceMinutes))
+                .Must(start => start > DateTimeOffset.UtcNow.AddMinutes(SchedulingPolicies.MinimumBookingAdvanceMinutes))
                 .WithMessage($"Appointment must be scheduled at least {SchedulingPolicies.MinimumBookingAdvanceMinutes} minutes in advance");
 
             RuleFor(v => v.Notes)
