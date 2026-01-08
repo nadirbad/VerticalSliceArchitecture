@@ -27,8 +27,11 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
             .HasForeignKey(a => a.DoctorId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Index for checking doctor availability
+        // Unique index for checking doctor availability and preventing exact duplicate bookings
+        // Note: This prevents the same (DoctorId, StartUtc, EndUtc) combination but does NOT
+        // prevent overlapping time ranges. Full overlap detection requires application-level checks.
         builder.HasIndex(a => new { a.DoctorId, a.StartUtc, a.EndUtc })
+            .IsUnique()
             .HasDatabaseName("IX_Appointments_Doctor_TimeRange");
 
         // Index for patient appointments
