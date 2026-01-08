@@ -6,6 +6,7 @@ using MediatR;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using VerticalSliceArchitecture.Application.Common;
 using VerticalSliceArchitecture.Application.Domain;
@@ -75,10 +76,13 @@ public static class BookAppointment
         }
     }
 
-    internal sealed class Handler(ApplicationDbContext context)
+    internal sealed class Handler(
+        ApplicationDbContext context,
+        ILogger<Handler> logger)
         : IRequestHandler<Command, ErrorOr<Result>>
     {
         private readonly ApplicationDbContext _context = context;
+        private readonly ILogger<Handler> _logger = logger;
 
         public async Task<ErrorOr<Result>> Handle(
             Command request,
@@ -144,7 +148,32 @@ public static class BookAppointment
             }
 
             _context.Appointments.Add(appointment);
-            await _context.SaveChangesAsync(cancellationToken);
+
+            try
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Database error while booking appointment. AppointmentId: {AppointmentId}, DoctorId: {DoctorId}, PatientId: {PatientId}, Start: {StartUtc}, End: {EndUtc}",
+                    appointment.Id,
+                    appointment.DoctorId,
+                    appointment.PatientId,
+                    appointment.StartUtc,
+                    appointment.EndUtc);
+
+                // Check for unique constraint violation (potential race condition on double-booking)
+                if (ex.InnerException?.Message.Contains("IX_Appointments_Doctor_TimeRange") == true)
+                {
+                    return Error.Conflict(
+                        "Appointment.Conflict",
+                        "Doctor has a conflicting appointment during the requested time");
+                }
+
+                throw;
+            }
 
             return new Result(appointment.Id, appointment.StartUtc, appointment.EndUtc);
         }
