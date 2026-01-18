@@ -4,8 +4,13 @@ A learning template demonstrating **Vertical Slice Architecture** with a healthc
 
 ![.NET 9](https://img.shields.io/badge/.NET-9.0-512BD4)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![GitHub stars](https://img.shields.io/github/stars/nadirbad/VerticalSliceArchitecture?style=social)
 
-> **New to Vertical Slice Architecture?** Read my blog post: [A Guide to Vertical Slice Architecture in C# .NET](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/)
+> **New to Vertical Slice Architecture?** Read my [Complete Guide to Vertical Slice Architecture](https://nadirbad.dev/vertical-slice-architecture-dotnet) or jump straight to the [Quick Start Guide](https://nadirbad.dev/vertical-slice-architecture-template-quickstart).
+
+## Give it a Star ⭐
+
+If you find this template useful, please give it a star! It helps others discover this project.
 
 ## What is Vertical Slice Architecture?
 
@@ -30,17 +35,19 @@ Traditional Layered:              Vertical Slice:
 - Easier to understand, test, and maintain
 - Features can evolve independently
 
-## Domain: Healthcare Appointments
+## Domain Overview
 
-This template implements a **medical clinic scheduling system** - a realistic domain with meaningful business rules:
+This template models a **medical clinic appointment scheduling system** where patients book appointments with doctors. The domain enforces real-world constraints: doctors cannot be double-booked, appointments must be scheduled in advance, and appointment lifecycle transitions are controlled (scheduled appointments can be completed or cancelled, but these are terminal states).
 
-| Feature              | Endpoint                              | Business Rules                                                       |
-| -------------------- | ------------------------------------- | -------------------------------------------------------------------- |
-| **Book Appointment** | `POST /api/appointments`              | No double-booking doctors, 15-min advance notice, 10min-8hr duration |
-| **Get Appointments** | `GET /api/appointments`               | Filter by patient, doctor, status, date range                        |
-| **Get by ID**        | `GET /api/appointments/{id}`          | Returns full appointment details                                     |
-| **Complete**         | `POST /api/appointments/{id}/complete`| Cannot complete cancelled appointments                               |
-| **Cancel**           | `POST /api/appointments/{id}/cancel`  | Cannot cancel completed appointments, requires reason                |
+### Features & Business Rules
+
+| Feature | Endpoint | Key Business Rules |
+|---------|----------|-------------------|
+| **Book Appointment** | `POST /api/appointments` | No double-booking doctors, 15-min advance notice, 10min–8hr duration |
+| **Get Appointments** | `GET /api/appointments` | Filter by patient, doctor, status, date range; paginated (max 100) |
+| **Get by ID** | `GET /api/appointments/{id}` | Returns full appointment with patient/doctor details |
+| **Complete** | `POST /api/appointments/{id}/complete` | Cannot complete cancelled appointments; idempotent |
+| **Cancel** | `POST /api/appointments/{id}/cancel` | Cannot cancel completed appointments; requires reason; idempotent |
 
 ## Quick Start
 
@@ -242,13 +249,11 @@ dotnet test tests/Application.UnitTests
 dotnet test tests/Application.IntegrationTests
 ```
 
-## Give it a Star ⭐
-
-If you find this template useful, please give it a star! It helps others discover this project.
-
 ## Learn More
 
-- [My Blog Post on Vertical Slice Architecture](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/)
+- **[The Complete Guide to Vertical Slice Architecture](https://nadirbad.dev/vertical-slice-architecture-dotnet)** - Theory, principles, and implementation details
+- **[VSA vs Clean Architecture: Which Should You Choose?](https://nadirbad.dev/vertical-slice-vs-clean-architecture)** - Detailed comparison with migration strategies
+- **[Quick Start Guide](https://nadirbad.dev/vertical-slice-architecture-template-quickstart)** - Step-by-step setup instructions for this template
 - [Jimmy Bogard: Vertical Slice Architecture](https://jimmybogard.com/vertical-slice-architecture/)
 - [Derek Comartin: Organizing Code by Feature](https://codeopinion.com/organizing-code-by-feature-using-vertical-slices/)
 
