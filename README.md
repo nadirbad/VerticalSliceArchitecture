@@ -5,13 +5,7 @@ A learning template demonstrating **Vertical Slice Architecture** with a healthc
 ![.NET 9](https://img.shields.io/badge/.NET-9.0-512BD4)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-> **New to Vertical Slice Architecture?** Read my blog post: [A Guide to Vertical Slice Architecture in C# .NET](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/)
-
-## Important notice ⚠️
-
-This template is still under construction 🚧.
-
-Check out my blog post for a detailed explanation of the concepts and code structure: [A Guide to Vertical Slice Architecture in C# .NET](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/)
+> **New to Vertical Slice Architecture?** Read my [Complete Guide to Vertical Slice Architecture](https://nadirbad.dev/vertical-slice-architecture-dotnet) or jump straight to the [Quick Start Guide](https://nadirbad.dev/vertical-slice-architecture-template-quickstart).
 
 ## Give it a Star ⭐
 
@@ -256,7 +250,9 @@ dotnet test tests/Application.IntegrationTests
 
 ## Learn More
 
-- [My Blog Post on Vertical Slice Architecture](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/)
+- **[The Complete Guide to Vertical Slice Architecture](https://nadirbad.dev/vertical-slice-architecture-dotnet)** - Theory, principles, and implementation details
+- **[VSA vs Clean Architecture: Which Should You Choose?](https://nadirbad.dev/vertical-slice-vs-clean-architecture)** - Detailed comparison with migration strategies
+- **[Quick Start Guide](https://nadirbad.dev/vertical-slice-architecture-template-quickstart)** - Step-by-step setup instructions for this template
 - [Jimmy Bogard: Vertical Slice Architecture](https://jimmybogard.com/vertical-slice-architecture/)
 - [Derek Comartin: Organizing Code by Feature](https://codeopinion.com/organizing-code-by-feature-using-vertical-slices/)
 
