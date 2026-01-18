@@ -7,6 +7,16 @@ A learning template demonstrating **Vertical Slice Architecture** with a healthc
 
 > **New to Vertical Slice Architecture?** Read my blog post: [A Guide to Vertical Slice Architecture in C# .NET](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/)
 
+## Important notice ⚠️
+
+This template is still under construction 🚧.
+
+Check out my blog post for a detailed explanation of the concepts and code structure: [A Guide to Vertical Slice Architecture in C# .NET](https://nadirbad.dev/posts/vetical-slice-architecture-dotnet/)
+
+## Give it a Star ⭐
+
+If you find this template useful, please give it a star! It helps others discover this project.
+
 ## What is Vertical Slice Architecture?
 
 Instead of organizing code by technical layers (Controllers, Services, Repositories), **Vertical Slice Architecture** organizes code by **features**. Each feature contains everything it needs - endpoint, validation, business logic, and data access - all in one place.
@@ -30,17 +40,19 @@ Traditional Layered:              Vertical Slice:
 - Easier to understand, test, and maintain
 - Features can evolve independently
 
-## Domain: Healthcare Appointments
+## Domain Overview
 
-This template implements a **medical clinic scheduling system** - a realistic domain with meaningful business rules:
+This template models a **medical clinic appointment scheduling system** where patients book appointments with doctors. The domain enforces real-world constraints: doctors cannot be double-booked, appointments must be scheduled in advance, and appointment lifecycle transitions are controlled (scheduled appointments can be completed or cancelled, but these are terminal states).
 
-| Feature              | Endpoint                              | Business Rules                                                       |
-| -------------------- | ------------------------------------- | -------------------------------------------------------------------- |
-| **Book Appointment** | `POST /api/appointments`              | No double-booking doctors, 15-min advance notice, 10min-8hr duration |
-| **Get Appointments** | `GET /api/appointments`               | Filter by patient, doctor, status, date range                        |
-| **Get by ID**        | `GET /api/appointments/{id}`          | Returns full appointment details                                     |
-| **Complete**         | `POST /api/appointments/{id}/complete`| Cannot complete cancelled appointments                               |
-| **Cancel**           | `POST /api/appointments/{id}/cancel`  | Cannot cancel completed appointments, requires reason                |
+### Features & Business Rules
+
+| Feature | Endpoint | Key Business Rules |
+|---------|----------|-------------------|
+| **Book Appointment** | `POST /api/appointments` | No double-booking doctors, 15-min advance notice, 10min–8hr duration |
+| **Get Appointments** | `GET /api/appointments` | Filter by patient, doctor, status, date range; paginated (max 100) |
+| **Get by ID** | `GET /api/appointments/{id}` | Returns full appointment with patient/doctor details |
+| **Complete** | `POST /api/appointments/{id}/complete` | Cannot complete cancelled appointments; idempotent |
+| **Cancel** | `POST /api/appointments/{id}/cancel` | Cannot cancel completed appointments; requires reason; idempotent |
 
 ## Quick Start
 
@@ -241,10 +253,6 @@ dotnet test tests/Application.UnitTests
 # Integration tests - API smoke tests
 dotnet test tests/Application.IntegrationTests
 ```
-
-## Give it a Star ⭐
-
-If you find this template useful, please give it a star! It helps others discover this project.
 
 ## Learn More
 
