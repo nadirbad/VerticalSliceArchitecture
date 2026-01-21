@@ -14,30 +14,37 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(
             .AllowAnyHeader()
             .AllowAnyMethod()));
 
-builder.Services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo
+builder.Services.AddSwaggerGen(c =>
 {
-    Title = "Healthcare Appointments API",
-    Version = "v1",
-    Description = """
-        ## Sample Data (Development)
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Healthcare Appointments API",
+        Version = "v1",
+        Description = """
+            ## Sample Data (Development)
 
-        The following sample data is seeded automatically in development mode.
+            The following sample data is seeded automatically in development mode.
 
-        ### Patients
-        | ID | Name | Email |
-        |----|------|-------|
-        | `11111111-1111-1111-1111-111111111111` | John Smith | john.smith@example.com |
-        | `22222222-2222-2222-2222-222222222222` | Jane Doe | jane.doe@example.com |
-        | `33333333-3333-3333-3333-333333333333` | Bob Johnson | bob.johnson@example.com |
+            ### Patients
+            | ID | Name | Email |
+            |----|------|-------|
+            | `11111111-1111-1111-1111-111111111111` | John Smith | john.smith@example.com |
+            | `22222222-2222-2222-2222-222222222222` | Jane Doe | jane.doe@example.com |
+            | `33333333-3333-3333-3333-333333333333` | Bob Johnson | bob.johnson@example.com |
 
-        ### Doctors
-        | ID | Name | Specialty |
-        |----|------|-----------|
-        | `aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa` | Dr. Sarah Wilson | Family Medicine |
-        | `bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb` | Dr. Michael Chen | Cardiology |
-        | `cccccccc-cccc-cccc-cccc-cccccccccccc` | Dr. Emily Rodriguez | Pediatrics |
-        """,
-}));
+            ### Doctors
+            | ID | Name | Specialty |
+            |----|------|-----------|
+            | `aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa` | Dr. Sarah Wilson | Family Medicine |
+            | `bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb` | Dr. Michael Chen | Cardiology |
+            | `cccccccc-cccc-cccc-cccc-cccccccccccc` | Dr. Emily Rodriguez | Pediatrics |
+            """,
+    });
+
+    // Swashbuckle 7.x requires unique schema IDs for nested types
+    // Use full type name to avoid conflicts between BookAppointment.Command, CompleteAppointment.Command, etc.
+    c.CustomSchemaIds(type => (type.FullName ?? type.Name ?? type.ToString()).Replace("+", "."));
+});
 
 builder.Services.AddProblemDetails();
 

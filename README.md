@@ -1,8 +1,8 @@
-# Vertical Slice Architecture in .NET 9
+# Vertical Slice Architecture in .NET 10
 
 A learning template demonstrating **Vertical Slice Architecture** with a healthcare appointment scheduling domain.
 
-![.NET 9](https://img.shields.io/badge/.NET-9.0-512BD4)
+![.NET 10](https://img.shields.io/badge/.NET-10.0_LTS-512BD4)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![GitHub stars](https://img.shields.io/github/stars/nadirbad/VerticalSliceArchitecture?style=social)
 
@@ -142,11 +142,11 @@ internal sealed class BookAppointmentCommandHandler : IRequestHandler<BookAppoin
 
 | Technology                   | Purpose                                      |
 | ---------------------------- | -------------------------------------------- |
-| **.NET 9 Minimal APIs**      | Lightweight HTTP endpoints                   |
+| **.NET 10 Minimal APIs**     | Lightweight HTTP endpoints (LTS release)     |
 | **MediatR**                  | Request/response pattern, pipeline behaviors |
 | **FluentValidation**         | Declarative validation rules                 |
 | **ErrorOr**                  | Result pattern for error handling            |
-| **Entity Framework Core 9**  | Data access with in-memory or SQL Server     |
+| **Entity Framework Core 10** | Data access with in-memory or SQL Server     |
 | **xUnit + FluentAssertions** | Testing framework                            |
 
 ## Development Commands

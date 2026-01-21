@@ -66,7 +66,7 @@ public class Appointment : AuditableEntity, IHasDomainEvent
     public Doctor Doctor { get; private set; } = null!;
 
     [NotMapped]
-    public List<DomainEvent> DomainEvents { get; } = new List<DomainEvent>();
+    public List<DomainEvent> DomainEvents { get; } = [];
 
     /// <summary>
     /// Marks the appointment as completed.

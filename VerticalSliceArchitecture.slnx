@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Api/Api.csproj" />
+    <Project Path="src/Application/Application.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Application.UnitTests/Application.UnitTests.csproj" />
+    <Project Path="tests/Application.IntegrationTests/Application.IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+    <File Path="CLAUDE.md" />
+  </Folder>
+</Solution>
