@@ -146,7 +146,7 @@ internal sealed class BookAppointmentCommandHandler : IRequestHandler<BookAppoin
 | **MediatR**                  | Request/response pattern, pipeline behaviors |
 | **FluentValidation**         | Declarative validation rules                 |
 | **ErrorOr**                  | Result pattern for error handling            |
-| **Entity Framework Core 10** | Data access with in-memory or SQL Server     |
+| **Entity Framework Core 10** | Data access with in-memory or PostgreSQL     |
 | **xUnit + FluentAssertions** | Testing framework                            |
 
 ## Development Commands
@@ -203,27 +203,42 @@ curl -X POST https://localhost:7098/api/appointments \
 
 **Default:** In-memory database (no setup required)
 
-**SQL Server:** Update `src/Api/appsettings.json`:
+### Docker Compose (Recommended for PostgreSQL)
+
+One command to start PostgreSQL:
+
+```bash
+# Start PostgreSQL container
+docker compose up -d
+
+# Apply migrations (first time only)
+UseInMemoryDatabase=false dotnet ef database update --project src/Application --startup-project src/Api
+
+# Run API with PostgreSQL
+dotnet run --project src/Api --launch-profile Docker
+```
+
+**Cleanup:**
+
+```bash
+# Stop container (data preserved)
+docker compose down
+
+# Stop and delete all data
+docker compose down -v
+```
+
+### Manual PostgreSQL Setup
+
+If you prefer not to use docker-compose, update `src/Api/appsettings.json`:
 
 ```json
 {
   "UseInMemoryDatabase": false,
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=VerticalSliceDb;..."
+    "DefaultConnection": "Host=localhost;Port=5432;Database=VerticalSliceDb;Username=postgres;Password=yourPassword"
   }
 }
-```
-
-### Azure SQL Edge (Docker)
-
-For local development with SQL Server on any OS (including Apple Silicon):
-
-```bash
-# Pull the image
-docker pull mcr.microsoft.com/azure-sql-edge:latest
-
-# Run the container
-docker run --cap-add SYS_PTRACE -e 'ACCEPT_EULA=1' -e 'MSSQL_SA_PASSWORD=yourStrong(!)Password' -p 1433:1433 --name azuresqledge -d mcr.microsoft.com/azure-sql-edge
 ```
 
 ### Database Migrations

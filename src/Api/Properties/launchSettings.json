@@ -26,6 +26,17 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    },
+    "Docker": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "applicationUrl": "https://localhost:7098;http://localhost:5206",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "UseInMemoryDatabase": "false"
+      }
     }
   }
 }
