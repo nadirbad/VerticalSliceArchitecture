@@ -1,0 +1,33 @@
+{
+  "name": "Nadir Badnjevic VSA .NET 10 Template - Healthcare domain",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "kreativ-software.csharpextensions",
+        "fernandoescolar.vscode-solution-explorer",
+        "humao.rest-client",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "dotnet.defaultSolution": "VerticalSliceArchitecture.slnx",
+        "omnisharp.enableEditorConfigSupport": true,
+        "editor.formatOnSave": true
+      }
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "forwardPorts": [5206, 5432],
+  "portsAttributes": {
+    "5206": { "label": "API (HTTP)", "onAutoForward": "openBrowser" },
+    "5432": { "label": "PostgreSQL", "onAutoForward": "silent" }
+  },
+  "remoteEnv": {
+    "ASPNETCORE_ENVIRONMENT": "Development",
+    "DOTNET_WATCH_RESTART_ON_RUDE_EDIT": "true"
+  }
+}

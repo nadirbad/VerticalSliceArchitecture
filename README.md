@@ -5,6 +5,7 @@ A learning template demonstrating **Vertical Slice Architecture** with a healthc
 ![.NET 10](https://img.shields.io/badge/.NET-10.0_LTS-512BD4)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![GitHub stars](https://img.shields.io/github/stars/nadirbad/VerticalSliceArchitecture?style=social)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/nadirbad/VerticalSliceArchitecture?quickstart=1)
 
 > **New to Vertical Slice Architecture?** Read my [Complete Guide to Vertical Slice Architecture](https://nadirbad.dev/vertical-slice-architecture-dotnet) or jump straight to the [Quick Start Guide](https://nadirbad.dev/vertical-slice-architecture-template-quickstart).
 
@@ -58,8 +59,27 @@ cd VerticalSliceArchitecture
 dotnet run --project src/Api/Api.csproj
 
 # Open Swagger UI
-open https://localhost:7098
+open http://localhost:5206
 ```
+
+### Dev Container / GitHub Codespaces
+
+The fastest way to get a fully working environment with PostgreSQL — no local setup required.
+
+**GitHub Codespaces (browser-based):**
+Click the badge above or go to **Code** > **Codespaces** > **Create codespace**. The environment will be ready with .NET 10, PostgreSQL, EF tools, and all VS Code extensions pre-configured.
+
+**VS Code Dev Container (local Docker):**
+
+- Open in VS Code, then: `Ctrl/Cmd+Shift+P → "Dev Containers: Reopen in Container"`
+
+
+The Dev Container automatically:
+
+- Installs .NET 10 SDK and EF Core tools
+- Starts PostgreSQL 16 with the database pre-created
+- Restores packages, builds, and applies migrations
+- Forwards ports for Swagger UI and database access
 
 ## Project Structure
 
@@ -155,7 +175,7 @@ internal sealed class BookAppointmentCommandHandler : IRequestHandler<BookAppoin
 # Build
 dotnet build
 
-# Run (Swagger at https://localhost:7098)
+# Run (Swagger at http://localhost:5206)
 dotnet run --project src/Api/Api.csproj
 
 # Run tests
@@ -188,7 +208,7 @@ In development mode, the API automatically seeds sample patients and doctors:
 ### Example: Book an Appointment
 
 ```bash
-curl -X POST https://localhost:7098/api/appointments \
+curl -X POST http://localhost:5206/api/appointments \
   -H "Content-Type: application/json" \
   -d '{
     "patientId": "11111111-1111-1111-1111-111111111111",
