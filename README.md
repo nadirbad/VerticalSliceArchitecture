@@ -1,10 +1,11 @@
-# Vertical Slice Architecture in .NET 9
+# Vertical Slice Architecture in .NET 10
 
 A learning template demonstrating **Vertical Slice Architecture** with a healthcare appointment scheduling domain.
 
-![.NET 9](https://img.shields.io/badge/.NET-9.0-512BD4)
+![.NET 10](https://img.shields.io/badge/.NET-10.0_LTS-512BD4)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![GitHub stars](https://img.shields.io/github/stars/nadirbad/VerticalSliceArchitecture?style=social)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/nadirbad/VerticalSliceArchitecture?quickstart=1)
 
 > **New to Vertical Slice Architecture?** Read my [Complete Guide to Vertical Slice Architecture](https://nadirbad.dev/vertical-slice-architecture-dotnet) or jump straight to the [Quick Start Guide](https://nadirbad.dev/vertical-slice-architecture-template-quickstart).
 
@@ -58,8 +59,27 @@ cd VerticalSliceArchitecture
 dotnet run --project src/Api/Api.csproj
 
 # Open Swagger UI
-open https://localhost:7098
+open http://localhost:5206
 ```
+
+### Dev Container / GitHub Codespaces
+
+The fastest way to get a fully working environment with PostgreSQL — no local setup required.
+
+**GitHub Codespaces (browser-based):**
+Click the badge above or go to **Code** > **Codespaces** > **Create codespace**. The environment will be ready with .NET 10, PostgreSQL, EF tools, and all VS Code extensions pre-configured.
+
+**VS Code Dev Container (local Docker):**
+
+- Open in VS Code, then: `Ctrl/Cmd+Shift+P → "Dev Containers: Reopen in Container"`
+
+
+The Dev Container automatically:
+
+- Installs .NET 10 SDK and EF Core tools
+- Starts PostgreSQL 16 with the database pre-created
+- Restores packages, builds, and applies migrations
+- Forwards ports for Swagger UI and database access
 
 ## Project Structure
 
@@ -142,11 +162,11 @@ internal sealed class BookAppointmentCommandHandler : IRequestHandler<BookAppoin
 
 | Technology                   | Purpose                                      |
 | ---------------------------- | -------------------------------------------- |
-| **.NET 9 Minimal APIs**      | Lightweight HTTP endpoints                   |
+| **.NET 10 Minimal APIs**     | Lightweight HTTP endpoints (LTS release)     |
 | **MediatR**                  | Request/response pattern, pipeline behaviors |
 | **FluentValidation**         | Declarative validation rules                 |
 | **ErrorOr**                  | Result pattern for error handling            |
-| **Entity Framework Core 9**  | Data access with in-memory or SQL Server     |
+| **Entity Framework Core 10** | Data access with in-memory or PostgreSQL     |
 | **xUnit + FluentAssertions** | Testing framework                            |
 
 ## Development Commands
@@ -155,7 +175,7 @@ internal sealed class BookAppointmentCommandHandler : IRequestHandler<BookAppoin
 # Build
 dotnet build
 
-# Run (Swagger at https://localhost:7098)
+# Run (Swagger at http://localhost:5206)
 dotnet run --project src/Api/Api.csproj
 
 # Run tests
@@ -188,7 +208,7 @@ In development mode, the API automatically seeds sample patients and doctors:
 ### Example: Book an Appointment
 
 ```bash
-curl -X POST https://localhost:7098/api/appointments \
+curl -X POST http://localhost:5206/api/appointments \
   -H "Content-Type: application/json" \
   -d '{
     "patientId": "11111111-1111-1111-1111-111111111111",
@@ -203,27 +223,42 @@ curl -X POST https://localhost:7098/api/appointments \
 
 **Default:** In-memory database (no setup required)
 
-**SQL Server:** Update `src/Api/appsettings.json`:
+### Docker Compose (Recommended for PostgreSQL)
+
+One command to start PostgreSQL:
+
+```bash
+# Start PostgreSQL container
+docker compose up -d
+
+# Apply migrations (first time only)
+UseInMemoryDatabase=false dotnet ef database update --project src/Application --startup-project src/Api
+
+# Run API with PostgreSQL
+dotnet run --project src/Api --launch-profile Docker
+```
+
+**Cleanup:**
+
+```bash
+# Stop container (data preserved)
+docker compose down
+
+# Stop and delete all data
+docker compose down -v
+```
+
+### Manual PostgreSQL Setup
+
+If you prefer not to use docker-compose, update `src/Api/appsettings.json`:
 
 ```json
 {
   "UseInMemoryDatabase": false,
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=VerticalSliceDb;..."
+    "DefaultConnection": "Host=localhost;Port=5432;Database=VerticalSliceDb;Username=postgres;Password=yourPassword"
   }
 }
-```
-
-### Azure SQL Edge (Docker)
-
-For local development with SQL Server on any OS (including Apple Silicon):
-
-```bash
-# Pull the image
-docker pull mcr.microsoft.com/azure-sql-edge:latest
-
-# Run the container
-docker run --cap-add SYS_PTRACE -e 'ACCEPT_EULA=1' -e 'MSSQL_SA_PASSWORD=yourStrong(!)Password' -p 1433:1433 --name azuresqledge -d mcr.microsoft.com/azure-sql-edge
 ```
 
 ### Database Migrations

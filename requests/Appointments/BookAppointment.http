@@ -1,5 +1,7 @@
+@baseUrl = http://localhost:5206
+
 ### 1. Book Appointment (happy path - expect 201)
-POST https://localhost:7098/api/appointments
+POST {{baseUrl}}/api/appointments
 Content-Type: application/json
 
 {
@@ -12,7 +14,7 @@ Content-Type: application/json
 
 ### 2. Book Appointment - Overlapping time (expect 409)
 # Run scenario 1 first, then this will conflict
-POST https://localhost:7098/api/appointments
+POST {{baseUrl}}/api/appointments
 Content-Type: application/json
 
 {
@@ -23,7 +25,7 @@ Content-Type: application/json
 }
 
 ### 3. Book Appointment - Invalid time window: Start >= End (expect 400)
-POST https://localhost:7098/api/appointments
+POST {{baseUrl}}/api/appointments
 Content-Type: application/json
 
 {
@@ -35,7 +37,7 @@ Content-Type: application/json
 }
 
 ### 4. Book Appointment - Duration too short: < 10 minutes (expect 400)
-POST https://localhost:7098/api/appointments
+POST {{baseUrl}}/api/appointments
 Content-Type: application/json
 
 {
@@ -47,7 +49,7 @@ Content-Type: application/json
 }
 
 ### 5. Book Appointment - Duration too long: > 8 hours (expect 400)
-POST https://localhost:7098/api/appointments
+POST {{baseUrl}}/api/appointments
 Content-Type: application/json
 
 {
@@ -61,7 +63,7 @@ Content-Type: application/json
 ### 6. Book Appointment - Not enough advance time: < 15 minutes (expect 400)
 # NOTE: This will likely fail validation due to time constraint
 # Adjust start/end to be ~10 minutes from now for testing
-POST https://localhost:7098/api/appointments
+POST {{baseUrl}}/api/appointments
 Content-Type: application/json
 
 {
@@ -73,7 +75,7 @@ Content-Type: application/json
 }
 
 ### 7. Book Appointment - Notes too long: > 1024 characters (expect 400)
-POST https://localhost:7098/api/appointments
+POST {{baseUrl}}/api/appointments
 Content-Type: application/json
 
 {
@@ -85,7 +87,7 @@ Content-Type: application/json
 }
 
 ### 8. Book Appointment - Invalid patient ID (expect 404)
-POST https://localhost:7098/api/appointments
+POST {{baseUrl}}/api/appointments
 Content-Type: application/json
 
 {
@@ -97,7 +99,7 @@ Content-Type: application/json
 }
 
 ### 9. Book Appointment - Invalid doctor ID (expect 404)
-POST https://localhost:7098/api/appointments
+POST {{baseUrl}}/api/appointments
 Content-Type: application/json
 
 {

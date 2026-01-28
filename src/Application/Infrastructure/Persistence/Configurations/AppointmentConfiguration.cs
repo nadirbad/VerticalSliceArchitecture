@@ -14,6 +14,8 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
         builder.Property(a => a.Notes)
             .HasMaxLength(1024);
 
+        // Use PostgreSQL's xmin system column for optimistic concurrency
+        // In Npgsql 7.0+, configure uint properties with IsRowVersion() to map to xmin
         builder.Property(a => a.RowVersion)
             .IsRowVersion();
 
