@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/* \
-    && dotnet tool install --global dotnet-ef
+    && dotnet tool install --global dotnet-ef --version 10.0.1
 
 ENV PATH="$PATH:/root/.dotnet/tools"
 

@@ -3,8 +3,8 @@
         <TargetFramework>net10.0</TargetFramework>
         <!-- Workaround: dotnet-ef uses OutputPath with Path.Combine without normalizing backslashes,
              causing a literal "bin\Debug" folder to be created on macOS/Linux.
-             See: https://github.com/dotnet/efcore/issues/XXXXX -->
-        <BaseOutputPath>bin/</BaseOutputPath>
+             See: https://github.com/dotnet/efcore/issues/37506 
+        <BaseOutputPath>bin/</BaseOutputPath>-->
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
