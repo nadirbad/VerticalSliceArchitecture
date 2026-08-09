@@ -241,6 +241,20 @@ _Pvt_Extensions
 
 .docs/
 
-# AI Agent configuration files
-CLAUDE.md
-.github/copilot-instructions.md
+# AI agent configuration
+#
+# AGENTS.md, CLAUDE.md and .github/copilot-instructions.md are deliberately COMMITTED. They are
+# part of what this template ships, and keeping them tracked is what puts them in front of a
+# reviewer in a pull request - which is the only reason they stay true to the code.
+# Only machine- and user-specific agent state is ignored.
+.claude/settings.local.json
+.claude/*.md
+
+# Local working notes and analysis output
+cognitive-load-analysis-report.md
+.azure/
+
+# Project admin data - never belongs in a public repository.
+# stargazers_with_emails.csv contains third-party email addresses.
+stargazers*.csv
+outreach_emails_top50.md

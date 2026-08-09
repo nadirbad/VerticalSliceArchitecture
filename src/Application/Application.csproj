@@ -6,6 +6,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="VerticalSliceArchitecture.Application.UnitTests" />
     <InternalsVisibleTo Include="VerticalSliceArchitecture.Application.IntegrationTests" />
+    <InternalsVisibleTo Include="VerticalSliceArchitecture.Application.ArchitectureTests" />
   </ItemGroup>
 
   <ItemGroup>

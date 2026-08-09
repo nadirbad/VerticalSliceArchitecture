@@ -115,47 +115,82 @@ src/
 
 Each feature file contains everything needed for that operation:
 
+Everything lives in a `public static` envelope named after the use case, so `BookAppointment.Command` reads as the use case itself. Excerpted from `src/Application/Scheduling/BookAppointment.cs`:
+
 ```csharp
-// BookAppointment.cs - Complete feature in one file
-
-// 1. Endpoint Handler
-public static class BookAppointmentEndpoint
+public static class BookAppointment
 {
-    public static async Task<IResult> Handle(BookAppointmentCommand command, ISender mediator)
+    // 1. Command (the request)
+    public record Command(
+        Guid PatientId,
+        Guid DoctorId,
+        DateTimeOffset Start,
+        DateTimeOffset End,
+        string? Notes) : IRequest<ErrorOr<Result>>;
+
+    // 2. Result (the response)
+    public record Result(Guid Id, DateTime StartUtc, DateTime EndUtc);
+
+    // 3. Endpoint
+    internal static class Endpoint
     {
-        var result = await mediator.Send(command);
-        return result.Match(
-            success => Results.Created($"/api/appointments/{success.Id}", success),
-            errors => MinimalApiProblemHelper.Problem(errors));
+        public static async Task<IResult> Handle(Command command, ISender mediator)
+        {
+            var result = await mediator.Send(command);
+
+            return result.Match(
+                success => Results.Created($"/api/appointments/{success.Id}", success),
+                errors => MinimalApiProblemHelper.Problem(errors));
+        }
+    }
+
+    // 4. Validator
+    internal sealed class Validator : AbstractValidator<Command>
+    {
+        public Validator()
+        {
+            RuleFor(v => v.PatientId).NotEmpty();
+            RuleFor(v => v.DoctorId).NotEmpty();
+            RuleFor(v => v.Start).LessThan(v => v.End);
+            // ... more rules
+        }
+    }
+
+    // 5. Handler (business logic)
+    internal sealed class Handler(ApplicationDbContext context)
+        : IRequestHandler<Command, ErrorOr<Result>>
+    {
+        public async Task<ErrorOr<Result>> Handle(Command request, CancellationToken cancellationToken)
+        {
+            // Check for conflicts, create the appointment, save it
+        }
     }
 }
+```
 
-// 2. Command (Request)
-public record BookAppointmentCommand(
-    Guid PatientId, Guid DoctorId,
-    DateTimeOffset Start, DateTimeOffset End,
-    string? Notes) : IRequest<ErrorOr<BookAppointmentResult>>;
+## Guardrails for AI-Assisted Development
 
-// 3. Validator
-internal sealed class BookAppointmentCommandValidator : AbstractValidator<BookAppointmentCommand>
-{
-    public BookAppointmentCommandValidator()
-    {
-        RuleFor(v => v.PatientId).NotEmpty();
-        RuleFor(v => v.DoctorId).NotEmpty();
-        RuleFor(v => v.Start).Must(BeInFuture).WithMessage("Must book at least 15 minutes in advance");
-        // ... more rules
-    }
-}
+Conventions that only exist in prose rot, because nothing fails when they stop being true — and a
+stale instruction file is worse than none, since a coding agent follows it with the confidence of a
+checked-in rule. So every convention in this template has an executable counterpart:
 
-// 4. Handler (Business Logic)
-internal sealed class BookAppointmentCommandHandler : IRequestHandler<BookAppointmentCommand, ErrorOr<BookAppointmentResult>>
-{
-    public async Task<ErrorOr<BookAppointmentResult>> Handle(BookAppointmentCommand request, CancellationToken ct)
-    {
-        // Check for conflicts, create appointment, save to database
-    }
-}
+| What is enforced | Where |
+| ---------------- | ----- |
+| The slice shape — envelope, naming, `ErrorOr`, a validator per request | `tests/Application.ArchitectureTests/SliceConventions.cs` |
+| Slice isolation — no slice may reference another | same, checked by reflection *and* by source |
+| Domain purity and no public setters | `tests/Application.ArchitectureTests/DomainConventions.cs` |
+| The instruction files matching the code | `tests/Application.ArchitectureTests/DocumentationTests.cs` |
+| The public HTTP contract | `tests/Application.IntegrationTests/OpenApiContractTests.cs` |
+| Every slice actually being routed | `tests/Application.IntegrationTests/RoutingCompletenessTests.cs` |
+| File names matching their type | analyzer `SA1649`, a build error via `TreatWarningsAsErrors` |
+
+Failures print the canonical shape and every violation, so the message teaches the right pattern
+rather than only reporting a broken rule. [`AGENTS.md`](./AGENTS.md) is the canonical instruction
+file — `CLAUDE.md` and `.github/copilot-instructions.md` point at it — and `DocumentationTests`
+fails if it drifts from the code.
+
+```bash
+dotnet test tests/Application.ArchitectureTests   # conventions only, well under a second
 ```
 
 ## Technologies

@@ -11,6 +11,13 @@ namespace VerticalSliceArchitecture.Application.IntegrationTests;
 
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
+    // EF Core shares an in-memory store between every context that names the same database, and
+    // that sharing crosses host boundaries. xUnit builds one factory per test class, so a fixed
+    // name would let unrelated test classes see each other's data - and would let them race each
+    // other while seeding the same sample rows at startup. A name per factory keeps classes
+    // isolated.
+    private readonly string _databaseName = $"TestDb-{Guid.NewGuid()}";
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
@@ -42,7 +49,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseInMemoryDatabase("TestDb");
+                options.UseInMemoryDatabase(_databaseName);
             });
         });
     }

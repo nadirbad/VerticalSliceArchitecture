@@ -6,6 +6,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/Application.UnitTests/Application.UnitTests.csproj" />
     <Project Path="tests/Application.IntegrationTests/Application.IntegrationTests.csproj" />
+    <Project Path="tests/Application.ArchitectureTests/Application.ArchitectureTests.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
@@ -13,6 +14,7 @@
     <File Path="Directory.Packages.props" />
     <File Path="global.json" />
     <File Path="README.md" />
+    <File Path="AGENTS.md" />
     <File Path="CLAUDE.md" />
   </Folder>
 </Solution>
