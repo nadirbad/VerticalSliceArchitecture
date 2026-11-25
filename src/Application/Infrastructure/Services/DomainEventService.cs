@@ -21,7 +21,11 @@ public class DomainEventService : IDomainEventService
 
     public Task Publish(DomainEvent domainEvent)
     {
-        _logger.LogInformation("Publishing domain event. Event - {event}", domainEvent.GetType().Name);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("Publishing domain event. Event - {Event}", domainEvent.GetType().Name);
+        }
+
         return _mediator.Publish(GetNotificationCorrespondingToDomainEvent(domainEvent));
     }
 

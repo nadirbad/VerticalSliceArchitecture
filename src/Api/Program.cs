@@ -9,10 +9,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+// Only origins listed in configuration (Cors:AllowedOrigins) may call the API from a browser.
+// An empty list means no cross-origin access; Swagger UI is same-origin and needs none.
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(options => options.AddDefaultPolicy(
-        policy => policy.AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod()));
+        policy => policy.WithOrigins(allowedOrigins)
+            .WithHeaders("Content-Type", "Accept")
+            .WithMethods("GET", "POST")));
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -56,22 +59,23 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
-// Enable middleware to serve generated Swagger as a JSON endpoint.
-app.UseSwagger();
-
-// Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
-app.UseSwaggerUI(options =>
+if (app.Environment.IsDevelopment())
 {
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-    options.RoutePrefix = string.Empty;
-});
-
-app.UseCors();
-
-if (!app.Environment.IsDevelopment())
+    // Swagger exposes the full API surface and sample data IDs; keep it out of production.
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+        options.RoutePrefix = string.Empty;
+    });
+}
+else
 {
+    app.UseHsts();
     app.UseHttpsRedirection();
 }
+
+app.UseCors();
 
 if (app.Environment.IsDevelopment())
 {

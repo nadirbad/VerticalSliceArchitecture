@@ -9,10 +9,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CsvHelper" />
     <PackageReference Include="ErrorOr" />
     <PackageReference Include="FluentValidation" />
-    <PackageReference Include="FluentValidation.AspNetCore" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />

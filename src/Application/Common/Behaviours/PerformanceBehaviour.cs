@@ -41,11 +41,10 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
             var userId = _currentUserService.UserId ?? string.Empty;
 
             _logger.LogWarning(
-                "VerticalSlice Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@Request}",
+                "VerticalSlice Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {UserId}",
                 requestName,
                 elapsedMilliseconds,
-                userId,
-                request);
+                userId);
         }
 
         return response;
