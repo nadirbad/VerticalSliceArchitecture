@@ -13,10 +13,14 @@ on:
     paths-ignore:
       - "README.md"
 
+# Least-privilege token for this workflow: it only needs to read the repository.
+permissions:
+  contents: read
+
 # Create an environment variable named DOTNET_VERSION
-# and set it as "9.0.x"
+# and set it as "10.0.x"
 env:
-  DOTNET_VERSION: "9.0.x" # The .NET SDK version to use
+  DOTNET_VERSION: "10.0.x" # The .NET SDK version to use
 
 # Defines a single job named "build-and-test"
 jobs:
@@ -32,12 +36,14 @@ jobs:
     # Each job run contains these five steps
     steps:
       # 1) Check out the source code so that the workflow can access it.
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       # 2) Set up the .NET CLI environment for the workflow to use.
       #    The .NET version is specified by the environment variable.
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -45,7 +51,14 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      # 4) Check code style and analysis
+      # 4) Fail the build on known-vulnerable direct or transitive packages
+      - name: Vulnerability audit
+        shell: bash
+        run: |
+          dotnet list package --vulnerable --include-transitive 2>&1 | tee audit.txt
+          ! grep -q "has the following vulnerable packages" audit.txt
+
+      # 5) Check code style and analysis
       - name: Format
         run: dotnet format --verify-no-changes --verbosity diagnostic
 

@@ -6,21 +6,20 @@
         <!--ASP.NET-->
         <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.2.0" />
         <!-- Entity Framework -->
-        <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.0" />
-        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0" />
-        <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.0" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.15" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.15" />
+        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.4" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.15" />
+        <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.15" />
         <!-- Open source packages -->
-        <PackageVersion Include="CsvHelper" Version="15.0.10" />
         <PackageVersion Include="ErrorOr" Version="1.10.0" />
         <PackageVersion Include="FluentValidation" Version="11.9.0" />
-        <PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.0" />
+        <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.0" />
         <PackageVersion Include="MediatR" Version="12.4.1" />
         <!-- Analyzers -->
         <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
         <!-- Tests -->
-        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
+        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.15" />
         <PackageVersion Include="FluentAssertions" Version="7.1.0" />
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
         <PackageVersion Include="throw" Version="1.4.0" />

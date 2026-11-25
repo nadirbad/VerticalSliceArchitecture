@@ -31,6 +31,11 @@ internal sealed class AppointmentBookedEventHandler(ILogger<AppointmentBookedEve
     {
         var domainEvent = notification.DomainEvent;
 
+        if (!_logger.IsEnabled(LogLevel.Information))
+        {
+            return Task.CompletedTask;
+        }
+
         _logger.LogInformation(
             "Appointment booked: {AppointmentId} for Patient {PatientId} with Doctor {DoctorId} at {StartUtc}",
             domainEvent.AppointmentId,
